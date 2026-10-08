@@ -121,3 +121,18 @@ def test_latest_capped_at_a_year():
 def test_linear_fit_needs_three_points():
     with pytest.raises(ValueError):
         linear_fit([(date(2024, 1, 1), 1.0), (date(2024, 1, 2), 2.0)])
+
+
+def test_robust_fit_ignores_one_bad_reading():
+    from logic.countdown import robust_fit
+
+    pts = [(date(2024, 3, 1) + timedelta(days=5 * i), 40.0 - 2.5 * i) for i in range(9)]  # -0.5 ha/day
+    pts[7] = (pts[7][0], 1.0)  # one cloud-corrupted pass near the end reads almost no water
+    assert robust_fit(pts).slope == pytest.approx(-0.5, abs=0.02)
+    assert abs(linear_fit(pts).slope + 0.5) > 0.05  # ordinary least squares is dragged off
+
+
+def test_three_passes_in_ten_days_is_too_early_to_count_down():
+    h = [{"date": d, "areaHa": a, "valid": True} for d, a in (("2026-09-27", 73.7), ("2026-10-02", 42.1), ("2026-10-07", 23.6))]
+    c = countdown(h, date(2026, 10, 8))
+    assert c["status"] == "unknown" and c["dryBy"] is None and c["nPoints"] == 3

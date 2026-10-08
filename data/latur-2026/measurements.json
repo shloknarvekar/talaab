@@ -1,467 +1,474 @@
 {
-  "region": {
-    "id": "latur-2026",
-    "name": "Latur (2026 live)",
-    "bbox": [
-      76.47,
-      18.33,
-      76.62,
-      18.48
-    ]
-  },
-  "generatedAt": "2026-10-08T14:20:11Z",
-  "referenceDate": "2026-09-27",
-  "scenes": [
-    {
-      "date": "2026-09-27",
-      "id": "S2C_43QFA_20260927_0_L2A",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-02",
-      "id": "S2B_43QFA_20261002_0_L2A",
-      "status": "ok"
-    },
-    {
-      "date": "2026-10-07",
-      "id": "S2C_43QFA_20261007_0_L2A",
-      "status": "ok"
-    }
-  ],
-  "et0": [],
-  "et0Climatology": {},
-  "ponds": [
-    {
-      "id": "P001",
-      "lat": 18.3664,
-      "lon": 76.5733,
-      "place": "near Khopegaon",
-      "refAreaHa": 73.67,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 73.7,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 42.14,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 23.62,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P002",
-      "lat": 18.3755,
-      "lon": 76.5351,
-      "place": "near Chandeshwar",
-      "refAreaHa": 26.28,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 26.29,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 18.49,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 25.45,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P003",
-      "lat": 18.4696,
-      "lon": 76.5629,
-      "place": "near Sai",
-      "refAreaHa": 13.0,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 13.0,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 10.41,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P004",
-      "lat": 18.3945,
-      "lon": 76.4791,
-      "place": "near Harangul Bk",
-      "refAreaHa": 9.85,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 9.85,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 10.29,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 9.96,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P005",
-      "lat": 18.4067,
-      "lon": 76.4746,
-      "place": "near Harangul Bk",
-      "refAreaHa": 7.74,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 7.75,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 8.01,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 7.77,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P006",
-      "lat": 18.3632,
-      "lon": 76.4837,
-      "place": "near Khandapur",
-      "refAreaHa": 7.1,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 7.11,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 7.5,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 7.29,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P007",
-      "lat": 18.4723,
-      "lon": 76.5064,
-      "place": "near Indarthana",
-      "refAreaHa": 4.96,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 4.96,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 4.12,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P008",
-      "lat": 18.3817,
-      "lon": 76.486,
-      "place": "near Khandapur",
-      "refAreaHa": 3.6,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 3.63,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 4.6,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 2.13,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P009",
-      "lat": 18.4617,
-      "lon": 76.6094,
-      "place": "near Harwadi",
-      "refAreaHa": 3.24,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 3.24,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 3.65,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P010",
-      "lat": 18.368,
-      "lon": 76.4886,
-      "place": "near Khandapur",
-      "refAreaHa": 2.85,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 2.86,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 3.07,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 2.74,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P011",
-      "lat": 18.477,
-      "lon": 76.4988,
-      "place": "near Indarthana",
-      "refAreaHa": 2.73,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 2.73,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 0.76,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P012",
-      "lat": 18.471,
-      "lon": 76.5162,
-      "place": "near Nagzari",
-      "refAreaHa": 1.93,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.93,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 0.82,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P013",
-      "lat": 18.4786,
-      "lon": 76.4875,
-      "place": "near Jewali",
-      "refAreaHa": 1.76,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.77,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 0.3,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P014",
-      "lat": 18.3734,
-      "lon": 76.4845,
-      "place": "near Khandapur",
-      "refAreaHa": 1.6,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.6,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 1.77,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 1.66,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P015",
-      "lat": 18.3756,
-      "lon": 76.4845,
-      "place": "near Khandapur",
-      "refAreaHa": 1.42,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.43,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 1.66,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 1.48,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P016",
-      "lat": 18.3545,
-      "lon": 76.508,
-      "place": "near Khandapur",
-      "refAreaHa": 1.36,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.37,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 1.16,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 1.18,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P017",
-      "lat": 18.4539,
-      "lon": 76.6038,
-      "place": "near Khulgapur",
-      "refAreaHa": 1.27,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.28,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 0.0,
-          "valid": false
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 1.26,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P018",
-      "lat": 18.3579,
-      "lon": 76.478,
-      "place": "near Chincholiraowadi",
-      "refAreaHa": 1.2,
-      "history": [
-        {
-          "date": "2026-09-27",
-          "areaHa": 1.2,
-          "valid": true
-        },
-        {
-          "date": "2026-10-02",
-          "areaHa": 1.07,
-          "valid": true
-        },
-        {
-          "date": "2026-10-07",
-          "areaHa": 1.28,
-          "valid": true
-        }
-      ]
-    }
+ "region": {
+  "id": "latur-2026",
+  "name": "Latur (2026 live)",
+  "bbox": [
+   76.47,
+   18.33,
+   76.62,
+   18.48
   ]
+ },
+ "generatedAt": "2026-10-08T14:20:11Z",
+ "referenceDate": "2026-09-27",
+ "scenes": [
+  {
+   "date": "2026-09-27",
+   "id": "S2C_43QFA_20260927_0_L2A",
+   "status": "ok"
+  },
+  {
+   "date": "2026-10-02",
+   "id": "S2B_43QFA_20261002_0_L2A",
+   "status": "ok"
+  },
+  {
+   "date": "2026-10-07",
+   "id": "S2C_43QFA_20261007_0_L2A",
+   "status": "ok"
+  }
+ ],
+ "et0": [],
+ "et0Climatology": {},
+ "ponds": [
+  {
+   "id": "P001",
+   "lat": 18.3664,
+   "lon": 76.5733,
+   "place": "near Khopegaon",
+   "refAreaHa": 73.67,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 73.7,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 42.14,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 23.62,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P002",
+   "lat": 18.3755,
+   "lon": 76.5351,
+   "place": "near Chandeshwar",
+   "refAreaHa": 26.28,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 26.29,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 18.49,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 25.45,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P003",
+   "lat": 18.4696,
+   "lon": 76.5629,
+   "place": "near Sai",
+   "refAreaHa": 13.0,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 13.0,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 10.41,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P004",
+   "lat": 18.3945,
+   "lon": 76.4791,
+   "place": "near Harangul Bk",
+   "refAreaHa": 9.85,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 9.85,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 10.29,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 9.96,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P005",
+   "lat": 18.4067,
+   "lon": 76.4746,
+   "place": "near Harangul Bk",
+   "refAreaHa": 7.74,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 7.75,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 8.01,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 7.77,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P006",
+   "lat": 18.3632,
+   "lon": 76.4837,
+   "place": "near Khandapur",
+   "refAreaHa": 7.1,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 7.11,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 7.5,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 7.29,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P007",
+   "lat": 18.4723,
+   "lon": 76.5064,
+   "place": "near Indarthana",
+   "refAreaHa": 4.96,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 4.96,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 4.12,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P008",
+   "lat": 18.3817,
+   "lon": 76.486,
+   "place": "near Khandapur",
+   "refAreaHa": 3.6,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 3.63,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 4.6,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 2.13,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P009",
+   "lat": 18.4617,
+   "lon": 76.6094,
+   "place": "near Harwadi",
+   "refAreaHa": 3.24,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 3.24,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 3.65,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P010",
+   "lat": 18.368,
+   "lon": 76.4886,
+   "place": "near Khandapur",
+   "refAreaHa": 2.85,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 2.86,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 3.07,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 2.74,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P011",
+   "lat": 18.477,
+   "lon": 76.4988,
+   "place": "near Indarthana",
+   "refAreaHa": 2.73,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 2.73,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 0.76,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P012",
+   "lat": 18.471,
+   "lon": 76.5162,
+   "place": "near Nagzari",
+   "refAreaHa": 1.93,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.93,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 0.82,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P013",
+   "lat": 18.4786,
+   "lon": 76.4875,
+   "place": "near Jewali",
+   "refAreaHa": 1.76,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.77,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 0.3,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P014",
+   "lat": 18.3734,
+   "lon": 76.4845,
+   "place": "near Khandapur",
+   "refAreaHa": 1.6,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.6,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 1.77,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 1.66,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P015",
+   "lat": 18.3756,
+   "lon": 76.4845,
+   "place": "near Khandapur",
+   "refAreaHa": 1.42,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.43,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 1.66,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 1.48,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P016",
+   "lat": 18.3545,
+   "lon": 76.508,
+   "place": "near Khandapur",
+   "refAreaHa": 1.36,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.37,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 1.16,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 1.18,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P017",
+   "lat": 18.4539,
+   "lon": 76.6038,
+   "place": "near Khulgapur",
+   "refAreaHa": 1.27,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.28,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 0.0,
+     "valid": false
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 1.26,
+     "valid": true
+    }
+   ]
+  },
+  {
+   "id": "P018",
+   "lat": 18.3579,
+   "lon": 76.478,
+   "place": "near Chincholiraowadi",
+   "refAreaHa": 1.2,
+   "history": [
+    {
+     "date": "2026-09-27",
+     "areaHa": 1.2,
+     "valid": true
+    },
+    {
+     "date": "2026-10-02",
+     "areaHa": 1.07,
+     "valid": true
+    },
+    {
+     "date": "2026-10-07",
+     "areaHa": 1.28,
+     "valid": true
+    }
+   ]
+  }
+ ],
+ "excludedPonds": [],
+ "quality": {
+  "suspectScenes": [],
+  "spikesAndDipsRemoved": 0,
+  "pondsKept": 18,
+  "pondsExcluded": 0
+ }
 }
