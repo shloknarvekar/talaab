@@ -2,7 +2,8 @@
 
 METHOD (see CLAUDE.md):
 - Relative shrink rate r = -slope / A_ref per day (A_ref = pond's max/reference area).
-- Compare each pond to the median r of all non-dry ponds in the region over the same window.
+- Compare each pond to the median r of the region's SHRINKING (non-dry, r > 0) ponds over the same
+  window; with fewer than 3 such peers there is no baseline and no flag.
 - Flag if ratio >= 2 and A_ref >= 2 ha.
 - Report the region's ET0 total for that window as "the sun's share".
 """
@@ -14,6 +15,7 @@ from statistics import median
 FLAG = "faster-than-sun"
 RATIO_THRESHOLD = 2.0
 MIN_AREA_HA = 2.0
+MIN_PEERS = 3  # need at least 3 shrinking ponds to say what 'normal under this sun' is
 
 
 def relative_shrink_rate(slope_ha_per_day: float, a_ref_ha: float) -> float:
@@ -40,8 +42,11 @@ def faster_than_sun(
             continue
         rates[p["id"]] = relative_shrink_rate(p["slopeHaPerDay"], p["maxAreaHa"])
 
-    baseline_rates = [rates[p["id"]] for p in ponds if p["id"] in rates and p.get("status") != "dry"]
-    baseline = median(baseline_rates) if baseline_rates else None
+    # Baseline = median rate of ponds that are actually shrinking (not dry, r > 0). Including
+    # stable tanks drags the median toward zero late in the season, and then every normally
+    # shrinking pond looks "13x faster" (seen on the real 2024 data). Too few peers: no flags.
+    baseline_rates = [rates[p["id"]] for p in ponds if p["id"] in rates and p.get("status") != "dry" and rates[p["id"]] > 0]
+    baseline = median(baseline_rates) if len(baseline_rates) >= MIN_PEERS else None
 
     out: dict[str, dict] = {}
     for p in ponds:

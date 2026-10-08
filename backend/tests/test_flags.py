@@ -61,3 +61,17 @@ def test_sun_share():
     et0.append({"date": "2024-04-01", "et0": None})
     assert sun_share_mm(et0, "2024-03-01", "2024-03-10") == 50.0
     assert sun_share_mm(et0, "2024-03-25", "2024-04-05") == 35.0
+
+
+def test_stable_tanks_do_not_drag_the_baseline_down():
+    # late season: two big stable tanks + three normally shrinking ponds; nobody is pumping
+    ponds = [pond("P001", 0.0, 90.0, "ok"), pond("P002", 0.01, 60.0, "ok"),
+             pond("P003", -0.10, 20.0), pond("P004", -0.06, 12.0), pond("P005", -0.05, 10.0)]
+    out = faster_than_sun(ponds)
+    assert all(v["flag"] is None for v in out.values())
+    assert out["P003"]["shrinkVsNeighbours"] == pytest.approx(1.0)
+
+
+def test_too_few_shrinking_peers_means_no_flag():
+    ponds = [pond("P001", -0.5, 10.0), pond("P002", -0.05, 10.0), pond("P003", 0.0, 10.0, "ok")]
+    assert all(v == {"shrinkVsNeighbours": None, "flag": None} for v in faster_than_sun(ponds).values())
