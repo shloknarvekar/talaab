@@ -37,7 +37,9 @@ Resources:
           ThrottlingRateLimit: 2
           ThrottlingBurstLimit: 5
       CorsConfiguration:
-        AllowOrigins: ["*"]
+        AllowOrigins:  # browsers may call the API only from our site and local development
+          - https://main.duvnkrxj02sz1.amplifyapp.com
+          - http://localhost:5173
         AllowMethods: [GET, POST, OPTIONS]
         AllowHeaders: [content-type]
 

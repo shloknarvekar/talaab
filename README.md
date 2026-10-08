@@ -4,6 +4,8 @@ Per-pond "dry-by" countdowns and pumping flags for drought districts, built from
 
 > Team **Syntax Errors**, WeMakeDevs x AWS *Environmental Hacks* hackathon (Heat & Water track), Oct 2026.
 
+**Live site: https://main.duvnkrxj02sz1.amplifyapp.com** (AWS Amplify) · API: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
+
 ## The problem
 
 On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every district has to finalise a water-scarcity action plan by 15 Oct, split into Oct–Dec, Jan–Mar and Apr–Jun, and crack down on unauthorised water extraction. Villages depend on small ponds and tanks that shrink all through the dry season. In Latur between January and mid-June 2024, the sun could evaporate about **1 metre** of open water (Open-Meteo ET0 ≈ 974 mm), while only about **43 mm** of rain fell from January to May. Government maps track small ponds only seasonally, and nobody gives a district a countdown for each pond.
@@ -92,6 +94,9 @@ python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 
 # backtest report (docs/backtest-<region>.md + GET /backtest)
 python backend/scripts/run_backtest.py data/latur-2024/measurements.json --upload
+
+# publish the web map on AWS Amplify (builds web/, uploads, prints the URL)
+python backend/scripts/deploy_web.py
 
 # tear everything down after judging
 cd backend && sam delete
