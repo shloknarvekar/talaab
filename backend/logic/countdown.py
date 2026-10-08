@@ -25,6 +25,7 @@ DRY_FRACTION = 0.05
 MIN_RANGE_FRACTION = 0.20
 MAX_DAYS = 365  # cap so "latest" is always a real date; likely >= this counts as stable
 STABLE_SE_MULTIPLE = 2.0  # shrink smaller than 2 standard errors = noise
+SHAPE = "linear"  # "linear" | "sqrt" | "auto": see docs/model-experiment.md
 CRITICAL_DAYS = 30
 WATCH_DAYS = 90
 
@@ -98,6 +99,26 @@ def robust_fit(points: list[tuple[date, float]]) -> Fit:
     sxx = sum((x - mx) ** 2 for x in xs)
     sigma = 1.4826 * median(abs(y - (intercept + slope * x)) for x, y in zip(xs, ys))
     return Fit(slope=slope, slope_se=sigma / math.sqrt(sxx), n=n)
+
+
+def _median_abs_error_ha(points: list[tuple[date, float]], transform: str) -> float:
+    """How well a robust line fits the pond's own points, measured in hectares."""
+    t0 = points[0][0]
+    xs = [(d - t0).days for d, _ in points]
+    ys = [a if transform == "linear" else math.sqrt(max(a, 0.0)) for _, a in points]
+    f = robust_fit(points if transform == "linear" else [(d, y) for (d, _), y in zip(points, ys)])
+    intercept = median(y - f.slope * x for x, y in zip(xs, ys))
+    pred = [intercept + f.slope * x for x in xs]
+    if transform == "sqrt":
+        pred = [max(v, 0.0) ** 2 for v in pred]
+    return median(abs(a - q) for (_, a), q in zip(points, pred))
+
+
+def choose_shape(points: list[tuple[date, float]], mode: str) -> str:
+    """'linear' or 'sqrt'. 'auto' picks whichever fits this pond's own window better (tie: linear)."""
+    if mode in ("linear", "sqrt"):
+        return mode
+    return "sqrt" if _median_abs_error_ha(points, "sqrt") < _median_abs_error_ha(points, "linear") else "linear"
 
 
 def et0_scale(expected_mean_next30: float | None, fit_window_mean: float | None) -> float:
@@ -189,6 +210,19 @@ def countdown(
     rate_fast = (-fit.slope + fit.slope_se) * scale
     rate_slow = (-fit.slope - fit.slope_se) * scale
     remaining = a_now - DRY_FRACTION * a_max
+
+    # Shape (docs/model-experiment.md): a cone-shaped tank loses area ever more slowly, so the
+    # countdown runs in sqrt(area) space, where a steady level drop is a straight line.
+    shape = choose_shape(pts, SHAPE)
+    if shape == "sqrt":
+        sq = robust_fit([(d, math.sqrt(max(a, 0.0))) for d, a in pts])
+        if sq.slope < 0 and sq.slope + STABLE_SE_MULTIPLE * sq.slope_se < 0:
+            rate, rate_fast, rate_slow = (-sq.slope * scale, (-sq.slope + sq.slope_se) * scale,
+                                          (-sq.slope - sq.slope_se) * scale)
+            remaining = math.sqrt(a_now) - math.sqrt(DRY_FRACTION * a_max)
+        else:
+            shape = "linear"  # no clear trend in sqrt space: keep the straight line
+    out["shape"] = shape
 
     likely = _days_to(remaining, rate)
     if likely >= MAX_DAYS:  # would last more than a year: no dry-by date to promise

@@ -75,7 +75,7 @@ The site should feel like a front-page data story that is also a working tool.
 | Page | Content | API |
 |---|---|---|
 | **Map** (default) | Above | `GET /regions`, `GET /ponds?region=&asOf=` |
-| **Plan** | Language toggle (English / मराठी), Generate, rendered Markdown in a readable "document" card (light paper on dark, max 72 ch), **Print / Download PDF** (`window.print()` with a print stylesheet), source badge | `POST /plan` (poll while `status === "generating"`, already in `api.js`) |
+| **Plan** | Language toggle (English / मराठी); **load the plan automatically when the tab opens or the date/language changes** (no Generate click needed; keep a Regenerate button), rendered Markdown in a readable "document" card (light paper on dark, max 72 ch), **Print / Download PDF** (`window.print()` with a print stylesheet), source badge | `POST /plan` (poll while `status === "generating"`, already in `api.js`) |
 | **Accuracy** | Three huge numbers (61% flagged in time · 27.5 days warning · 61% calls right), the comparison table, ponds that dried | `GET /backtest?region=latur-2024` |
 | **About** | The problem in 3 lines; how it works in 4 icons (satellite → measure → countdown + flag → plan & alert); AWS architecture (use `docs/architecture.md`); data credits; team; GitHub link | static |
 
