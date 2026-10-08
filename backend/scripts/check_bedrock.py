@@ -6,10 +6,10 @@ Usage (needs AWS credentials, e.g. after `aws configure`):
 
 Optional env vars:
     AWS_REGION        default us-west-2
-    BEDROCK_MODEL_ID  default anthropic.claude-opus-5-5
+    BEDROCK_MODEL_ID  default anthropic.claude-haiku-5-5 (cheapest Claude)
 
 It (1) lists the Anthropic models Bedrock offers in the region (read-only) and
-(2) sends one tiny prompt (a fraction of a cent). Exit code 0 = access works.
+(2) sends one tiny prompt (~100 tokens, well under one US cent; free if covered by AWS credits). Exit code 0 = access works.
 """
 import os
 import sys
@@ -19,7 +19,7 @@ from anthropic import AnthropicBedrockMantle, APIConnectionError, APIStatusError
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 REGION = os.environ.get("AWS_REGION", "us-west-2")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-opus-5-5")
+MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-haiku-5-5")
 
 HOW_TO_ENABLE = f"""
 How to fix:
@@ -29,7 +29,7 @@ How to fix:
   3. Model access: AWS console -> Amazon Bedrock -> region {REGION} -> Model catalog
      -> pick the Anthropic Claude model -> request/enable access (first-time Anthropic use asks for
      a short use-case form). Usually approved within minutes.
-  4. Try another model the listing above shows, e.g.  BEDROCK_MODEL_ID=anthropic.claude-sonnet-5-5
+  4. Try another model the listing above shows, e.g.  BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5
 """
 
 
@@ -54,7 +54,7 @@ def invoke() -> bool:
     try:
         resp = client.messages.create(
             model=MODEL_ID,
-            max_tokens=1024,
+            max_tokens=200,
             output_config={"effort": "low"},
             messages=[{"role": "user", "content": "Reply with exactly: Talaab Bedrock OK"}],
         )
