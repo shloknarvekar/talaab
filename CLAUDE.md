@@ -10,6 +10,24 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - Never commit secrets. Use .gitignore and environment variables.
 - ZERO SPEND: AWS must stay within free tier + promotional credits (no personal money). Serverless/on-demand only. Never create anything with an idle hourly cost (NAT Gateway, EC2, RDS, OpenSearch, Elastic IP, provisioned DynamoDB/Lambda concurrency, Bedrock provisioned throughput, KMS customer keys). State the expected cost before creating any new AWS resource. Keep Bedrock calls few and small; cache generated plans in S3 instead of regenerating.
 
+## DECISIONS SINCE KICKOFF (read first; these override the brief below)
+- **Pipeline output is `measurements.json`, not `ponds.json`.** Spec: `docs/measurements-contract.md`.
+  The pipeline only MEASURES (ponds + water area per pass + ET0). The backend computes countdowns,
+  flags and status (`backend/logic/`) and builds one `ponds.json` snapshot per as-of date. Do not
+  re-implement countdown/flag maths in `pipeline/`.
+- Check a file: `python backend/scripts/check_measurements.py data/latur-2024/measurements.json`
+  (no AWS needed). Example of a valid file: `data/latur-2024-synthetic/measurements.json`.
+- Regions: `latur-2024` (2024 replay, Jan–Jun 2024) and `latur-2026` (LIVE, passes since the 2026
+  monsoon; weather is fetched by the backend). `latur-2024-synthetic` is fake test data, labelled so.
+- Satellite step runs on a laptop; the result is committed to the repo and uploaded with
+  `backend/scripts/upload_measurements.py` (Shlok). AWS recomputes every 5 days (EventBridge Scheduler).
+- Live API: https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com — `GET /regions`, `GET /ponds`,
+  `GET /ponds/{id}`, `POST /plan` (poll while `status` is `generating`), `GET /backtest`. Details in
+  `docs/data-contract.md`.
+- Bedrock is wired but OFF until AWS lifts a new-account quota; `/plan` serves the deterministic EN/MR plan.
+- Status values include `unknown` (too few clear passes). Stable ponds (incl. shrink within noise) have
+  `dryBy: null`.
+
 === PROJECT BRIEF: TALAAB (तालाब, "pond") — "The sun drinks first" ===
 
 ## PROBLEM
