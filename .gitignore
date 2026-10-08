@@ -40,3 +40,6 @@ data/raw/
 Thumbs.db
 .vscode/
 .idea/
+
+# Lambda layer build output
+.build/

@@ -42,7 +42,7 @@ Base URL: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com` (currently se
 |---|---|
 | `GET /ponds?region=latur-2024&asOf=2024-03-26` | Full `ponds.json` ([contract](docs/data-contract.md)); `asOf` resolves to the latest snapshot on or before that date |
 | `GET /ponds/P003?region=latur-2024&asOf=2024-03-26` | One pond |
-| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"en"}` | `{markdown, pondIds, source}`; `language` is `en` or `mr` |
+| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"en"}` | `{markdown, pondIds, source, status}`; `language` is `en` or `mr`. Instant template plan; the Bedrock plan arrives on a later call (`status: ready`) |
 
 ```bash
 curl "https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com/ponds?region=latur-2024"
@@ -57,6 +57,10 @@ cd backend && python -m pytest
 
 # deploy (needs AWS CLI + SAM CLI + credentials)
 cd backend && sam build && sam deploy
+
+# AI plan writer (Strands Agents on Bedrock): build the layer, then deploy with AI on/off
+python backend/scripts/build_layer.py        # needs `pip install uv`; no Docker
+cd backend && sam build && sam deploy --parameter-overrides PlanAI=on   # PlanAI=off = template only, no Bedrock cost
 
 # publish pipeline output to S3 (one ponds.json, or a folder of them)
 pip install -r backend/scripts/requirements.txt

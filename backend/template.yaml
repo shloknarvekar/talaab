@@ -4,6 +4,17 @@ Description: >
   Talaab ("the sun drinks first"): per-pond dry-by countdowns from Sentinel-2.
   Zero-idle-cost stack: HTTP API + Lambda + S3 + DynamoDB on-demand.
 
+Parameters:
+  PlanAI:
+    Type: String
+    AllowedValues: ["on", "off"]
+    Default: "off"
+    Description: Generate plans with Bedrock (on) or serve only the deterministic template (off).
+  PlanModelId:
+    Type: String
+    Default: us.anthropic.claude-opus-5-5
+    Description: Bedrock inference profile used by the plan agent.
+
 Globals:
   Function:
     Runtime: python3.12
@@ -69,11 +80,15 @@ Resources:
           DATA_BUCKET: !Ref DataBucket
           PONDS_TABLE: !Ref PondsTable
           DEFAULT_REGION: latur-2024
+          PLAN_AI: !Ref PlanAI
+          PLAN_WORKER: !Ref PlanWorkerFunction
       Policies:
-        - S3ReadPolicy:
+        - S3CrudPolicy:  # reads snapshots, writes plan status markers
             BucketName: !Ref DataBucket
         - DynamoDBReadPolicy:
             TableName: !Ref PondsTable
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PlanWorkerFunction
       LoggingConfig:
         LogGroup: !Ref ApiLogGroup
       Events:
@@ -100,6 +115,48 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-api"
+      RetentionInDays: 14
+
+  StrandsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: Strands Agents SDK (built by backend/scripts/build_layer.py)
+      ContentUri: ../.build/strands-layer.zip
+      CompatibleRuntimes: [python3.12]
+      CompatibleArchitectures: [arm64]
+
+  # Writes the AI plan in the background (API Gateway caps requests at 30 s).
+  PlanWorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-plan-worker"
+      CodeUri: ./
+      Handler: agent.worker.lambda_handler
+      Timeout: 300
+      MemorySize: 512
+      Layers: [!Ref StrandsLayer]
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+          BEDROCK_MODEL_ID: !Ref PlanModelId
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0  # never pay for an automatic second Bedrock attempt
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - Statement:
+            - Effect: Allow
+              Action: [bedrock:InvokeModel, bedrock:InvokeModelWithResponseStream]
+              Resource:
+                - !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/${PlanModelId}"
+                - "arn:aws:bedrock:*::foundation-model/anthropic.*"
+      LoggingConfig:
+        LogGroup: !Ref PlanWorkerLogGroup
+
+  PlanWorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-plan-worker"
       RetentionInDays: 14
 
   HelloFunction:

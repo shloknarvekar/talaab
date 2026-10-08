@@ -70,7 +70,11 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 - `GET /ponds?region=latur-2024&asOf=YYYY-MM-DD` returns the whole document above.
 - `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape).
-- `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns `{ "markdown": "...", "pondIds": ["P003", ...] }`.
+- `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns
+  `{ "markdown": "...", "pondIds": ["P003", ...], "source": "template" | "bedrock", "status": "ready" | "generating" | "template", "asOf": "...", "language": "en" }`.
+  - `status: "generating"`: you got the instant template plan; the AI plan is being written. Ask again (same body) every ~5 s until `status` is `ready` (give up after ~2 min).
+  - `status: "ready"`: `source` is `bedrock`; the AI plan passed the number guard (every number in it exists in the data).
+  - `status: "template"`: AI is switched off or failed recently (`aiError` says why); show the template plan.
 
 Errors: `{ "error": "message" }` with HTTP 400 (bad params) or 404 (unknown region/pond/asOf).
 
