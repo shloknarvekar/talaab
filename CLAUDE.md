@@ -8,7 +8,7 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - Keep a list of AI tools used (Claude Code etc.) for the README/writeup.
 - Credit all data: Sentinel-2 (Copernicus, via AWS Open Data / Element84 Earth Search), Open-Meteo (CC BY 4.0), OpenStreetMap if used.
 - Never commit secrets. Use .gitignore and environment variables.
-- ZERO COST: nothing may put a bill on anyone's AWS account. Use only Free Tier / always-free services or free credits. Before creating any cloud resource or making paid calls (Bedrock tokens, ECR images, Amplify builds, anything with an hourly price), check it is free and ask the team lead first. Never create NAT gateways, provisioned capacity, or always-on instances. Bedrock: cheapest model (Claude Haiku), small max_tokens, cache plan output in S3 instead of regenerating.
+- ZERO SPEND: AWS must stay within free tier + promotional credits (no personal money). Serverless/on-demand only. Never create anything with an idle hourly cost (NAT Gateway, EC2, RDS, OpenSearch, Elastic IP, provisioned DynamoDB/Lambda concurrency, Bedrock provisioned throughput, KMS customer keys). State the expected cost before creating any new AWS resource. Keep Bedrock calls few and small; cache generated plans in S3 instead of regenerating.
 
 === PROJECT BRIEF: TALAAB (तालाब, "pond") — "The sun drinks first" ===
 
