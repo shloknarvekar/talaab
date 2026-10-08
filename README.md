@@ -28,6 +28,7 @@ The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" d
 - **Replays can't see the future.** Each as-of snapshot is built only from satellite passes and weather available on that day, so the 2024 replay is a real backtest.
 - **Proof, not claims.** [`docs/backtest-*.md`](docs/) scores every past prediction against what actually happened: dry dates inside our range, days of warning, false and missed alarms. It also runs with the heat adjustment switched off for comparison.
 - **The AI can't invent numbers.** The Bedrock plan writer only sees our data through two tools, and a *number guard* rejects any draft containing a number that isn't in the data.
+- **It tells you; you don't have to check.** After each 5-day recompute, Amazon SNS emails the district officer about ponds that *newly* turned critical, dried up, or started shrinking faster than the sun. There are no repeats, and every number comes from the snapshot.
 - **Officials' language and structure.** Plans come in English and Marathi, with one section per scarcity period (Oct–Dec, Jan–Mar, Apr–Jun) as the state order requires, a table by village and a concrete action per pond.
 
 ## Architecture (AWS, us-west-2)
@@ -41,6 +42,7 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | **API Gateway** (HTTP API) | Public API, throttled |
 | **EventBridge Scheduler** | Recompute every 5 days (one Sentinel-2 revisit) |
 | **DynamoDB** | Latest state of every pond |
+| **Amazon SNS** | Emails the district officer when a pond newly turns critical, dries up, or is flagged faster than the sun |
 | **Amazon Bedrock** | Claude writes the plan in English and Marathi (behind the number guard) |
 | **CloudWatch** | Logs plus the `talaab-ops` dashboard |
 | **Amplify Hosting** | The web map |

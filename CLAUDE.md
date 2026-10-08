@@ -31,6 +31,8 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   single-pass spikes AND dips are dropped; detections that were never real ponds or whose signal is not water level
   are excluded with a reason (`excludedPonds`). Countdown uses a robust Theil–Sen fit and needs 3 passes over 15 days.
 - Faster-than-sun baseline = median rate of SHRINKING ponds (needs >= 3); stable tanks no longer inflate ratios.
+- Alerts: SNS topic `talaab-alerts`; recompute emails NEW critical/dry/flagged ponds for live regions only (state in
+  `data/{region}/alerts/state.json`, keyed by location). Subscribe with `aws sns subscribe` (emails never in the repo).
 - Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
   Plan / Accuracy. No countdown maths in the browser.
 

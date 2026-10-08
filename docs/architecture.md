@@ -25,6 +25,7 @@ flowchart LR
     PW["Lambda: plan worker<br/>Strands Agents"]
     BR["Amazon Bedrock<br/>Claude"]
     CW["CloudWatch<br/>logs + dashboard"]
+    SNS["Amazon SNS<br/>email alerts"]
     AMP["Amplify Hosting<br/>web map"]
   end
 
@@ -35,6 +36,7 @@ flowchart LR
   OSM -.bundled once.-> RC
   RC --> |snapshot per as-of date| S3
   RC --> DDB
+  RC --> |new critical / dry / flagged| SNS
   AMP --> |"/regions /ponds /plan /backtest"| API
   API --> S3
   API -. async .-> PW
@@ -55,7 +57,8 @@ flowchart LR
    - names ponds after the nearest OSM village, in English and Marathi;
    - for the live region, adds observed and 16-day forecast heat from Open-Meteo;
    - builds one `ponds.json` snapshot for every pass date, using only data up to that date;
-   - writes the snapshots to S3 and each pond's latest state to DynamoDB.
+   - writes the snapshots to S3 and each pond's latest state to DynamoDB;
+   - for the live region, emails (Amazon SNS) any pond that newly turned critical, dried up or was flagged faster than the sun. Only changes are sent, and every alert is logged in S3.
 4. **Serve.** The API Lambda serves regions, snapshots, single ponds, plans and the backtest. A
    date between passes resolves to the latest snapshot on or before it, so a replay never shows
    the future.

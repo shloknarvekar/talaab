@@ -15,12 +15,14 @@ from decimal import Decimal
 from typing import Callable
 
 from api import store
+from jobs.alerts import alert_state, format_alert, new_alerts
 from jobs.places import name_ponds, places_for_region
 from jobs.regions import REGIONS
 from jobs.weather import merge_observed, recent_and_forecast
 from logic.snapshot import build_snapshot
 
 MIN_HISTORY_DAYS = 20  # first snapshot needs a few passes to fit a trend
+SITE_URL = os.environ.get("SITE_URL", "https://main.duvnkrxj02sz1.amplifyapp.com")
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
@@ -53,8 +55,35 @@ def write_ponds_table(region: str, snap: dict) -> int:
     return len(snap["ponds"])
 
 
+def sns_publish(subject: str, body: str) -> bool:
+    """Publish to the alert topic. Returns False when no topic is configured (local runs, tests)."""
+    topic = os.environ.get("ALERT_TOPIC_ARN")
+    if not topic:
+        return False
+    import boto3
+
+    boto3.client("sns").publish(TopicArn=topic, Subject=subject, Message=body)
+    return True
+
+
+def send_alerts(region: str, cfg: dict, snap: dict, publish: Callable[[str, str], bool] = sns_publish) -> int:
+    """Email ponds that newly turned critical / dry / faster-than-sun since the last run (live only)."""
+    prev = store.read_json(f"{region}/alerts/state.json", fresh=True) or {}
+    alerts = new_alerts(prev, snap)
+    sent = 0
+    if alerts:
+        subject, body = format_alert(cfg["name"], snap["asOf"], alerts, SITE_URL)
+        delivered = publish(subject, body)
+        store.write_json(f"{region}/alerts/{snap['asOf']}.json",
+                         {"asOf": snap["asOf"], "subject": subject, "body": body, "delivered": delivered, "alerts": alerts})
+        print(json.dumps({"msg": "alerts", "region": region, "count": len(alerts), "delivered": delivered, "subject": subject}))
+        sent = len(alerts) if delivered else 0
+    store.write_json(f"{region}/alerts/state.json", alert_state(snap))
+    return sent
+
+
 def recompute_region(region: str, today: date, fetch_weather: Callable = recent_and_forecast,
-                     write_table: Callable = write_ponds_table) -> dict:
+                     write_table: Callable = write_ponds_table, publish: Callable = sns_publish) -> dict:
     cfg = REGIONS[region]
     meas = store.read_json(f"{region}/measurements.json", fresh=True)
     if meas is None:
@@ -89,6 +118,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
     for p in latest["ponds"] if latest else []:
         counts[p["status"]] = counts.get(p["status"], 0) + 1
     rows = write_table(region, latest) if latest else 0
+    alerts_sent = send_alerts(region, cfg, latest, publish) if (live and latest) else 0
     return {
         "region": region,
         "mode": cfg["mode"],
@@ -101,6 +131,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
         "forecastDays": len(forecast),
         "dynamoRows": rows,
         "pondsNamed": named,
+        "alertsSent": alerts_sent,
     }
 
 

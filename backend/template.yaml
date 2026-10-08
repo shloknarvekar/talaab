@@ -181,6 +181,17 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-plan-worker"
       RetentionInDays: 14
 
+  # Critical-pond alerts. Subscribers are added outside the template (emails stay out of the public repo):
+  #   aws sns subscribe --topic-arn <AlertTopicArn> --protocol email --notification-endpoint you@example.org
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-alerts"
+      DisplayName: Talaab alerts
+      Tags:
+        - Key: project
+          Value: talaab
+
   # Every 5 days (one new Sentinel-2 pass): measurements.json -> snapshots + DynamoDB, live weather.
   RecomputeFunction:
     Type: AWS::Serverless::Function
@@ -194,6 +205,8 @@ Resources:
         Variables:
           DATA_BUCKET: !Ref DataBucket
           PONDS_TABLE: !Ref PondsTable
+          ALERT_TOPIC_ARN: !Ref AlertTopic
+          SITE_URL: https://main.duvnkrxj02sz1.amplifyapp.com
       EventInvokeConfig:
         MaximumRetryAttempts: 1
       Policies:
@@ -201,6 +214,8 @@ Resources:
             BucketName: !Ref DataBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref PondsTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt AlertTopic.TopicName
       LoggingConfig:
         LogGroup: !Ref RecomputeLogGroup
       Events:
@@ -288,6 +303,9 @@ Outputs:
   DashboardUrl:
     Description: CloudWatch dashboard (show this in the video)
     Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards/dashboard/${AWS::StackName}-ops"
+  AlertTopicArn:
+    Description: SNS topic for critical-pond alerts (subscribe an email with aws sns subscribe)
+    Value: !Ref AlertTopic
   RecomputeFunctionName:
     Description: Recompute job (invoked by the 5-day schedule and scripts/upload_measurements.py)
     Value: !Ref RecomputeFunction
