@@ -40,7 +40,7 @@ _TODO: fill in as components land._
 
 ```bash
 pip install -r backend/requirements-dev.txt
-python -m pytest backend/tests
+cd backend && python -m pytest
 ```
 
 ## Data credits
