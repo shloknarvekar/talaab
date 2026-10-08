@@ -27,10 +27,10 @@ HOW_TO_ENABLE = f"""
 How to fix:
   1. Credentials: run `aws configure` and check `aws sts get-caller-identity`.
   2. IAM: the identity needs bedrock:InvokeModel / bedrock:InvokeModelWithResponseStream.
-  3. Quota: new AWS accounts start with Bedrock token quotas of 0, so every call fails with
-     "Operation not allowed". Service Quotas console -> Amazon Bedrock -> region {REGION} ->
-     "Cross-region model inference tokens per minute for <model>" -> Request increase,
-     or open a free Support case (Account and billing).
+  3. Quota: new AWS accounts can start with Bedrock token quotas of 0, so every call fails with
+     "Operation not allowed". A Service Quotas increase request is rejected (it only accepts values
+     above the AWS default), so open a free Support case: Support Center -> Create case ->
+     Account and billing -> Other Account Issues, asking AWS to lift the new-account restriction.
   4. Anthropic models need a one-time use-case form: Bedrock console -> Playground -> pick Claude.
   5. Try another inference profile from the listing above, e.g. BEDROCK_MODEL_ID=us.anthropic.claude-haiku-5-5
 """
