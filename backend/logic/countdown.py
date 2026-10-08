@@ -2,7 +2,8 @@
 
 METHOD (see CLAUDE.md):
 - Use valid points in the last 45 days up to as-of date T (needs >= 3 points).
-- Linear fit of area vs time. slope >= 0 -> "stable".
+- Linear fit of area vs time. slope >= 0 -> "stable" (also when the shrink is within
+  2 standard errors of zero, or the pond would last more than a year).
 - Else days to reach 5% of max area = (A_now - 0.05*A_max) / |slope|, with the
   slope scaled by (expected mean ET0 next 30 days / mean ET0 in the fit window).
 - Range from slope +/- its standard error, widened to at least +/-20%.
@@ -20,7 +21,8 @@ WINDOW_DAYS = 45
 MIN_POINTS = 3
 DRY_FRACTION = 0.05
 MIN_RANGE_FRACTION = 0.20
-MAX_DAYS = 365  # cap so "latest" is always a real date
+MAX_DAYS = 365  # cap so "latest" is always a real date; likely >= this counts as stable
+STABLE_SE_MULTIPLE = 2.0  # shrink smaller than 2 standard errors = noise
 CRITICAL_DAYS = 30
 WATCH_DAYS = 90
 
@@ -151,7 +153,9 @@ def countdown(
     out["slopeHaPerDay"] = round(fit.slope, 4)
     out["slopeSe"] = round(fit.slope_se, 4)
 
-    if fit.slope >= 0:
+    # Stable: not shrinking, or the shrink is within measurement noise (slope + 2 SE >= 0).
+    # Without the noise test a spring-fed pond gets a fake "dry in 300 days" from jitter alone.
+    if fit.slope >= 0 or fit.slope + STABLE_SE_MULTIPLE * fit.slope_se >= 0:
         out.update(trend="stable", status="ok")
         return out
 
@@ -162,6 +166,9 @@ def countdown(
     remaining = a_now - DRY_FRACTION * a_max
 
     likely = _days_to(remaining, rate)
+    if likely >= MAX_DAYS:  # would last more than a year: no dry-by date to promise
+        out.update(trend="stable", status="ok")
+        return out
     earliest = min(_days_to(remaining, rate_fast), likely * (1 - MIN_RANGE_FRACTION))
     latest = min(max(_days_to(remaining, rate_slow), likely * (1 + MIN_RANGE_FRACTION)), float(MAX_DAYS))
 

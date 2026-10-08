@@ -103,10 +103,19 @@ def test_dry_pond():
     assert c["dryBy"] is None
 
 
-def test_very_slow_shrink_is_capped():
-    c = countdown(series(100.0, -0.01), AS_OF)
-    assert c["daysLeft"]["likely"] <= 365 and c["daysLeft"]["max"] <= 365
-    assert c["status"] == "ok"
+def test_very_slow_shrink_counts_as_stable():
+    c = countdown(series(100.0, -0.01), AS_OF)  # ~9000 days to dry: no date to promise
+    assert c["trend"] == "stable" and c["status"] == "ok" and c["dryBy"] is None
+
+
+def test_shrink_within_noise_is_stable():
+    c = countdown(series(20.0, -0.002, noise=0.4, seed=5), AS_OF)
+    assert c["slopeHaPerDay"] < 0 and c["trend"] == "stable" and c["dryBy"] is None
+
+
+def test_latest_capped_at_a_year():
+    c = countdown(series(100.0, -0.25), AS_OF)  # likely ~ 330 days, +20% would pass 365
+    assert c["trend"] == "shrinking" and c["daysLeft"]["max"] <= 365
 
 
 def test_linear_fit_needs_three_points():

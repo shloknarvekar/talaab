@@ -44,7 +44,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 | dates | `"YYYY-MM-DD"` string | All ISO dates, no times, no timezones. |
 | areas | number, hectares | 1 pixel at 10 m = 0.01 ha. Round to 1–2 decimals. |
 | `history` | array | Ascending by date. Includes invalid passes (`valid: false`) so the UI can draw them greyed out. |
-| `dryBy` / `daysLeft` | object or `null` | `null` when status is `ok` because the pond is **stable** (not shrinking), or when status is `unknown`. Values are capped at 365 days, so 365 means "a year or more". |
+| `dryBy` / `daysLeft` | object or `null` | `null` when status is `ok` because the pond is **stable** (not shrinking), or when status is `unknown`. A pond is also `ok`/stable when its shrink is within measurement noise (slope + 2 standard errors ≥ 0) or it would last more than a year; `latest` is capped at 365 days. |
 | `dryBy` / `daysLeft` when `dry` | | `daysLeft` = `{min:0, likely:0, max:0}`, `dryBy` = `null`. |
 | `shrinkVsNeighbours` | number or `null` | `null` for dry/unknown ponds, or when the regional median isn't shrinking. ≥ 2 on a pond ≥ 2 ha → `flag: "faster-than-sun"`. |
 | `status` | enum | See below. |
