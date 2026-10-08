@@ -1,5 +1,6 @@
 """Talaab HTTP API (API Gateway HTTP API, payload format 2.0).
 
+GET  /regions                                   -> regions with published dates (for the map)
 GET  /ponds?region=latur-2024&asOf=YYYY-MM-DD   -> ponds.json document
 GET  /ponds/{id}?region=...&asOf=...            -> one pond
 POST /plan {region, asOf, language: en|mr}      -> {markdown, pondIds, source, status}
@@ -16,6 +17,7 @@ import re
 
 from api import store
 from api.plans import get_plan
+from jobs.regions import REGIONS
 
 DEFAULT_REGION = os.environ.get("DEFAULT_REGION", "latur-2024")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -53,6 +55,20 @@ def _load(region: str, as_of: str | None) -> dict:
     return doc
 
 
+def get_regions() -> dict:
+    """Regions that have published snapshots, with the exact dates the map slider can use."""
+    out = []
+    for region_id, cfg in REGIONS.items():
+        index = store.read_json(f"{region_id}/index.json")
+        dates = sorted(index.get("asOf", [])) if index else []
+        if not dates:
+            continue
+        out.append({"id": region_id, "name": cfg["name"], "mode": cfg["mode"], "bbox": cfg["bbox"],
+                    "synthetic": region_id.endswith("-synthetic"),
+                    "first": dates[0], "last": dates[-1], "dates": dates})
+    return {"regions": out}
+
+
 def get_ponds(query: dict) -> dict:
     region, as_of = _region_and_date(query.get("region"), query.get("asOf"))
     return _load(region, as_of)
@@ -83,6 +99,8 @@ def lambda_handler(event, context):
     query = event.get("queryStringParameters") or {}
     print(json.dumps({"route": route, "query": query}))
     try:
+        if route == "GET /regions":
+            return _response(200, get_regions())
         if route == "GET /ponds":
             return _response(200, get_ponds(query))
         if route == "GET /ponds/{id}":

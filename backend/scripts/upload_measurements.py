@@ -9,7 +9,13 @@ import argparse
 import json
 from pathlib import Path
 
+import sys
+
 import boto3
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/ on the path
+from jobs.regions import REGIONS  # noqa: E402
+from logic.validate import validate_measurements  # noqa: E402
 
 AWS_REGION = "us-west-2"
 STACK = "talaab"
@@ -32,6 +38,15 @@ def main() -> None:
         if field not in meas:
             raise SystemExit(f"{path} is missing '{field}' (see docs/measurements-contract.md)")
     region = args.region or meas["region"]["id"]
+    if region not in REGIONS:
+        raise SystemExit(f"unknown region {region!r}; known: {', '.join(REGIONS)}")
+    check = validate_measurements(meas, mode=REGIONS[region]["mode"])
+    for w in check["warnings"][:10]:
+        print(f"WARNING  {w}")
+    if check["errors"]:
+        for e in check["errors"][:20]:
+            print(f"ERROR    {e}")
+        raise SystemExit("not uploaded: fix the errors above (python backend/scripts/check_measurements.py shows all)")
 
     bucket = stack_output("DataBucketName")
     boto3.client("s3", region_name=AWS_REGION).put_object(

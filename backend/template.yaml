@@ -100,6 +100,12 @@ Resources:
       LoggingConfig:
         LogGroup: !Ref ApiLogGroup
       Events:
+        ListRegions:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /regions
+            Method: GET
         ListPonds:
           Type: HttpApi
           Properties:

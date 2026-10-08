@@ -68,6 +68,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 ## API
 
+- `GET /regions` returns `{ "regions": [{ "id", "name", "mode": "replay" | "live", "bbox", "synthetic", "first", "last", "dates": ["YYYY-MM-DD", ...] }] }`: only regions with published snapshots; `dates` are the exact values the date slider should offer.
 - `GET /ponds?region=latur-2024&asOf=YYYY-MM-DD` returns the whole document above.
 - `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape).
 - `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns

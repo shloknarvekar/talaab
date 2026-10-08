@@ -61,6 +61,7 @@ Same code, different dates. For `latur-2026` you may leave `et0`, `et0Climatolog
 ## Publish (one command)
 
 ```bash
+python backend/scripts/check_measurements.py data/latur-2024/measurements.json   # optional: same checks, no AWS needed
 python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 ```
 
