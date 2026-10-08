@@ -1,0 +1,21 @@
+# AWS Amplify Hosting build for the web map (monorepo: the app lives in web/).
+# Set the environment variable VITE_API_URL in the Amplify console (App settings -> Environment
+# variables) to https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com
+version: 1
+applications:
+  - appRoot: web
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
