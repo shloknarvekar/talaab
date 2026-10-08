@@ -28,10 +28,10 @@ def _s3_client():
     return _s3
 
 
-def read_json(key: str) -> dict | None:
-    """Return the parsed document at key, or None if it does not exist."""
+def read_json(key: str, fresh: bool = False) -> dict | None:
+    """Return the parsed document at key, or None if it does not exist. fresh=True skips the cache."""
     hit = _cache.get(key)
-    if hit and time.time() - hit[0] < CACHE_SECONDS:
+    if not fresh and hit and time.time() - hit[0] < CACHE_SECONDS:
         return hit[1]
 
     data_dir = os.environ.get("DATA_DIR")
@@ -48,6 +48,32 @@ def read_json(key: str) -> dict | None:
 
     _cache[key] = (time.time(), doc)
     return doc
+
+
+def write_json(key: str, doc: dict, if_absent: bool = False) -> bool:
+    """Write doc at key. With if_absent=True, only write if nothing is there yet; returns False if it was."""
+    body = json.dumps(doc, ensure_ascii=False)
+    data_dir = os.environ.get("DATA_DIR")
+    if data_dir:
+        path = Path(data_dir) / key
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with open(path, "x" if if_absent else "w", encoding="utf-8") as f:
+                f.write(body)
+        except FileExistsError:
+            return False
+    else:
+        s3 = _s3_client()
+        extra = {"IfNoneMatch": "*"} if if_absent else {}
+        try:
+            s3.put_object(Bucket=os.environ["DATA_BUCKET"], Key=f"data/{key}", Body=body.encode("utf-8"),
+                          ContentType="application/json; charset=utf-8", **extra)
+        except s3.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] in ("PreconditionFailed", "ConditionalRequestConflict"):
+                return False
+            raise
+    _cache.pop(key, None)
+    return True
 
 
 def clear_cache() -> None:

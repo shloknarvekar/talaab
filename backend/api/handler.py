@@ -2,7 +2,7 @@
 
 GET  /ponds?region=latur-2024&asOf=YYYY-MM-DD   -> ponds.json document
 GET  /ponds/{id}?region=...&asOf=...            -> one pond
-POST /plan {region, asOf, language: en|mr}      -> {markdown, pondIds, source}
+POST /plan {region, asOf, language: en|mr}      -> {markdown, pondIds, source, status}
 
 asOf picks the latest published snapshot on or before that date, so a replay never
 shows data from after the date the user chose.
@@ -14,7 +14,7 @@ import os
 import re
 
 from api import store
-from logic.plan import build_plan
+from api.plans import get_plan
 
 DEFAULT_REGION = os.environ.get("DEFAULT_REGION", "latur-2024")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -74,7 +74,7 @@ def post_plan(body: dict) -> dict:
     if language not in ("en", "mr"):
         raise HttpError(400, "language must be 'en' or 'mr'")
     doc = _load(region, as_of)
-    return build_plan(doc, language)
+    return get_plan(doc, language)
 
 
 def lambda_handler(event, context):
