@@ -34,13 +34,33 @@ _TODO: diagram in `docs/`._ S3 · Lambda (pipeline + API) · API Gateway HTTP AP
 | `data/latur-2024/` | Generated outputs committed for the demo |
 | `docs/` | Data contract, demo script, architecture, sources |
 
-## Setup
+## Live API (AWS, us-west-2)
 
-_TODO: fill in as components land._
+Base URL: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com` (currently serving the mock snapshot until real pipeline data lands)
+
+| Call | Returns |
+|---|---|
+| `GET /ponds?region=latur-2024&asOf=2024-03-26` | Full `ponds.json` ([contract](docs/data-contract.md)); `asOf` resolves to the latest snapshot on or before that date |
+| `GET /ponds/P003?region=latur-2024&asOf=2024-03-26` | One pond |
+| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"en"}` | `{markdown, pondIds, source}`; `language` is `en` or `mr` |
 
 ```bash
+curl "https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com/ponds?region=latur-2024"
+```
+
+## Setup
+
+```bash
+# backend tests (pure Python, no AWS needed)
 pip install -r backend/requirements-dev.txt
 cd backend && python -m pytest
+
+# deploy (needs AWS CLI + SAM CLI + credentials)
+cd backend && sam build && sam deploy
+
+# publish pipeline output to S3 (one ponds.json, or a folder of them)
+pip install -r backend/scripts/requirements.txt
+python backend/scripts/publish_data.py data/latur-2024/asof/
 ```
 
 ## Data credits
