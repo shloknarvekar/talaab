@@ -159,6 +159,24 @@
     "medianLeadDays": 22.5,
     "pondsWarnedInAdvance": 4
    }
+  },
+  {
+   "label": "Unseen 2023 season (held out)",
+   "summary": {
+    "rangeHitRate": 0.319,
+    "rangeHits": 60,
+    "rangeMisses": 126,
+    "tooEarly": 2,
+    "unresolved": 122,
+    "medianErrorDays": 12.0,
+    "medianAbsErrorDays": 28.0,
+    "criticalPrecision": 0.697,
+    "criticalCalls": 66,
+    "criticalRecall": 0.622,
+    "shouldHaveWarned": 74,
+    "medianLeadDays": 25,
+    "pondsWarnedInAdvance": 11
+   }
   }
  ]
 }

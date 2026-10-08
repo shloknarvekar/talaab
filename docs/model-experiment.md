@@ -49,4 +49,34 @@ next to it for context, but they don't decide.
 
 ## Result
 
-_To be filled in after running `python backend/scripts/shape_experiment.py`._
+Run on 9 Oct 2026 (`python backend/scripts/shape_experiment.py`).
+
+| Held-out Latur 2023 (19 ponds, 31 passes) | **L (current)** | S (cone) | A (auto) |
+|---|---|---|---|
+| Ponds about to dry (≤ 30 d) flagged critical in time | **62%** | 35% | 60% |
+| "Critical" calls that came true | 70% | 79% | 72% |
+| Median warning before a pond dried | **25 days** | 15 days | 20 days |
+| Median error of the likely date | **28 days** | 37 days | 33 days |
+| Dry date inside the predicted range | **32%** | 25% | 28% |
+| Predicted dry, but the pond survived | 2 | 0 | 1 |
+
+On development data (Latur 2024), A is clearly worse than L (flagged in time 54% vs 61%, median
+error 38 vs 18 days, range hits 28% vs 45%); S is worse everywhere it counts.
+
+### Decision: keep L
+
+By the letter of the rule, **A qualified**: its recall and range drops (2.7 and 3.7 points)
+stayed inside the allowed margins, and "predicted dry but survived" improved from 2 to 1. But it
+is worse on median error, warning time and range hits, and much worse on the development season.
+The rule was too lenient: improving one count by a single pond was enough to pass. Rather than
+change the rule after seeing the results, we state it openly: **the team chose the conservative
+option and kept L**, and published every number here.
+
+### What we learned
+
+- **The current model generalises.** On a season it had never seen, it flagged 62% of ponds in
+  time (2024: 61%), 70% of its critical calls came true (2024: 61%), with a 25-day median warning
+  (2024: 27.5).
+- **Shape alone doesn't fix big tanks.** The square-root model warns too late for the ponds that
+  matter most, the small fast-drying ones. A better fix probably needs per-pond depth information
+  (for example a DEM, or surface area from an earlier drought year), which is future work.

@@ -1,0 +1,208 @@
+{
+ "region": {
+  "id": "latur-2023",
+  "name": "Latur (2023 held-out season)",
+  "bbox": [
+   76.47,
+   18.33,
+   76.62,
+   18.48
+  ]
+ },
+ "synthetic": false,
+ "evaluated": {
+  "from": "2023-01-21",
+  "to": "2023-06-20",
+  "snapshots": 28,
+  "ponds": 19,
+  "pondsThatDried": 13
+ },
+ "summary": {
+  "rangeHitRate": 0.319,
+  "rangeHits": 60,
+  "rangeMisses": 126,
+  "tooEarly": 2,
+  "unresolved": 122,
+  "medianErrorDays": 12.0,
+  "medianAbsErrorDays": 28.0,
+  "criticalPrecision": 0.697,
+  "criticalCalls": 66,
+  "criticalRecall": 0.622,
+  "shouldHaveWarned": 74,
+  "medianLeadDays": 25,
+  "pondsWarnedInAdvance": 11
+ },
+ "ponds": [
+  {
+   "id": "P001",
+   "actualDry": {
+    "from": "2023-05-31",
+    "to": "2023-06-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P002",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P003",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P004",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P005",
+   "actualDry": {
+    "from": "2023-04-11",
+    "to": "2023-04-21"
+   },
+   "firstCritical": "2023-04-06",
+   "leadDays": 15
+  },
+  {
+   "id": "P006",
+   "actualDry": {
+    "from": "2023-05-21",
+    "to": "2023-06-05"
+   },
+   "firstCritical": "2023-05-11",
+   "leadDays": 25
+  },
+  {
+   "id": "P007",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P008",
+   "actualDry": {
+    "from": "2023-06-05",
+    "to": "2023-06-20"
+   },
+   "firstCritical": "2023-05-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P009",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P010",
+   "actualDry": {
+    "from": "2023-06-05",
+    "to": "2023-06-10"
+   },
+   "firstCritical": "2023-05-31",
+   "leadDays": 10
+  },
+  {
+   "id": "P011",
+   "actualDry": {
+    "from": "2023-03-07",
+    "to": "2023-03-12"
+   },
+   "firstCritical": "2023-02-15",
+   "leadDays": 25
+  },
+  {
+   "id": "P012",
+   "actualDry": {
+    "from": "2023-05-21",
+    "to": "2023-06-05"
+   },
+   "firstCritical": "2023-05-21",
+   "leadDays": 15
+  },
+  {
+   "id": "P013",
+   "actualDry": {
+    "from": "2023-03-22",
+    "to": "2023-03-27"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P014",
+   "actualDry": {
+    "from": "2023-03-12",
+    "to": "2023-03-22"
+   },
+   "firstCritical": "2023-02-15",
+   "leadDays": 35
+  },
+  {
+   "id": "P015",
+   "actualDry": {
+    "from": "2023-03-07",
+    "to": "2023-03-12"
+   },
+   "firstCritical": "2023-02-05",
+   "leadDays": 35
+  },
+  {
+   "id": "P016",
+   "actualDry": {
+    "from": "2023-05-21",
+    "to": "2023-05-31"
+   },
+   "firstCritical": "2023-03-27",
+   "leadDays": 65
+  },
+  {
+   "id": "P017",
+   "actualDry": {
+    "from": "2023-02-25",
+    "to": "2023-03-02"
+   },
+   "firstCritical": "2023-02-20",
+   "leadDays": 10
+  },
+  {
+   "id": "P018",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P019",
+   "actualDry": {
+    "from": "2023-04-11",
+    "to": "2023-04-21"
+   },
+   "firstCritical": "2023-04-06",
+   "leadDays": 15
+  }
+ ],
+ "variants": {
+  "noHeatAdjustment": {
+   "rangeHitRate": 0.33,
+   "rangeHits": 61,
+   "rangeMisses": 122,
+   "tooEarly": 2,
+   "unresolved": 116,
+   "medianErrorDays": 15,
+   "medianAbsErrorDays": 29,
+   "criticalPrecision": 0.682,
+   "criticalCalls": 66,
+   "criticalRecall": 0.608,
+   "shouldHaveWarned": 74,
+   "medianLeadDays": 20,
+   "pondsWarnedInAdvance": 11
+  }
+ },
+ "comparisons": []
+}
