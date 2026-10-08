@@ -6,83 +6,102 @@ Usage (needs AWS credentials, e.g. after `aws configure`):
 
 Optional env vars:
     AWS_REGION        default us-west-2
-    BEDROCK_MODEL_ID  default anthropic.claude-haiku-5-5 (cheapest Claude)
+    BEDROCK_MODEL_ID  default us.anthropic.claude-opus-5-5 (inference profile; Opus 5.5 has no
+                      on-demand base-model access, so the bare anthropic.* id does not work)
 
-It (1) lists the Anthropic models Bedrock offers in the region (read-only) and
-(2) sends one tiny prompt (~100 tokens, well under one US cent; free if covered by AWS credits). Exit code 0 = access works.
+Uses the Converse API, the same path the Strands plan agent uses. It (1) lists the Anthropic
+inference profiles in the region, (2) shows the account's Bedrock token quota for the model,
+(3) sends one tiny prompt (a fraction of a cent). Exit code 0 = access works.
 """
 import os
 import sys
 
 import boto3
-from anthropic import AnthropicBedrockMantle, APIConnectionError, APIStatusError, NotFoundError, PermissionDeniedError
+from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError
 
 REGION = os.environ.get("AWS_REGION", "us-west-2")
-MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-haiku-5-5")
+MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.anthropic.claude-opus-5-5")
 
 HOW_TO_ENABLE = f"""
 How to fix:
-  1. Credentials: run `aws configure` (or `aws sso login`) and check `aws sts get-caller-identity`.
-  2. IAM: the identity needs bedrock:InvokeModel / bedrock:InvokeModelWithResponseStream
-     (e.g. the AmazonBedrockFullAccess managed policy for the hackathon).
-  3. Model access: AWS console -> Amazon Bedrock -> region {REGION} -> Model catalog
-     -> pick the Anthropic Claude model -> request/enable access (first-time Anthropic use asks for
-     a short use-case form). Usually approved within minutes.
-  4. Try another model the listing above shows, e.g.  BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5
+  1. Credentials: run `aws configure` and check `aws sts get-caller-identity`.
+  2. IAM: the identity needs bedrock:InvokeModel / bedrock:InvokeModelWithResponseStream.
+  3. Quota: new AWS accounts start with Bedrock token quotas of 0, so every call fails with
+     "Operation not allowed". Service Quotas console -> Amazon Bedrock -> region {REGION} ->
+     "Cross-region model inference tokens per minute for <model>" -> Request increase,
+     or open a free Support case (Account and billing).
+  4. Anthropic models need a one-time use-case form: Bedrock console -> Playground -> pick Claude.
+  5. Try another inference profile from the listing above, e.g. BEDROCK_MODEL_ID=us.anthropic.claude-haiku-5-5
 """
 
 
-def list_anthropic_models() -> None:
+def list_anthropic() -> None:
+    bedrock = boto3.client("bedrock", region_name=REGION)
     try:
-        bedrock = boto3.client("bedrock", region_name=REGION)
-        models = bedrock.list_foundation_models(byProvider="Anthropic")["modelSummaries"]
+        profiles = bedrock.list_inference_profiles()["inferenceProfileSummaries"]
     except NoCredentialsError:
         print("No AWS credentials found.")
         print(HOW_TO_ENABLE)
         sys.exit(2)
     except (ClientError, BotoCoreError) as e:
-        print(f"Could not list models ({e}); continuing to the invoke test.")
+        print(f"Could not list inference profiles ({e}); continuing.")
         return
-    print(f"Anthropic models listed in {REGION}:")
-    for m in sorted(models, key=lambda m: m["modelId"]):
-        print(f"  {m['modelId']:<50} {m.get('modelLifecycle', {}).get('status', '')}")
+    ids = sorted(p["inferenceProfileId"] for p in profiles if ".anthropic." in p["inferenceProfileId"])
+    print(f"Anthropic inference profiles in {REGION}: {len(ids)}")
+    for i in ids:
+        if "claude-3" not in i and "-4-" not in i and "-4" != i[-2:]:
+            print(f"  {i}")
+
+
+def show_quota() -> None:
+    model = MODEL_ID.split("anthropic.")[-1]  # e.g. claude-opus-5-5
+    key = model.replace("claude-", "").replace("-", "")  # e.g. opus55
+    try:
+        sq = boto3.client("service-quotas", region_name=REGION)
+        rows = [
+            (q["QuotaName"], q["Value"])
+            for page in sq.get_paginator("list_service_quotas").paginate(ServiceCode="bedrock")
+            for q in page["Quotas"]
+            if "tokens per minute" in q["QuotaName"]
+            and key in q["QuotaName"].lower().replace(" ", "").replace(".", "").replace("claude", "").replace("anthropic", "")
+        ]
+    except (ClientError, BotoCoreError) as e:
+        print(f"  could not read quotas ({e})")
+        return
+    for qname, value in rows:
+        print(f"  {qname} = {value:g}")
+    if rows and all(v == 0 for _, v in rows):
+        print("  -> all token quotas are 0: calls will fail until AWS raises them (see step 3 below).")
 
 
 def invoke() -> bool:
-    client = AnthropicBedrockMantle(aws_region=REGION)
+    rt = boto3.client("bedrock-runtime", region_name=REGION, config=Config(retries={"max_attempts": 2, "mode": "adaptive"}))
     try:
-        resp = client.messages.create(
-            model=MODEL_ID,
-            max_tokens=200,
-            output_config={"effort": "low"},
-            messages=[{"role": "user", "content": "Reply with exactly: Talaab Bedrock OK"}],
+        resp = rt.converse(
+            modelId=MODEL_ID,
+            messages=[{"role": "user", "content": [{"text": "Reply with exactly: Talaab Bedrock OK"}]}],
+            inferenceConfig={"maxTokens": 1024},
         )
-    except PermissionDeniedError as e:
-        print(f"403 access denied for {MODEL_ID}: {e.message}")
+    except ClientError as e:
+        err = e.response["Error"]
+        print(f"{err['Code']}: {err['Message']}")
         return False
-    except NotFoundError as e:
-        print(f"404 model not found in {REGION}: {MODEL_ID} ({e.message})")
-        return False
-    except APIStatusError as e:
-        print(f"Bedrock returned HTTP {e.status_code}: {e.message}")
-        return False
-    except APIConnectionError as e:
+    except BotoCoreError as e:
         print(f"Could not reach Bedrock in {REGION}: {e}")
         return False
 
-    if resp.stop_reason == "refusal":
-        print("Model answered with a refusal (access works, but the prompt was declined).")
-        return True
-    text = "".join(b.text for b in resp.content if b.type == "text").strip()
-    print(f"\n{MODEL_ID} replied: {text!r}")
-    print(f"usage: in={resp.usage.input_tokens} out={resp.usage.output_tokens}")
+    text = "".join(b.get("text", "") for b in resp["output"]["message"]["content"]).strip()
+    print(f"\n{MODEL_ID} replied: {text!r}  (stopReason={resp['stopReason']})")
+    print(f"usage: in={resp['usage']['inputTokens']} out={resp['usage']['outputTokens']}")
     return True
 
 
 if __name__ == "__main__":
-    list_anthropic_models()
-    print(f"\nInvoking {MODEL_ID} in {REGION} ...")
+    list_anthropic()
+    print(f"\nQuota check for {MODEL_ID}:")
+    show_quota()
+    print(f"\nInvoking {MODEL_ID} in {REGION} via Converse ...")
     if invoke():
         print("\nBedrock access OK.")
         sys.exit(0)
