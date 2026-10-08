@@ -15,6 +15,7 @@ the data, not the countdown maths.
 | "Ponds" that were never really there | Four detections with water on the reference date only (one of them on a cloudy reference reading) | They "dried" in week one and counted as missed predictions |
 | A signal that is not water level | One 37 ha detection climbed 6.9 → 41.5 ha in March–April with no rain | Water cannot do that in a drought; vegetation, turbidity or shadow can |
 | Single-pass dips kept | 7.8 → **0.9** → 6.9 ha | One bad reading tilts a straight-line fit |
+| A pumping flag that fired on half the district | Late April: 5 of 12 ponds flagged, ratios up to 13×, because the baseline included stable tanks | A flag that fires everywhere is useless to an inspector |
 | Countdowns from too little data (live) | 3 passes over 10 days after the monsoon: 73.7 → 42.1 → 23.6 ha | Receding floodwater looks like a pond drying in 4 days |
 
 ## What we changed
@@ -28,6 +29,7 @@ All rules are physical, written down and tested
 4. **A pond can't refill in a drought.** A rise of more than half its size without 10 mm of rain means the signal isn't measuring water. It is excluded, with the reason. This is only judged when rain data exists.
 5. **Robust trend.** The countdown uses a Theil–Sen fit (median of pairwise slopes) instead of ordinary least squares, so one bad reading can't tilt it.
 6. **Enough data before a countdown.** At least 3 clear passes spanning 15 days; until then the status is `unknown`.
+7. **A fair "faster than the sun" baseline.** Each pond is compared with the median shrink rate of ponds that are *actually shrinking* (at least 3). Before, big stable tanks pulled the median towards zero late in the season, so in late April 5 of 12 ponds were "faster than the sun", up to 13×. Now about 3 ponds are flagged, in mid-April only.
 
 ## Effect, measured one change at a time
 

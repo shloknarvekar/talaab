@@ -27,6 +27,12 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - Bedrock is wired but OFF until AWS lifts a new-account quota; `/plan` serves the deterministic EN/MR plan.
 - Status values include `unknown` (too few clear passes). Stable ponds (incl. shrink within noise) have
   `dryBy: null`.
+- Data quality (see `docs/data-quality.md`): suspect passes are judged both ways and their readings are not used;
+  single-pass spikes AND dips are dropped; detections that were never real ponds or whose signal is not water level
+  are excluded with a reason (`excludedPonds`). Countdown uses a robust Theil–Sen fit and needs 3 passes over 15 days.
+- Faster-than-sun baseline = median rate of SHRINKING ponds (needs >= 3); stable tanks no longer inflate ratios.
+- Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
+  Plan / Accuracy. No countdown maths in the browser.
 
 === PROJECT BRIEF: TALAAB (तालाब, "pond") — "The sun drinks first" ===
 
