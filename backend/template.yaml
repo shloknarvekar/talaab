@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Talaab ("the sun drinks first"): per-pond dry-by countdowns from Sentinel-2.
-  Step 1: HTTP API + hello Lambda. S3, DynamoDB, the pipeline, the scheduler and Bedrock come later.
+  Zero-idle-cost stack: HTTP API + Lambda + S3 + DynamoDB on-demand.
 
 Globals:
   Function:
@@ -21,6 +21,86 @@ Resources:
         AllowOrigins: ["*"]
         AllowMethods: [GET, POST, OPTIONS]
         AllowHeaders: [content-type]
+
+  # Pipeline outputs: data/{region}/index.json, data/{region}/asof/{date}.json, crops, cached plans.
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: project
+          Value: talaab
+
+  # Latest countdown + history per pond (pk = regionId, sk = pondId). On-demand: $0 when idle.
+  PondsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: regionId
+          AttributeType: S
+        - AttributeName: pondId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: regionId
+          KeyType: HASH
+        - AttributeName: pondId
+          KeyType: RANGE
+      Tags:
+        - Key: project
+          Value: talaab
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-api"
+      CodeUri: ./
+      Handler: api.handler.lambda_handler
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+          PONDS_TABLE: !Ref PondsTable
+          DEFAULT_REGION: latur-2024
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref DataBucket
+        - DynamoDBReadPolicy:
+            TableName: !Ref PondsTable
+      LoggingConfig:
+        LogGroup: !Ref ApiLogGroup
+      Events:
+        ListPonds:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /ponds
+            Method: GET
+        GetPond:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /ponds/{id}
+            Method: GET
+        Plan:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /plan
+            Method: POST
+
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-api"
+      RetentionInDays: 14
 
   HelloFunction:
     Type: AWS::Serverless::Function
@@ -51,3 +131,9 @@ Outputs:
   HelloUrl:
     Description: Smoke-test endpoint
     Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/hello"
+  DataBucketName:
+    Description: S3 bucket for pipeline outputs (upload under data/)
+    Value: !Ref DataBucket
+  PondsTableName:
+    Description: DynamoDB table for per-pond state
+    Value: !Ref PondsTable
