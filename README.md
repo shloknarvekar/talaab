@@ -20,37 +20,55 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
 
 The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" date uses only the data available up to that date.
 
+## Honest by design
+
+- **Ranges, not fake dates.** Every pond gets an earliest–likely–latest dry-by range. A pond whose shrinking is within measurement noise is called *stable*; we don't invent a date.
+- **Replays can't see the future.** Each as-of snapshot is built only from satellite passes and weather available on that day, so the 2024 replay is a real backtest.
+- **Proof, not claims.** [`docs/backtest-*.md`](docs/) scores every past prediction against what actually happened: dry dates inside our range, days of warning, false and missed alarms. It also runs with the heat adjustment switched off for comparison.
+- **The AI can't invent numbers.** The Bedrock plan writer only sees our data through two tools, and a *number guard* rejects any draft containing a number that isn't in the data.
+- **Officials' language and structure.** Plans come in English and Marathi, with one section per scarcity period (Oct–Dec, Jan–Mar, Apr–Jun) as the state order requires, a table by village and a concrete action per pond.
+
 ## Architecture (AWS, us-west-2)
 
-_Diagram: TODO in `docs/`._
+Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 
-- **Recompute job** (Lambda, EventBridge Scheduler every 5 days): pipeline measurements in S3 → countdowns and flags for every pass → snapshots in S3 + latest pond state in DynamoDB. The live region also pulls observed and forecast heat from Open-Meteo.
-- **API** (Lambda + API Gateway HTTP API): `/ponds`, `/ponds/{id}`, `/plan`.
-- **Plan writer**: deterministic EN/MR template, plus a Strands Agents plan on Amazon Bedrock (async worker Lambda, number guard, cached in S3).
-- **Web** (Amplify Hosting), **logs** (CloudWatch).
+| AWS service | Role |
+|---|---|
+| **S3** | Pipeline measurements, per-date snapshots, cached plans, backtest |
+| **Lambda** (×4) | `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
+| **API Gateway** (HTTP API) | Public API, throttled |
+| **EventBridge Scheduler** | Recompute every 5 days (one Sentinel-2 revisit) |
+| **DynamoDB** | Latest state of every pond |
+| **Amazon Bedrock** | Claude writes the plan in English and Marathi (behind the number guard) |
+| **CloudWatch** | Logs plus the `talaab-ops` dashboard |
+| **Amplify Hosting** | The web map |
+| **AWS Open Data** | Sentinel-2 L2A imagery, read straight from S3 |
 
 ## Repo layout
 
 | Folder | What |
 |---|---|
 | `pipeline/` | Satellite pipeline: STAC search, water mask, pond detection, cleanup, evaporation |
-| `backend/` | Countdown and flag logic, API Lambda, plan agent, SAM template |
+| `backend/` | Countdown, flags, snapshots, backtest (`logic/`), API (`api/`), recompute job (`jobs/`), plan agent (`agent/`), SAM template, scripts, 65 tests |
 | `web/` | Vite + React + Leaflet map |
-| `data/latur-2024/` | Generated outputs committed for the demo |
+| `data/` | Measurements and snapshots per region (`latur-2024`, `latur-2026`, `latur-2024-synthetic` test data) |
 | `docs/` | Data contract, demo script, architecture, sources |
 
 ## Live API (AWS, us-west-2)
 
-Base URL: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com` (currently serving the mock snapshot until real pipeline data lands)
+Base URL: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
 
 | Call | Returns |
 |---|---|
+| `GET /regions` | Regions with data (2024 replay, live 2026, synthetic test data) and the exact dates available |
 | `GET /ponds?region=latur-2024&asOf=2024-03-26` | Full `ponds.json` ([contract](docs/data-contract.md)); `asOf` resolves to the latest snapshot on or before that date |
 | `GET /ponds/P003?region=latur-2024&asOf=2024-03-26` | One pond |
-| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"en"}` | `{markdown, pondIds, source, status}`; `language` is `en` or `mr`. Instant template plan; the Bedrock plan arrives on a later call (`status: ready`) |
+| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"mr"}` | `{markdown, pondIds, source, status}`. Instant template plan; the Bedrock plan arrives on a later call (`status: ready`) |
+| `GET /backtest?region=latur-2024` | How well past predictions matched reality |
 
 ```bash
-curl "https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com/ponds?region=latur-2024"
+curl "https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com/regions"
+python backend/scripts/smoke_test.py   # checks every endpoint
 ```
 
 ## Setup
@@ -67,9 +85,16 @@ cd backend && sam build && sam deploy
 python backend/scripts/build_layer.py        # needs `pip install uv`; no Docker
 cd backend && sam build && sam deploy --parameter-overrides PlanAI=on   # PlanAI=off = template only, no Bedrock cost
 
-# publish pipeline output: uploads measurements.json and recomputes that region on AWS
+# publish pipeline output: checks it, uploads measurements.json and recomputes that region on AWS
 pip install -r backend/scripts/requirements.txt
+python backend/scripts/check_measurements.py data/latur-2024/measurements.json
 python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
+
+# backtest report (docs/backtest-<region>.md + GET /backtest)
+python backend/scripts/run_backtest.py data/latur-2024/measurements.json --upload
+
+# tear everything down after judging
+cd backend && sam delete
 ```
 
 ## Data credits
@@ -80,7 +105,7 @@ python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 
 ## AI tools used
 
-- **Claude Code** (Anthropic): scaffolding, logic and tests, AWS templates.
+- **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates, scripts, docs (pair-programmed with the team).
 - **Amazon Bedrock** (Claude) via **Strands Agents SDK**: in-product plan writer.
 - _Add any others the team uses._
 
