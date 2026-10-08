@@ -2,7 +2,7 @@ import json
 import re
 from pathlib import Path
 
-from logic.plan import build_plan
+from logic.plan import build_plan, planning_periods
 
 MOCK = json.loads((Path(__file__).resolve().parents[2] / "web" / "public" / "mock" / "ponds.json").read_text(encoding="utf-8"))
 
@@ -45,3 +45,32 @@ def test_empty_region():
     doc = {**MOCK, "ponds": [], "scenes": []}
     out = build_plan(doc)
     assert out["pondIds"] == [] and "None." in out["markdown"]
+
+
+def test_planning_periods_follow_the_government_order():
+    assert planning_periods("2026-10-08") == [(2026, 10, 12), (2027, 1, 3), (2027, 4, 6)]
+    assert planning_periods("2024-03-26") == [(2024, 1, 3), (2024, 4, 6)]
+    assert planning_periods("2024-05-01") == [(2024, 4, 6)]
+    assert planning_periods("2026-08-15") == [(2026, 10, 12), (2027, 1, 3), (2027, 4, 6)]
+
+
+def test_every_period_listed_even_when_empty_and_live_label():
+    live = {**MOCK, "asOf": "2026-10-08", "live": True, "ponds": []}
+    md = build_plan(live, "en")["markdown"]
+    for label in ("Oct–Dec 2026", "Jan–Mar 2027", "Apr–Jun 2027"):
+        assert label in md
+    assert md.count("No pond is expected to dry up in this period.") == 3
+    assert "Live: updated automatically" in md and "replay of past data" not in md
+
+
+def test_summary_village_table_and_actions():
+    md = build_plan(MOCK, "en")["markdown"]
+    assert "**Summary:** 4 ponds tracked: 1 dry, 1 critical, 1 watch, 1 ok. 1 flagged for inspection." in md
+    table = md.split("## By village")[1].split("\n## ")[0]
+    rows = [r for r in table.splitlines() if r.startswith("| Village ") and not r.startswith("| Village |")]
+    assert [r.split("|")[3].strip() for r in rows] == ["dry", "critical", "watch", "ok"]  # most urgent first
+    assert "Book tankers before 5 Apr 2024" in md  # critical P003, earliest 5 Apr
+    assert "Prepare tanker contracts" in md          # watch P002
+    assert "replay of past data" in md
+    mr = build_plan(MOCK, "mr")["markdown"]
+    assert "गावनिहाय स्थिती" in mr and "टँकरची व्यवस्था करा" in mr and "सारांश" in mr

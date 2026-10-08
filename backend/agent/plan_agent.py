@@ -23,8 +23,10 @@ Facts come only from your tools. Call get_ponds first; call get_pond for detail 
 
 Write Markdown in the requested language:
 - A title naming the region and the as-of date, then two or three sentences on the overall situation, including the sun's share (sunShareMm: evaporation over the last 45 days).
+- A one-line summary: how many ponds are dry, critical, watch and ok, and how many are flagged.
+- A short table by village (the place name without "near"): its ponds, the most urgent status, the earliest likely dry date.
 - "Already dry" ponds first: these need alternative supply now.
-- Then one section per scarcity period in which ponds are likely to dry up, using the government's periods Oct–Dec, Jan–Mar and Apr–Jun. A pond likely to last past June lasts until the monsoon. Most urgent first.
+- Then one section for EVERY scarcity period from the as-of date up to the next June, using the government's periods Oct–Dec, Jan–Mar and Apr–Jun (the order asks for a separate plan per period); say so plainly when no pond is expected to dry in a period. A pond likely to last past June lasts until the monsoon. Most urgent first.
 - For each pond: its id in bold, its place, water area now and max (ha), the dry-by range (earliest to latest, with the likely date) and one concrete action.
 - A section listing ponds flagged "faster-than-sun" for inspection, with how many times faster than neighbours they shrink. Say plainly this suggests possible unauthorised extraction, not proof.
 - Ponds with status "unknown" (hidden by cloud) need a ground check.
