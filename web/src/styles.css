@@ -174,3 +174,69 @@ button { cursor: pointer; }
   .plan-hero { align-items: flex-start; flex-direction: column; }
   .plan-hero h2 { font-size: 24px; }
 }
+
+/* ---- Regions, tabs, mode banner (integration with the live API) ---- */
+.topbar { grid-template-columns: 210px minmax(250px, 1fr) 210px 190px auto; }
+.region-switch { display: flex; gap: 4px; margin-top: 5px; background: #e7ece8; padding: 3px; border-radius: 9px; width: max-content; }
+.region-switch button { border: 0; background: transparent; padding: 6px 9px; border-radius: 7px; font-size: 11px; font-weight: 800; color: #59675f; display: inline-flex; align-items: center; gap: 6px; }
+.region-switch button.active { background: white; color: var(--ink); box-shadow: 0 2px 7px rgba(22,35,27,.08); }
+.region-switch em { font-style: normal; font-size: 8px; letter-spacing: .1em; padding: 2px 5px; border-radius: 5px; }
+.region-switch em.live { background: #ffe5df; color: #b3321f; }
+.region-switch em.replay { background: #e2ecf6; color: #2b5a86; }
+.loading-dot { color: var(--green); letter-spacing: .04em; }
+.asof-block input[type="range"]:disabled { opacity: .45; }
+.tab-group { display: flex; gap: 5px; }
+.tab-button.active { background: var(--green-deep); color: white; border-color: var(--green-deep); }
+.mode-banner { padding: 8px 20px; font-size: 11px; border-bottom: 1px solid var(--line); color: #3c4a42; }
+.mode-banner.live { background: #fff6f1; }
+.mode-banner.replay { background: #f2f6fb; }
+.mode-banner b { color: var(--ink); }
+.excluded summary { cursor: pointer; color: var(--green-deep); font-weight: 700; }
+.excluded ul { margin: 6px 0 0; padding-left: 16px; }
+.excluded li { margin-bottom: 4px; }
+
+/* ---- Plan status ---- */
+.plan-status { font-size: 10px; font-weight: 800; }
+.plan-status.ready { color: #2f855a; }
+.plan-status.working { color: #b7791f; }
+.markdown-render table { border-collapse: collapse; margin: 8px 0 12px; font-size: 11px; }
+.markdown-render th, .markdown-render td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; }
+.markdown-render th { background: #f4f7f4; }
+.markdown-render li { font-size: 11px; line-height: 1.6; color: #39463e; margin: 3px 0; }
+
+/* ---- Accuracy tab ---- */
+.muted { color: var(--muted); }
+.accuracy-headline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0 14px; }
+.accuracy-headline div { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 4px; }
+.accuracy-headline strong { font-size: 30px; letter-spacing: -.03em; color: var(--green-deep); }
+.accuracy-headline span { color: var(--muted); font-size: 11px; }
+.accuracy-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px; }
+.accuracy-table th { text-align: left; color: #758279; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; padding: 8px; border-bottom: 1px solid var(--line); }
+.accuracy-table td { padding: 8px; border-bottom: 1px solid #edf1ee; }
+.accuracy-screen h3 { font-size: 13px; margin: 6px 0 8px; }
+.plan-data-note a { color: var(--green-deep); font-weight: 700; }
+
+@media (max-width: 1100px) {
+  .topbar { grid-template-columns: 170px 1fr 190px auto; }
+  .region-block { display: block; }
+  .sun-share { display: none; }
+}
+@media (max-width: 760px) {
+  .topbar { grid-template-columns: 1fr; }
+  .region-switch { width: 100%; }
+  .tab-group { grid-column: 1; grid-row: auto; }
+  .accuracy-headline { grid-template-columns: 1fr; }
+}
+
+/* ---- Fixed-height desktop layout: map = visible area; lists scroll inside their panels ---- */
+@media (min-width: 761px) {
+  .app-shell { height: 100vh; overflow: hidden; }
+  .workspace { min-height: 0; overflow: hidden; }
+  .sidebar, .detail-panel { min-height: 0; overflow: auto; }
+  .sidebar { overflow: hidden; }
+  .pond-list { min-height: 0; }
+  .map-panel { min-height: 0; height: 100%; }
+  .plan-screen { overflow: auto; }
+  .app-shell > .plan-screen { flex: 1; min-height: 0; max-width: none; }
+  .app-shell > .plan-screen > * { max-width: 1100px; margin-left: auto; margin-right: auto; }
+}

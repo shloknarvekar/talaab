@@ -13,8 +13,13 @@ export default function MapView({ region, ponds, selectedId, onSelect, satellite
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     mapRef.current = map;
     layersRef.current.markers = L.layerGroup().addTo(map);
+    // Leaflet must be told when its box changes size (layout, window resize), or tiles and
+    // markers are placed for the old size.
+    const resize = new ResizeObserver(() => map.invalidateSize());
+    resize.observe(hostRef.current);
 
     return () => {
+      resize.disconnect();
       map.remove();
       mapRef.current = null;
     };
