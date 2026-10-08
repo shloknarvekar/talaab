@@ -140,5 +140,25 @@
    "medianLeadDays": 25.0,
    "pondsWarnedInAdvance": 4
   }
- }
+ },
+ "comparisons": [
+  {
+   "label": "Before data cleanup",
+   "summary": {
+    "rangeHitRate": 0.375,
+    "rangeHits": 27,
+    "rangeMisses": 40,
+    "tooEarly": 5,
+    "unresolved": 18,
+    "medianErrorDays": 13,
+    "medianAbsErrorDays": 24,
+    "criticalPrecision": 0.542,
+    "criticalCalls": 24,
+    "criticalRecall": 0.317,
+    "shouldHaveWarned": 41,
+    "medianLeadDays": 22.5,
+    "pondsWarnedInAdvance": 4
+   }
+  }
+ ]
 }

@@ -77,10 +77,13 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
             }
         )
 
-    return {
+    doc = {
         "region": meas["region"],
         "asOf": t.isoformat(),
         "sunShareMm": sun_share_mm(observed, start, end),
         "scenes": [s for s in meas["scenes"] if _d(s["date"]) <= t],
         "ponds": sorted(ponds, key=lambda p: p["id"]),
     }
+    if meas.get("excludedPonds"):  # detections dropped by the pipeline's quality rules, with reasons
+        doc["excludedPonds"] = meas["excludedPonds"]
+    return doc

@@ -78,10 +78,14 @@ def main() -> None:
     ap.add_argument("--start", default=None)
     ap.add_argument("--end", default=None)
     ap.add_argument("--upload", action="store_true")
+    ap.add_argument("--compare", nargs=2, action="append", default=[], metavar=("LABEL", "BACKTEST_JSON"),
+                    help="embed an earlier backtest summary for comparison, e.g. --compare 'Before data cleanup' old.json")
     args = ap.parse_args()
 
     meas = json.loads(Path(args.measurements).read_text(encoding="utf-8"))
     r = backtest(meas, args.start, args.end)
+    r["comparisons"] = [{"label": label, "summary": json.loads(Path(path).read_text(encoding="utf-8"))["summary"]}
+                        for label, path in args.compare]
     region = meas["region"]["id"]
 
     out_json = ROOT / "data" / region / "backtest.json"
