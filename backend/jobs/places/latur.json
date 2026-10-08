@@ -1,0 +1,580 @@
+{
+ "source": "OpenStreetMap via Overpass API",
+ "license": "Data (c) OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright)",
+ "fetched": "2026-10-08",
+ "bbox": [
+  76.42,
+  18.279999999999998,
+  76.67,
+  18.53
+ ],
+ "places": [
+  {
+   "name": "Akherwai",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.43746,
+   "lon": 76.45796
+  },
+  {
+   "name": "Almala",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.3062,
+   "lon": 76.48344
+  },
+  {
+   "name": "Andalgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.52121,
+   "lon": 76.4666
+  },
+  {
+   "name": "Ankoli",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.34188,
+   "lon": 76.45346
+  },
+  {
+   "name": "Arajkheda",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.47563,
+   "lon": 76.53413
+  },
+  {
+   "name": "Babalgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.37699,
+   "lon": 76.63163
+  },
+  {
+   "name": "Bhatkheda",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.43089,
+   "lon": 76.66834
+  },
+  {
+   "name": "Bhoisumdraga",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.44273,
+   "lon": 76.46671
+  },
+  {
+   "name": "Bhudhoda OLD",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.31382,
+   "lon": 76.52778
+  },
+  {
+   "name": "Bhusni",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34495,
+   "lon": 76.65065
+  },
+  {
+   "name": "Brahmwadi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.50833,
+   "lon": 76.53991
+  },
+  {
+   "name": "Budhada",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.3043,
+   "lon": 76.53662
+  },
+  {
+   "name": "Chandeshwar",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34811,
+   "lon": 76.55321
+  },
+  {
+   "name": "Chikhurda",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.41639,
+   "lon": 76.42861
+  },
+  {
+   "name": "Chincholi P",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.284,
+   "lon": 76.66981
+  },
+  {
+   "name": "Chincholirao",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34383,
+   "lon": 76.47154
+  },
+  {
+   "name": "Chincholiraowadi",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.35716,
+   "lon": 76.46462
+  },
+  {
+   "name": "Darji Borgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.49607,
+   "lon": 76.52405
+  },
+  {
+   "name": "Dhanegaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.38579,
+   "lon": 76.66222
+  },
+  {
+   "name": "Dhanora",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.35067,
+   "lon": 76.62356
+  },
+  {
+   "name": "Dindogaon",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.50991,
+   "lon": 76.4232
+  },
+  {
+   "name": "Gangapur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34311,
+   "lon": 76.51351
+  },
+  {
+   "name": "Ghawan",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51205,
+   "lon": 76.55335
+  },
+  {
+   "name": "Gondri",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.31458,
+   "lon": 76.64545
+  },
+  {
+   "name": "HakeTanda",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.4937,
+   "lon": 76.61485
+  },
+  {
+   "name": "Harangul Bk",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.4147,
+   "lon": 76.49963
+  },
+  {
+   "name": "Harwadi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.46646,
+   "lon": 76.60674
+  },
+  {
+   "name": "Hasala",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.32382,
+   "lon": 76.55921
+  },
+  {
+   "name": "Hasegaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.31154,
+   "lon": 76.62216
+  },
+  {
+   "name": "Hasegaon Tanda",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.30699,
+   "lon": 76.60595
+  },
+  {
+   "name": "Hippersoga",
+   "nameMr": "हिप्परसोगा",
+   "type": "village",
+   "lat": 18.32357,
+   "lon": 76.6043
+  },
+  {
+   "name": "Indarthana",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.47593,
+   "lon": 76.50986
+  },
+  {
+   "name": "Jamalpur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.32375,
+   "lon": 76.58232
+  },
+  {
+   "name": "Jawalga",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.49928,
+   "lon": 76.63615
+  },
+  {
+   "name": "Jewali",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.46811,
+   "lon": 76.48994
+  },
+  {
+   "name": "Karsa",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.50774,
+   "lon": 76.45063
+  },
+  {
+   "name": "Kasarkheda",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.44968,
+   "lon": 76.64285
+  },
+  {
+   "name": "Kawa",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34862,
+   "lon": 76.58197
+  },
+  {
+   "name": "Khandapur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.3573,
+   "lon": 76.49544
+  },
+  {
+   "name": "Kharoala",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51084,
+   "lon": 76.66028
+  },
+  {
+   "name": "Khopegaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.35376,
+   "lon": 76.56118
+  },
+  {
+   "name": "Khulgapur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.45476,
+   "lon": 76.60951
+  },
+  {
+   "name": "Khuntegaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.29562,
+   "lon": 76.58166
+  },
+  {
+   "name": "Kolgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.52704,
+   "lon": 76.53286
+  },
+  {
+   "name": "Kolpa",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.42616,
+   "lon": 76.64072
+  },
+  {
+   "name": "Lakhangaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.28389,
+   "lon": 76.43897
+  },
+  {
+   "name": "Latur",
+   "nameMr": "लातूर",
+   "type": "city",
+   "lat": 18.39823,
+   "lon": 76.56259
+  },
+  {
+   "name": "MIDC",
+   "nameMr": null,
+   "type": "suburb",
+   "lat": 18.41535,
+   "lon": 76.53887
+  },
+  {
+   "name": "Mahapur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.46893,
+   "lon": 76.58556
+  },
+  {
+   "name": "Malwati",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.4386,
+   "lon": 76.61601
+  },
+  {
+   "name": "Nagzari",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.4679,
+   "lon": 76.5127
+  },
+  {
+   "name": "Nandgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.45228,
+   "lon": 76.54757
+  },
+  {
+   "name": "Neharu Nagar",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.48972,
+   "lon": 76.5887
+  },
+  {
+   "name": "Pandhari",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.49296,
+   "lon": 76.65766
+  },
+  {
+   "name": "Peth",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.33049,
+   "lon": 76.54207
+  },
+  {
+   "name": "Raiwadi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.45142,
+   "lon": 76.5354
+  },
+  {
+   "name": "Rajewadi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.50597,
+   "lon": 76.5706
+  },
+  {
+   "name": "Rameshwar",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51773,
+   "lon": 76.4217
+  },
+  {
+   "name": "Renapur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.52643,
+   "lon": 76.59677
+  },
+  {
+   "name": "Rui",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51846,
+   "lon": 76.42988
+  },
+  {
+   "name": "Rupchand Nagar",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51876,
+   "lon": 76.5755
+  },
+  {
+   "name": "Sai",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.47394,
+   "lon": 76.55052
+  },
+  {
+   "name": "Samangaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.44941,
+   "lon": 76.42665
+  },
+  {
+   "name": "Sangvi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.49731,
+   "lon": 76.48934
+  },
+  {
+   "name": "Sawergaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.3339,
+   "lon": 76.42561
+  },
+  {
+   "name": "Selu",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.28193,
+   "lon": 76.55379
+  },
+  {
+   "name": "Selu Bk",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.36064,
+   "lon": 76.66647
+  },
+  {
+   "name": "Selu New",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.50984,
+   "lon": 76.64235
+  },
+  {
+   "name": "Sevadas Nagar",
+   "nameMr": null,
+   "type": "hamlet",
+   "lat": 18.51689,
+   "lon": 76.62963
+  },
+  {
+   "name": "Shelu Kh",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.5072,
+   "lon": 76.63673
+  },
+  {
+   "name": "Shindala Jahagir",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.32382,
+   "lon": 76.57297
+  },
+  {
+   "name": "Shiur",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.31518,
+   "lon": 76.45458
+  },
+  {
+   "name": "Shivani Bk",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.34682,
+   "lon": 76.66744
+  },
+  {
+   "name": "Sindhgaon",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.51701,
+   "lon": 76.48582
+  },
+  {
+   "name": "Sirshi",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.36071,
+   "lon": 76.6201
+  },
+  {
+   "name": "Sonawati",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.39643,
+   "lon": 76.64945
+  },
+  {
+   "name": "Takali B",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.48863,
+   "lon": 76.46894
+  },
+  {
+   "name": "Umadga Kh",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.28833,
+   "lon": 76.50798
+  },
+  {
+   "name": "Umbadaga Bk",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.30093,
+   "lon": 76.5097
+  },
+  {
+   "name": "Uti Bk",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.29381,
+   "lon": 76.43219
+  },
+  {
+   "name": "Uti Ku",
+   "nameMr": null,
+   "type": "village",
+   "lat": 18.32483,
+   "lon": 76.4407
+  }
+ ]
+}
