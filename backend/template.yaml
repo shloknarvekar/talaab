@@ -271,6 +271,120 @@ Resources:
           Recompute: !Ref RecomputeFunction
           Worker: !Ref PlanWorkerFunction
 
+  # ---- District scale: the satellite pipeline itself on AWS (one Lambda per grid cell, in parallel) ----
+  PipelineLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: rasterio (GDAL), numpy, scipy.ndimage, pystac-client (built by backend/scripts/build_layer.py --name pipeline-layer)
+      ContentUri: ../.build/pipeline-layer.zip
+      CompatibleRuntimes: [python3.12]
+      CompatibleArchitectures: [arm64]
+
+  CellFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-pipeline-cell"
+      CodeUri: ../.build/pipeline-fn
+      Handler: cell_handler.lambda_handler
+      Timeout: 900
+      MemorySize: 2048
+      Layers: [!Ref PipelineLayer]
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+      LoggingConfig:
+        LogGroup: !Ref CellLogGroup
+
+  CellLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-pipeline-cell"
+      RetentionInDays: 14
+
+  MergeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-pipeline-merge"
+      CodeUri: ../.build/pipeline-fn
+      Handler: merge_handler.lambda_handler
+      Timeout: 300
+      MemorySize: 1024
+      Layers: [!Ref PipelineLayer]
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+          RECOMPUTE_FUNCTION: !Ref RecomputeFunction
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RecomputeFunction
+      LoggingConfig:
+        LogGroup: !Ref MergeLogGroup
+
+  MergeLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-pipeline-merge"
+      RetentionInDays: 14
+
+  # Map over every grid cell (8 at a time, under the account's 10-Lambda limit), then merge.
+  DistrictStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "${AWS::StackName}-district"
+      Type: STANDARD
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CellFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref MergeFunction
+      DefinitionSubstitutions:
+        CellArn: !GetAtt CellFunction.Arn
+        MergeArn: !GetAtt MergeFunction.Arn
+      Definition:
+        Comment: "Talaab: process a whole district from Sentinel-2, one Lambda per grid cell"
+        StartAt: ProcessCells
+        States:
+          ProcessCells:
+            Type: Map
+            ItemsPath: "$.cells"
+            MaxConcurrency: 8
+            ItemSelector:
+              cell.$: "$$.Map.Item.Value"
+              region.$: "$.region"
+              start.$: "$.start"
+              end.$: "$.end"
+              referenceDate.$: "$.referenceDate"
+            ItemProcessor:
+              ProcessorConfig:
+                Mode: INLINE
+              StartAt: ProcessCell
+              States:
+                ProcessCell:
+                  Type: Task
+                  Resource: "${CellArn}"
+                  Retry:
+                    - ErrorEquals: ["States.ALL"]
+                      IntervalSeconds: 20
+                      MaxAttempts: 2
+                      BackoffRate: 2
+                  End: true
+            ResultPath: "$.cellResults"
+            Next: Merge
+          Merge:
+            Type: Task
+            Resource: "${MergeArn}"
+            Parameters:
+              region.$: "$.region"
+              name.$: "$.name"
+              boundary.$: "$.boundary"
+              referenceDate.$: "$.referenceDate"
+            End: true
+
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -312,6 +426,9 @@ Outputs:
   AlertTopicArn:
     Description: SNS topic for critical-pond alerts (subscribe an email with aws sns subscribe)
     Value: !Ref AlertTopic
+  DistrictStateMachineArn:
+    Description: Step Functions workflow that processes a whole district (start with scripts/run_district.py)
+    Value: !Ref DistrictStateMachine
   RecomputeFunctionName:
     Description: Recompute job (invoked by the 5-day schedule and scripts/upload_measurements.py)
     Value: !Ref RecomputeFunction

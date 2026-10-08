@@ -11,4 +11,7 @@ REGIONS = {
     "latur-2024": {"name": "Latur (2024 replay)", "mode": "replay", "bbox": LATUR_BBOX, "centre": LATUR_CENTRE},
     "latur-2024-synthetic": {"name": "Latur (2024 replay, SYNTHETIC data)", "mode": "replay", "bbox": LATUR_BBOX, "centre": LATUR_CENTRE},
     "latur-2026": {"name": "Latur (live, 2026)", "mode": "live", "bbox": LATUR_BBOX, "centre": LATUR_CENTRE},
+    # Whole district (7,157 km2), processed on AWS by the district state machine (scripts/run_district.py)
+    "latur-district-2024": {"name": "Latur district (2024 replay)", "mode": "replay",
+                            "bbox": [76.2024, 17.8709, 77.2953, 18.8389], "centre": (18.355, 76.749)},
 }

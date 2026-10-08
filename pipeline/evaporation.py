@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
+import os
 from pathlib import Path
 from typing import Dict, List, Tuple
 import requests
@@ -17,7 +18,8 @@ import requests
 DEFAULT_LAT = 18.41
 DEFAULT_LON = 76.55
 ARCHIVE_API_URL = "https://archive-api.open-meteo.com/v1/archive"
-CACHE_DIR = Path(__file__).resolve().parents[1] / "data" / ".cache"
+# Overridable for read-only environments (AWS Lambda sets TALAAB_CACHE_DIR=/tmp/talaab-cache)
+CACHE_DIR = Path(os.environ.get("TALAAB_CACHE_DIR") or Path(__file__).resolve().parents[1] / "data" / ".cache")
 
 
 def fetch_daily_weather(

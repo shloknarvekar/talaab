@@ -43,3 +43,6 @@ Thumbs.db
 
 # Lambda layer build output
 .build/
+
+# Open-Meteo response cache (pipeline/evaporation.py)
+data/.cache/
