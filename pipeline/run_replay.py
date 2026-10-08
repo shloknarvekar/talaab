@@ -15,7 +15,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Dict, List
 
-from pipeline.cleanup import clean_spike_measurements, detect_suspect_scenes
+from pipeline.cleanup import apply_quality_rules
 from pipeline.evaporation import fetch_climatology_2019_2023, fetch_daily_weather
 from pipeline.export import build_measurements_doc, export_measurements_json
 from pipeline.ponds import DetectedPond, PondMeasurement, detect_ponds, measure_pond_pass
@@ -122,42 +122,18 @@ def run_pipeline_for_region(
     else:
         print("\nStep 4: Weather fetching skipped (backend handles weather for live mode).")
 
-    # 5. Quality Assurance & Cleanup
-    print("\nStep 5: Applying quality assurance, suspect scene detection, and spike cleanup...")
-    # Calculate total valid area per scene date
-    total_area_by_date: Dict[str, float] = {}
-    scene_dates = [s.date for s in scenes]
-    for s_date in scene_dates:
-        tot = sum(
-            h["areaHa"]
-            for history in pond_histories.values()
-            for h in history
-            if h["date"] == s_date and h["valid"]
-        )
-        total_area_by_date[s_date] = tot
-
-    suspect_dates = detect_suspect_scenes(scene_dates, total_area_by_date, precip_by_date)
-    print(f"  Suspect scene dates identified: {suspect_dates if suspect_dates else 'None'}")
-
-    scene_records = []
-    for s in scenes:
-        status = "suspect" if s.date in suspect_dates else "ok"
-        scene_records.append({"date": s.date, "id": s.id, "status": status})
-
-    # Clean spikes for each pond
-    cleaned_ponds = []
-    total_spikes_cleaned = 0
-    for p in detected_ponds:
-        hist = pond_histories[p.id]
-        cleaned_hist = clean_spike_measurements(hist, precip_by_date)
-        spikes = sum(1 for orig, cln in zip(hist, cleaned_hist) if orig["valid"] and not cln["valid"])
-        total_spikes_cleaned += spikes
-
-        p_dict = p.to_dict()
-        p_dict["history"] = cleaned_hist
-        cleaned_ponds.append(p_dict)
-
-    print(f"  Cleaned {total_spikes_cleaned} single-point area spikes across all ponds.")
+    # 5. Quality Assurance & Cleanup (see pipeline/cleanup.py: suspect passes up or down,
+    #    spikes and dips, ponds that were never really there or whose signal is not water level)
+    print("\nStep 5: Applying quality rules...")
+    raw_scenes = [{"date": s.date, "id": s.id, "status": "ok"} for s in scenes]
+    raw_ponds = [dict(p.to_dict(), history=pond_histories[p.id]) for p in detected_ponds]
+    scene_records, cleaned_ponds, excluded_ponds, quality = apply_quality_rules(
+        raw_scenes, raw_ponds, precip_by_date, reference_date)
+    print(f"  Suspect passes: {quality['suspectScenes'] or 'none'}; "
+          f"spikes/dips removed: {quality['spikesAndDipsRemoved']}; "
+          f"ponds kept {quality['pondsKept']}, excluded {quality['pondsExcluded']}")
+    for e in excluded_ponds:
+        print(f"  - excluded {e['id']} ({e['refAreaHa']} ha): {e['reason']}")
 
     # 6. Export measurements JSON
     print(f"\nStep 6: Exporting measurements JSON to {output_path}...")
@@ -172,6 +148,8 @@ def run_pipeline_for_region(
         et0_climatology=et0_clim,
     )
 
+    doc["excludedPonds"] = excluded_ponds
+    doc["quality"] = quality
     out_file = export_measurements_json(doc, output_path)
     print(f"Successfully exported {out_file}!")
     return out_file
