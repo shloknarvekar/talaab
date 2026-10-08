@@ -34,6 +34,7 @@ def run_pipeline_for_region(
     reference_date: str | None,
     output_path: Path,
     include_weather: bool = True,
+    max_cloud_cover: float = 20.0,
 ) -> Path:
     """Run full pipeline for a region and write measurements.json."""
     print(f"\n==================================================")
@@ -43,7 +44,7 @@ def run_pipeline_for_region(
 
     # 1. Discover STAC scenes
     print("Step 1: Discovering STAC Sentinel-2 L2A scenes...")
-    scenes = search_scenes(bbox=bbox, start_date=start_date, end_date=end_date)
+    scenes = search_scenes(bbox=bbox, start_date=start_date, end_date=end_date, max_cloud_cover=max_cloud_cover)
     if not scenes:
         raise RuntimeError(f"No STAC scenes found for region {region_id} between {start_date} and {end_date}")
 
@@ -186,9 +187,12 @@ def main():
             bbox=bbox_latur,
             start_date="2026-09-01",
             end_date="2026-10-31",
-            reference_date=None,  # First available scene
+            reference_date="2026-09-27",  # 0% cloud: detect ponds on a clear pass, never a cloudy one
             output_path=REPO_ROOT / "data" / "latur-2026" / "measurements.json",
             include_weather=False,  # Weather is optional for live mode
+            # Right after the monsoon few passes are below 20% tile cloud. Accept up to 45%: the
+            # per-pond SCL check (>20% of a pond's footprint cloudy -> invalid) still drops cloudy readings.
+            max_cloud_cover=45.0,
         )
 
 
