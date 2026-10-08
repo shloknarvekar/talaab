@@ -74,3 +74,13 @@ def test_summary_village_table_and_actions():
     assert "replay of past data" in md
     mr = build_plan(MOCK, "mr")["markdown"]
     assert "गावनिहाय स्थिती" in mr and "टँकरची व्यवस्था करा" in mr and "सारांश" in mr
+
+
+def test_dates_after_this_seasons_june_go_to_monsoon_not_a_new_period():
+    doc = json.loads(json.dumps(MOCK))
+    p = next(x for x in doc["ponds"] if x.get("dryBy"))
+    p["dryBy"] = {"earliest": "2025-01-10", "likely": "2025-02-01", "latest": "2025-03-01"}
+    p["status"] = "ok"
+    md = build_plan(doc, "en")["markdown"]
+    assert "2025" not in md.split("## Expected to last until the monsoon")[0]
+    assert f"**{p['id']}**" in md.split("## Expected to last until the monsoon")[1]

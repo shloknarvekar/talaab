@@ -189,7 +189,7 @@ def build_plan(doc: dict, language: str = "en") -> dict:
             ids = ", ".join(p["id"] for p in sorted(vp, key=lambda p: p["id"]))
             if not dates:
                 when = "–"
-            elif _period_of(dates[0]) is None:
+            elif _period_of(dates[0]) not in planning_periods(doc["asOf"]):  # monsoon or next season
                 when = t["to_monsoon"]
             else:
                 when = _fmt_date(dates[0], lang)
@@ -205,17 +205,16 @@ def build_plan(doc: dict, language: str = "en") -> dict:
     shrinking = sorted((p for p in ponds if p.get("dryBy") and p["status"] != "dry"), key=lambda p: p["dryBy"]["likely"])
     by_period: dict[tuple[int, int, int], list[dict]] = {}
     later: list[dict] = []
+    periods = planning_periods(doc["asOf"])
     for p in shrinking:
         per = _period_of(p["dryBy"]["likely"])
-        if per is None:
+        # Past this season's last planned June (monsoon, or next year's dry season): it lasts
+        # until the monsoon, and belongs to next season's plan, not this one.
+        if per is None or per not in periods:
             later.append(p)
         else:
             by_period.setdefault(per, []).append(p)
-    periods = planning_periods(doc["asOf"])
-    for per in by_period:  # a likely date past the last planned June still gets its own section
-        if per not in periods:
-            periods.append(per)
-    for per in sorted(periods, key=lambda x: (x[0], x[1])):
+    for per in periods:
         items = []
         for p in by_period.get(per, []):
             cite(p["id"])
