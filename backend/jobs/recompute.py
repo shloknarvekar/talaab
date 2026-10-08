@@ -15,6 +15,7 @@ from decimal import Decimal
 from typing import Callable
 
 from api import store
+from jobs.places import name_ponds, places_for_region
 from jobs.regions import REGIONS
 from jobs.weather import merge_observed, recent_and_forecast
 from logic.snapshot import build_snapshot
@@ -59,6 +60,9 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
     if meas is None:
         return {"region": region, "skipped": "no measurements.json uploaded yet"}
 
+    meas = {**meas, "ponds": [dict(p) for p in meas["ponds"]]}
+    named = name_ponds(meas["ponds"], places_for_region(region))
+
     live = cfg["mode"] == "live"
     forecast: list[dict] = []
     if live:
@@ -96,6 +100,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
         "sunShareMm": latest["sunShareMm"] if latest else None,
         "forecastDays": len(forecast),
         "dynamoRows": rows,
+        "pondsNamed": named,
     }
 
 

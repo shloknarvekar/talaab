@@ -65,6 +65,7 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
                 "lat": p["lat"],
                 "lon": p["lon"],
                 "place": p.get("place", ""),
+                **({"placeMr": p["placeMr"]} if p.get("placeMr") else {}),
                 "maxAreaHa": c["maxAreaHa"] if c["maxAreaHa"] is not None else p.get("refAreaHa"),
                 "areaNowHa": c["areaNowHa"],
                 "history": hist,

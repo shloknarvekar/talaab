@@ -21,7 +21,8 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
     {
       "id": "P003",                     // P001, P002… sorted by area on the reference date (largest first)
       "lat": 18.3753, "lon": 76.535,    // pond centroid, WGS84
-      "place": "near <village>",        // human label; free text
+      "place": "near <village>",        // nearest OSM village within 5 km (or the pipeline's own label); "" if none
+      "placeMr": "<गाव>",               // optional: Marathi village name from OSM
       "maxAreaHa": 33.3,                // max valid area seen up to asOf (ha)
       "areaNowHa": 8.6,                 // latest valid area up to asOf (ha)
       "history": [                      // every pass, oldest first, all <= asOf

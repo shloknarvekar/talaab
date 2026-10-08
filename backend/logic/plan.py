@@ -45,7 +45,7 @@ T = {
         "act_ok": "Routine monitoring.",
         "none": "None.",
         "status": {"dry": "dry", "critical": "critical", "watch": "watch", "ok": "ok", "unknown": "not visible"},
-        "footer": "Drafted automatically by Talaab from Sentinel-2 satellite data (Copernicus, via AWS Open Data) and Open-Meteo weather data. All figures are measurements or ranges from our model, not exact dates. Verify on the ground before final decisions.",
+        "footer": "Drafted automatically by Talaab from Sentinel-2 satellite data (Copernicus, via AWS Open Data) and Open-Meteo weather data; village names (c) OpenStreetMap contributors. All figures are measurements or ranges from our model, not exact dates. Verify on the ground before final decisions.",
         "near": "near",
     },
     "mr": {
@@ -76,7 +76,7 @@ T = {
         "act_ok": "नियमित देखरेख.",
         "none": "काहीही नाही.",
         "status": {"dry": "कोरडे", "critical": "गंभीर", "watch": "लक्ष ठेवा", "ok": "सुरक्षित", "unknown": "दिसत नाही"},
-        "footer": "हा मसुदा Talaab ने Sentinel-2 उपग्रह माहिती (Copernicus, AWS Open Data) आणि Open-Meteo हवामान माहितीवरून आपोआप तयार केला आहे. सर्व आकडे मोजमाप किंवा अंदाजाच्या कक्षा आहेत, अचूक तारखा नाहीत. अंतिम निर्णयापूर्वी प्रत्यक्ष पाहणी करावी.",
+        "footer": "हा मसुदा Talaab ने Sentinel-2 उपग्रह माहिती (Copernicus, AWS Open Data) आणि Open-Meteo हवामान माहितीवरून (गावांची नावे: OpenStreetMap) आपोआप तयार केला आहे. सर्व आकडे मोजमाप किंवा अंदाजाच्या कक्षा आहेत, अचूक तारखा नाहीत. अंतिम निर्णयापूर्वी प्रत्यक्ष पाहणी करावी.",
         "near": "जवळ",
     },
 }
@@ -115,6 +115,8 @@ def _period_label(p: tuple[int, int, int], lang: str) -> str:
 
 
 def _village(p: dict, t: dict) -> str:
+    if t["near"] != "near" and p.get("placeMr"):
+        return p["placeMr"]
     place = (p.get("place") or "").strip()
     if place.lower().startswith("near "):
         place = place[5:].strip()
@@ -122,6 +124,8 @@ def _village(p: dict, t: dict) -> str:
 
 
 def _pond_name(p: dict, t: dict) -> str:
+    if t["near"] != "near" and p.get("placeMr"):
+        return f"**{p['id']}** ({p['placeMr']} {t['near']})"
     place = (p.get("place") or "").strip()
     if place.lower().startswith("near ") and t["near"] != "near":
         place = f"{place[5:].strip()} {t['near']}"

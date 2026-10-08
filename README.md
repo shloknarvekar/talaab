@@ -76,7 +76,7 @@ python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 
 - **Sentinel-2 L2A**: contains modified Copernicus Sentinel data 2024, accessed via the [AWS Open Data Registry](https://registry.opendata.aws/sentinel-2-l2a-cogs/) and the Element 84 Earth Search STAC API.
 - **Open-Meteo**: weather data (ET0, precipitation) from [Open-Meteo.com](https://open-meteo.com/), licensed CC BY 4.0.
-- **OpenStreetMap** (if used for place names and basemap): © OpenStreetMap contributors, ODbL.
+- **OpenStreetMap**: village names for each pond (and the map basemap): © OpenStreetMap contributors, ODbL 1.0.
 
 ## AI tools used
 
