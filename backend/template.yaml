@@ -28,6 +28,14 @@ Resources:
   HttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
+      # Cost guard: cap traffic so nobody can run up the bill; /plan (can trigger Bedrock) is tighter.
+      DefaultRouteSettings:
+        ThrottlingRateLimit: 20
+        ThrottlingBurstLimit: 40
+      RouteSettings:
+        "POST /plan":
+          ThrottlingRateLimit: 2
+          ThrottlingBurstLimit: 5
       CorsConfiguration:
         AllowOrigins: ["*"]
         AllowMethods: [GET, POST, OPTIONS]
@@ -202,6 +210,38 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-recompute"
       RetentionInDays: 14
 
+  # One screen for the demo video: traffic, errors, job runs, latest recompute log lines (free: 3 dashboards).
+  OpsDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub "${AWS::StackName}-ops"
+      DashboardBody: !Sub
+        - |
+          {
+            "widgets": [
+              {"type": "text", "x": 0, "y": 0, "width": 24, "height": 2,
+               "properties": {"markdown": "## Talaab: the sun drinks first. Per-pond dry-by countdowns for drought districts. Satellite: Sentinel-2 (Copernicus, AWS Open Data). Weather: Open-Meteo."}},
+              {"type": "metric", "x": 0, "y": 2, "width": 12, "height": 6,
+               "properties": {"title": "API requests and errors", "region": "${AWS::Region}", "stat": "Sum", "period": 300,
+                 "metrics": [["AWS/ApiGateway", "Count", "ApiId", "${HttpApi}"], [".", "4xx", ".", "."], [".", "5xx", ".", "."]]}},
+              {"type": "metric", "x": 12, "y": 2, "width": 12, "height": 6,
+               "properties": {"title": "Lambda runs", "region": "${AWS::Region}", "stat": "Sum", "period": 300,
+                 "metrics": [["AWS/Lambda", "Invocations", "FunctionName", "${Api}"], ["...", "${Recompute}"], ["...", "${Worker}"]]}},
+              {"type": "metric", "x": 0, "y": 8, "width": 12, "height": 6,
+               "properties": {"title": "Lambda errors", "region": "${AWS::Region}", "stat": "Sum", "period": 300,
+                 "metrics": [["AWS/Lambda", "Errors", "FunctionName", "${Api}"], ["...", "${Recompute}"], ["...", "${Worker}"]]}},
+              {"type": "metric", "x": 12, "y": 8, "width": 12, "height": 6,
+               "properties": {"title": "Lambda duration (ms, p95)", "region": "${AWS::Region}", "stat": "p95", "period": 300,
+                 "metrics": [["AWS/Lambda", "Duration", "FunctionName", "${Api}"], ["...", "${Recompute}"], ["...", "${Worker}"]]}},
+              {"type": "log", "x": 0, "y": 14, "width": 24, "height": 8,
+               "properties": {"title": "Every-5-days recompute: latest runs", "region": "${AWS::Region}", "view": "table",
+                 "query": "SOURCE '/aws/lambda/${Recompute}' | fields @timestamp, region, mode, latestAsOf, ponds, flagged.0, sunShareMm, skipped, error | filter msg = 'recompute' | sort @timestamp desc | limit 20"}}
+            ]
+          }
+        - Api: !Ref ApiFunction
+          Recompute: !Ref RecomputeFunction
+          Worker: !Ref PlanWorkerFunction
+
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -237,6 +277,9 @@ Outputs:
   PondsTableName:
     Description: DynamoDB table for per-pond state
     Value: !Ref PondsTable
+  DashboardUrl:
+    Description: CloudWatch dashboard (show this in the video)
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards/dashboard/${AWS::StackName}-ops"
   RecomputeFunctionName:
     Description: Recompute job (invoked by the 5-day schedule and scripts/upload_measurements.py)
     Value: !Ref RecomputeFunction
