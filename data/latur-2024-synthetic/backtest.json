@@ -1,0 +1,159 @@
+{
+ "region": {
+  "id": "latur-2024-synthetic",
+  "name": "Latur (2024 replay, SYNTHETIC data)",
+  "bbox": [
+   76.47,
+   18.33,
+   76.62,
+   18.48
+  ]
+ },
+ "synthetic": true,
+ "evaluated": {
+  "from": "2024-02-05",
+  "to": "2024-06-14",
+  "snapshots": 27,
+  "ponds": 14,
+  "pondsThatDried": 7
+ },
+ "summary": {
+  "rangeHitRate": 0.794,
+  "rangeHits": 104,
+  "rangeMisses": 27,
+  "tooEarly": 0,
+  "unresolved": 158,
+  "medianErrorDays": 7,
+  "medianAbsErrorDays": 7,
+  "criticalPrecision": 0.784,
+  "criticalCalls": 51,
+  "criticalRecall": 0.93,
+  "shouldHaveWarned": 43,
+  "medianLeadDays": 30,
+  "pondsWarnedInAdvance": 7
+ },
+ "ponds": [
+  {
+   "id": "P001",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P002",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P003",
+   "actualDry": {
+    "from": "2024-04-20",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-03-26",
+   "leadDays": 30
+  },
+  {
+   "id": "P004",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P005",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P006",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P007",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 15
+  },
+  {
+   "id": "P008",
+   "actualDry": {
+    "from": "2024-06-04",
+    "to": "2024-06-09"
+   },
+   "firstCritical": "2024-05-10",
+   "leadDays": 30
+  },
+  {
+   "id": "P009",
+   "actualDry": {
+    "from": "2024-05-25",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-30",
+   "leadDays": 30
+  },
+  {
+   "id": "P010",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P011",
+   "actualDry": {
+    "from": "2024-05-10",
+    "to": "2024-05-15"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 30
+  },
+  {
+   "id": "P012",
+   "actualDry": {
+    "from": "2024-05-15",
+    "to": "2024-05-20"
+   },
+   "firstCritical": "2024-04-20",
+   "leadDays": 30
+  },
+  {
+   "id": "P013",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-02-15",
+   "leadDays": 35
+  },
+  {
+   "id": "P014",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  }
+ ],
+ "variants": {
+  "noHeatAdjustment": {
+   "rangeHitRate": 0.466,
+   "rangeHits": 61,
+   "rangeMisses": 70,
+   "tooEarly": 0,
+   "unresolved": 156,
+   "medianErrorDays": 20,
+   "medianAbsErrorDays": 20,
+   "criticalPrecision": 0.729,
+   "criticalCalls": 48,
+   "criticalRecall": 0.814,
+   "shouldHaveWarned": 43,
+   "medianLeadDays": 25,
+   "pondsWarnedInAdvance": 7
+  }
+ }
+}

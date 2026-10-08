@@ -76,6 +76,8 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
   - `status: "ready"`: `source` is `bedrock`; the AI plan passed the number guard (every number in it exists in the data).
   - `status: "template"`: AI is switched off or failed recently (`aiError` says why); show the template plan.
 
+- `GET /backtest?region=latur-2024` returns the backtest report (`summary.rangeHitRate`, `medianLeadDays`, `criticalPrecision`, `criticalRecall`, per-pond `actualDry` / `firstCritical` / `leadDays`, and `variants.noHeatAdjustment`). `synthetic: true` means the numbers only test the code.
+
 Errors: `{ "error": "message" }` with HTTP 400 (bad params) or 404 (unknown region/pond/asOf).
 
 ## Data credits

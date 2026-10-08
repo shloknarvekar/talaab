@@ -110,6 +110,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /plan
             Method: POST
+        Backtest:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /backtest
+            Method: GET
 
   ApiLogGroup:
     Type: AWS::Logs::LogGroup
