@@ -99,9 +99,9 @@ talaab/
 
 ## TEAM
 - Shlok (leader): Brain + AWS (backend/, logic, API, plan agent, SAM, integration)
-- Coder 1: Satellite (pipeline/)
-- Coder 2: Web (web/)
-- Story (non-coder): docs/, slides, video, writeup, submission, testing
+- Nikhil (Coder 1): Satellite (pipeline/)
+- Ranit (Coder 2): Web (web/)
+- Bhavesh (Story, non-coder): docs/, slides, video, writeup, submission, testing
 
 ## TIMELINE
 Thu = data + skeletons; Fri = countdown/flags + API + map with real data; Sat = AI plan + AWS schedule + deploy, FEATURE FREEZE 8 PM; Sun = fixes, video, writeup, submit by 5 PM IST.
