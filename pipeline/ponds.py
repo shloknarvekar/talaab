@@ -66,9 +66,9 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return r * c
 
 
-def load_places(places_path: Path = PLACES_JSON_PATH) -> list[dict]:
+def load_places(places_path: Path | None = PLACES_JSON_PATH) -> list[dict]:
     """Load village/place locations from JSON file if available."""
-    if not places_path.exists():
+    if places_path is None or not places_path.exists():
         return []
     try:
         data = json.loads(places_path.read_text(encoding="utf-8"))
@@ -202,7 +202,7 @@ def measure_pond_pass(
     invalid_fp_pixels = np.sum(footprint & scl_invalid_mask)
     invalid_ratio = invalid_fp_pixels / float(total_fp_pixels)
 
-    valid = invalid_ratio <= 0.20
+    valid = bool(invalid_ratio <= 0.20)
 
     # Count valid water pixels inside footprint
     water_pixels = np.sum(footprint & water_mask & (~scl_invalid_mask))
