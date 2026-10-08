@@ -1,8 +1,8 @@
 """Per-pond "dry-by" countdown. Pure functions, no I/O, no AWS.
 
 METHOD (see CLAUDE.md):
-- Use valid points in the last 45 days up to as-of date T (needs >= 3 points).
-- Linear fit of area vs time. slope >= 0 -> "stable" (also when the shrink is within
+- Use valid points in the last 45 days up to as-of date T (needs >= 3 points spanning >= 15 days).
+- Robust (Theil-Sen) linear trend of area vs time. slope >= 0 -> "stable" (also when the shrink is within
   2 standard errors of zero, or the pond would last more than a year).
 - Else days to reach 5% of max area = (A_now - 0.05*A_max) / |slope|, with the
   slope scaled by (expected mean ET0 next 30 days / mean ET0 in the fit window).
@@ -16,9 +16,11 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import date, timedelta
+from statistics import median
 
 WINDOW_DAYS = 45
 MIN_POINTS = 3
+MIN_SPAN_DAYS = 15  # ...spread over at least two weeks: 3 passes in 10 days cannot carry a countdown
 DRY_FRACTION = 0.05
 MIN_RANGE_FRACTION = 0.20
 MAX_DAYS = 365  # cap so "latest" is always a real date; likely >= this counts as stable
@@ -73,6 +75,29 @@ def linear_fit(points: list[tuple[date, float]]) -> Fit:
     ssr = sum((y - (intercept + slope * x)) ** 2 for x, y in zip(xs, ys))
     se = math.sqrt(ssr / (n - 2) / sxx)
     return Fit(slope=slope, slope_se=se, n=n)
+
+
+def robust_fit(points: list[tuple[date, float]]) -> Fit:
+    """Theil-Sen trend: median of all pairwise slopes, so one bad satellite reading barely moves it.
+
+    Standard error uses a robust residual scale (1.4826 * median absolute residual) in place of
+    the RMS, for the same reason. A perfect line gives SE 0, like ordinary least squares.
+    """
+    n = len(points)
+    if n < 3:
+        raise ValueError("need at least 3 points")
+    t0 = points[0][0]
+    xs = [(d - t0).days for d, _ in points]
+    ys = [a for _, a in points]
+    pair_slopes = [(ys[j] - ys[i]) / (xs[j] - xs[i]) for i in range(n) for j in range(i + 1, n) if xs[j] != xs[i]]
+    if not pair_slopes:
+        raise ValueError("points must span more than one date")
+    slope = median(pair_slopes)
+    intercept = median(y - slope * x for x, y in zip(xs, ys))
+    mx = sum(xs) / n
+    sxx = sum((x - mx) ** 2 for x in xs)
+    sigma = 1.4826 * median(abs(y - (intercept + slope * x)) for x, y in zip(xs, ys))
+    return Fit(slope=slope, slope_se=sigma / math.sqrt(sxx), n=n)
 
 
 def et0_scale(expected_mean_next30: float | None, fit_window_mean: float | None) -> float:
@@ -146,10 +171,10 @@ def countdown(
 
     pts = usable_points(history, t)
     out["nPoints"] = len(pts)
-    if len(pts) < MIN_POINTS or len({d for d, _ in pts}) < 2:
+    if len(pts) < MIN_POINTS or len({d for d, _ in pts}) < 2 or (pts[-1][0] - pts[0][0]).days < MIN_SPAN_DAYS:
         return out
 
-    fit = linear_fit(pts)
+    fit = robust_fit(pts)
     out["slopeHaPerDay"] = round(fit.slope, 4)
     out["slopeSe"] = round(fit.slope_se, 4)
 
