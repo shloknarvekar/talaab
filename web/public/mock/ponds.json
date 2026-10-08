@@ -1,0 +1,481 @@
+{
+  "region": {
+    "id": "latur-2024",
+    "name": "Latur (2024 replay)",
+    "bbox": [
+      76.47,
+      18.33,
+      76.62,
+      18.48
+    ]
+  },
+  "asOf": "2024-03-26",
+  "sunShareMm": 239.2,
+  "scenes": [
+    {
+      "date": "2024-01-16",
+      "id": "S2B_43QFA_20240116_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-01-21",
+      "id": "S2A_43QFA_20240121_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-01-26",
+      "id": "S2B_43QFA_20240126_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-01-31",
+      "id": "S2A_43QFA_20240131_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-02-05",
+      "id": "S2B_43QFA_20240205_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-02-10",
+      "id": "S2A_43QFA_20240210_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-02-15",
+      "id": "S2B_43QFA_20240215_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-02-20",
+      "id": "S2A_43QFA_20240220_0_L2A",
+      "status": "suspect"
+    },
+    {
+      "date": "2024-02-25",
+      "id": "S2B_43QFA_20240225_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-01",
+      "id": "S2A_43QFA_20240301_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-06",
+      "id": "S2B_43QFA_20240306_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-11",
+      "id": "S2A_43QFA_20240311_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-16",
+      "id": "S2B_43QFA_20240316_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-21",
+      "id": "S2A_43QFA_20240321_0_L2A",
+      "status": "ok"
+    },
+    {
+      "date": "2024-03-26",
+      "id": "S2B_43QFA_20240326_0_L2A",
+      "status": "ok"
+    }
+  ],
+  "ponds": [
+    {
+      "id": "P001",
+      "lat": 18.4512,
+      "lon": 76.5031,
+      "place": "near Village A (mock)",
+      "maxAreaHa": 92.4,
+      "areaNowHa": 71.8,
+      "history": [
+        {
+          "date": "2024-01-16",
+          "areaHa": 92.4,
+          "valid": true
+        },
+        {
+          "date": "2024-01-21",
+          "areaHa": 90.8,
+          "valid": true
+        },
+        {
+          "date": "2024-01-26",
+          "areaHa": 89.5,
+          "valid": true
+        },
+        {
+          "date": "2024-01-31",
+          "areaHa": 88.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-05",
+          "areaHa": 86.4,
+          "valid": true
+        },
+        {
+          "date": "2024-02-10",
+          "areaHa": 84.9,
+          "valid": true
+        },
+        {
+          "date": "2024-02-15",
+          "areaHa": 83.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-20",
+          "areaHa": 81.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-25",
+          "areaHa": 80.4,
+          "valid": true
+        },
+        {
+          "date": "2024-03-01",
+          "areaHa": 79.1,
+          "valid": true
+        },
+        {
+          "date": "2024-03-06",
+          "areaHa": 77.8,
+          "valid": true
+        },
+        {
+          "date": "2024-03-11",
+          "areaHa": 75.3,
+          "valid": true
+        },
+        {
+          "date": "2024-03-16",
+          "areaHa": 74.1,
+          "valid": true
+        },
+        {
+          "date": "2024-03-21",
+          "areaHa": 72.3,
+          "valid": true
+        },
+        {
+          "date": "2024-03-26",
+          "areaHa": 71.8,
+          "valid": true
+        }
+      ],
+      "dryBy": {
+        "earliest": "2024-08-19",
+        "likely": "2024-09-25",
+        "latest": "2024-11-01"
+      },
+      "daysLeft": {
+        "min": 146,
+        "likely": 183,
+        "max": 220
+      },
+      "shrinkVsNeighbours": 0.58,
+      "flag": null,
+      "status": "ok"
+    },
+    {
+      "id": "P002",
+      "lat": 18.3921,
+      "lon": 76.5874,
+      "place": "near Village B (mock)",
+      "maxAreaHa": 41.0,
+      "areaNowHa": 25.2,
+      "history": [
+        {
+          "date": "2024-01-16",
+          "areaHa": 41.0,
+          "valid": true
+        },
+        {
+          "date": "2024-01-21",
+          "areaHa": 40.1,
+          "valid": true
+        },
+        {
+          "date": "2024-01-26",
+          "areaHa": 38.3,
+          "valid": true
+        },
+        {
+          "date": "2024-01-31",
+          "areaHa": 38.1,
+          "valid": true
+        },
+        {
+          "date": "2024-02-05",
+          "areaHa": 37.0,
+          "valid": true
+        },
+        {
+          "date": "2024-02-10",
+          "areaHa": 35.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-15",
+          "areaHa": 34.4,
+          "valid": true
+        },
+        {
+          "date": "2024-02-20",
+          "areaHa": 32.8,
+          "valid": false
+        },
+        {
+          "date": "2024-02-25",
+          "areaHa": 31.5,
+          "valid": true
+        },
+        {
+          "date": "2024-03-01",
+          "areaHa": 30.9,
+          "valid": true
+        },
+        {
+          "date": "2024-03-06",
+          "areaHa": 29.3,
+          "valid": true
+        },
+        {
+          "date": "2024-03-11",
+          "areaHa": 28.3,
+          "valid": true
+        },
+        {
+          "date": "2024-03-16",
+          "areaHa": 27.2,
+          "valid": true
+        },
+        {
+          "date": "2024-03-21",
+          "areaHa": 25.9,
+          "valid": true
+        },
+        {
+          "date": "2024-03-26",
+          "areaHa": 25.2,
+          "valid": true
+        }
+      ],
+      "dryBy": {
+        "earliest": "2024-05-30",
+        "likely": "2024-06-16",
+        "latest": "2024-07-03"
+      },
+      "daysLeft": {
+        "min": 65,
+        "likely": 82,
+        "max": 99
+      },
+      "shrinkVsNeighbours": 1.0,
+      "flag": null,
+      "status": "watch"
+    },
+    {
+      "id": "P003",
+      "lat": 18.3753,
+      "lon": 76.535,
+      "place": "near Village C (mock)",
+      "maxAreaHa": 33.3,
+      "areaNowHa": 8.6,
+      "history": [
+        {
+          "date": "2024-01-16",
+          "areaHa": 33.3,
+          "valid": true
+        },
+        {
+          "date": "2024-01-21",
+          "areaHa": 32.3,
+          "valid": true
+        },
+        {
+          "date": "2024-01-26",
+          "areaHa": 31.6,
+          "valid": true
+        },
+        {
+          "date": "2024-01-31",
+          "areaHa": 30.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-05",
+          "areaHa": 29.6,
+          "valid": true
+        },
+        {
+          "date": "2024-02-10",
+          "areaHa": 28.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-15",
+          "areaHa": 26.5,
+          "valid": true
+        },
+        {
+          "date": "2024-02-20",
+          "areaHa": 24.1,
+          "valid": true
+        },
+        {
+          "date": "2024-02-25",
+          "areaHa": 21.8,
+          "valid": true
+        },
+        {
+          "date": "2024-03-01",
+          "areaHa": 20.1,
+          "valid": true
+        },
+        {
+          "date": "2024-03-06",
+          "areaHa": 17.9,
+          "valid": true
+        },
+        {
+          "date": "2024-03-11",
+          "areaHa": 15.6,
+          "valid": true
+        },
+        {
+          "date": "2024-03-16",
+          "areaHa": 13.3,
+          "valid": true
+        },
+        {
+          "date": "2024-03-21",
+          "areaHa": 10.8,
+          "valid": true
+        },
+        {
+          "date": "2024-03-26",
+          "areaHa": 8.6,
+          "valid": true
+        }
+      ],
+      "dryBy": {
+        "earliest": "2024-04-05",
+        "likely": "2024-04-08",
+        "latest": "2024-04-11"
+      },
+      "daysLeft": {
+        "min": 10,
+        "likely": 13,
+        "max": 16
+      },
+      "shrinkVsNeighbours": 2.33,
+      "flag": "faster-than-sun",
+      "status": "critical"
+    },
+    {
+      "id": "P004",
+      "lat": 18.4188,
+      "lon": 76.6012,
+      "place": "near Village D (mock)",
+      "maxAreaHa": 5.8,
+      "areaNowHa": 0.1,
+      "history": [
+        {
+          "date": "2024-01-16",
+          "areaHa": 5.8,
+          "valid": true
+        },
+        {
+          "date": "2024-01-21",
+          "areaHa": 5.3,
+          "valid": true
+        },
+        {
+          "date": "2024-01-26",
+          "areaHa": 4.8,
+          "valid": true
+        },
+        {
+          "date": "2024-01-31",
+          "areaHa": 4.6,
+          "valid": true
+        },
+        {
+          "date": "2024-02-05",
+          "areaHa": 4.1,
+          "valid": true
+        },
+        {
+          "date": "2024-02-10",
+          "areaHa": 3.8,
+          "valid": true
+        },
+        {
+          "date": "2024-02-15",
+          "areaHa": 3.2,
+          "valid": true
+        },
+        {
+          "date": "2024-02-20",
+          "areaHa": 2.9,
+          "valid": true
+        },
+        {
+          "date": "2024-02-25",
+          "areaHa": 2.5,
+          "valid": true
+        },
+        {
+          "date": "2024-03-01",
+          "areaHa": 1.9,
+          "valid": true
+        },
+        {
+          "date": "2024-03-06",
+          "areaHa": 1.5,
+          "valid": true
+        },
+        {
+          "date": "2024-03-11",
+          "areaHa": 1.2,
+          "valid": true
+        },
+        {
+          "date": "2024-03-16",
+          "areaHa": 0.7,
+          "valid": true
+        },
+        {
+          "date": "2024-03-21",
+          "areaHa": 0.4,
+          "valid": true
+        },
+        {
+          "date": "2024-03-26",
+          "areaHa": 0.1,
+          "valid": true
+        }
+      ],
+      "dryBy": null,
+      "daysLeft": {
+        "min": 0,
+        "likely": 0,
+        "max": 0
+      },
+      "shrinkVsNeighbours": null,
+      "flag": null,
+      "status": "dry"
+    }
+  ]
+}
