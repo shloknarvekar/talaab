@@ -80,6 +80,8 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 - `GET /backtest?region=latur-2024` returns the backtest report (`summary.rangeHitRate`, `medianLeadDays`, `criticalPrecision`, `criticalRecall`, per-pond `actualDry` / `firstCritical` / `leadDays`, and `variants.noHeatAdjustment`). `synthetic: true` means the numbers only test the code.
 
+- `GET /alerts?region=latur-2024` returns `{ "region", "name", "simulated": true|false, "events": [{ "asOf", "subject", "alerts": [{ "id", "place", "reason": "critical" | "dry" | "flag", "dryBy", "ratio", "areaNowHa", "maxAreaHa" }], "delivered"? }] }`. Replay regions: what Talaab *would have* emailed pass by pass (`simulated: true`, nothing sent). Live: the alerts actually emailed via Amazon SNS. Each pond is alerted for each reason at most once per season.
+
 Errors: `{ "error": "message" }` with HTTP 400 (bad params) or 404 (unknown region/pond/asOf).
 
 ## Data credits

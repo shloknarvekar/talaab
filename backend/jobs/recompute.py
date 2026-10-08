@@ -15,7 +15,7 @@ from decimal import Decimal
 from typing import Callable
 
 from api import store
-from jobs.alerts import alert_state, format_alert, new_alerts
+from jobs.alerts import alert_state, alert_timeline, format_alert, new_alerts
 from jobs.places import name_ponds, places_for_region
 from jobs.regions import REGIONS
 from jobs.weather import merge_observed, recent_and_forecast
@@ -78,8 +78,21 @@ def send_alerts(region: str, cfg: dict, snap: dict, publish: Callable[[str, str]
                          {"asOf": snap["asOf"], "subject": subject, "body": body, "delivered": delivered, "alerts": alerts})
         print(json.dumps({"msg": "alerts", "region": region, "count": len(alerts), "delivered": delivered, "subject": subject}))
         sent = len(alerts) if delivered else 0
-    store.write_json(f"{region}/alerts/state.json", alert_state(snap))
+    store.write_json(f"{region}/alerts/state.json", alert_state(snap, prev, alerts if sent else []))
     return sent
+
+
+def write_alert_timeline(region: str, cfg: dict, snaps: list[dict], live: bool) -> None:
+    """GET /alerts: replay = alerts Talaab would have sent pass by pass; live = alerts actually sent."""
+    if live:
+        logs = [store.read_json(k, fresh=True) for k in store.list_keys(f"{region}/alerts/")
+                if k.rsplit("/", 1)[-1][:4].isdigit()]
+        events = [{"asOf": x["asOf"], "subject": x["subject"], "alerts": x["alerts"], "delivered": x.get("delivered")}
+                  for x in sorted((x for x in logs if x), key=lambda x: x["asOf"])]
+    else:
+        events = alert_timeline(snaps, cfg["name"], SITE_URL)
+    store.write_json(f"{region}/alerts/timeline.json",
+                     {"region": region, "name": cfg["name"], "simulated": not live, "events": events})
 
 
 def recompute_region(region: str, today: date, fetch_weather: Callable = recent_and_forecast,
@@ -101,6 +114,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
 
     dates = snapshot_dates(meas, today if live else None)
     latest = None
+    snaps: list[dict] = []
     for d in dates:
         # the forecast is only knowable on the day it was fetched, so only today's snapshot uses it
         src = {**meas, "et0Forecast": forecast} if (live and d == today.isoformat()) else {**meas, "et0Forecast": []}
@@ -109,6 +123,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
         if live:
             snap["live"] = True
         store.write_json(f"{region}/asof/{d}.json", snap)
+        snaps.append(snap)
         latest = snap
 
     published = sorted(k.rsplit("/", 1)[-1][:-5] for k in store.list_keys(f"{region}/asof/") if k.endswith(".json"))
@@ -119,6 +134,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
         counts[p["status"]] = counts.get(p["status"], 0) + 1
     rows = write_table(region, latest) if latest else 0
     alerts_sent = send_alerts(region, cfg, latest, publish) if (live and latest) else 0
+    write_alert_timeline(region, cfg, snaps, live)
     return {
         "region": region,
         "mode": cfg["mode"],

@@ -62,6 +62,9 @@ def main() -> None:
                   f"status={plan.get('status')} source={plan.get('source')} {dt:.2f}s")
         s, _, _ = call("GET", f"{api}/backtest?region={rid}")
         check(f"GET /backtest {rid}", s in (200, 404), "available" if s == 200 else "not generated yet")
+        s, al, _ = call("GET", f"{api}/alerts?region={rid}")
+        check(f"GET /alerts {rid}", s == 200 and isinstance(al.get("events"), list),
+              f"{len(al.get('events', []))} event(s), {'simulated' if al.get('simulated') else 'sent'}")
 
     s, _, _ = call("GET", f"{api}/ponds?asOf=not-a-date")
     check("bad asOf -> 400", s == 400)

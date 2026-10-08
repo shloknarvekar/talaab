@@ -5,6 +5,7 @@ GET  /ponds?region=latur-2024&asOf=YYYY-MM-DD   -> ponds.json document
 GET  /ponds/{id}?region=...&asOf=...            -> one pond
 POST /plan {region, asOf, language: en|mr}      -> {markdown, pondIds, source, status}
 GET  /backtest?region=latur-2024                -> how well past predictions matched reality
+GET  /alerts?region=latur-2024                  -> alert timeline (replay: simulated; live: sent)
 
 asOf picks the latest published snapshot on or before that date, so a replay never
 shows data from after the date the user chose.
@@ -105,6 +106,12 @@ def lambda_handler(event, context):
             return _response(200, get_ponds(query))
         if route == "GET /ponds/{id}":
             return _response(200, get_pond((event.get("pathParameters") or {}).get("id"), query))
+        if route == "GET /alerts":
+            region, _ = _region_and_date(query.get("region"), None)
+            timeline = store.read_json(f"{region}/alerts/timeline.json")
+            if timeline is None:
+                raise HttpError(404, f"no alerts for region {region!r} yet")
+            return _response(200, timeline)
         if route == "GET /backtest":
             region, _ = _region_and_date(query.get("region"), None)
             report = store.read_json(f"{region}/backtest.json")
