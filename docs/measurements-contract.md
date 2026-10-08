@@ -48,11 +48,24 @@ date are computed from this file using only data dated on or before that date.
 - "Expected heat" for the next 30 days comes from `et0Forecast` when present (live), otherwise
   from `et0Climatology` (replay, so it uses only what was knowable in advance).
 
-## Publish
+## Regions and files
+
+| Region id | What | File to produce |
+|---|---|---|
+| `latur-2024` | 2024 drought replay (Jan–Jun 2024 passes) | `data/latur-2024/measurements.json` |
+| `latur-2026` | Live: this season (passes since the monsoon ended, Sep–Oct 2026 onward) | `data/latur-2026/measurements.json` |
+
+Same code, different dates. For `latur-2026` you may leave `et0`, `et0Climatology` and
+`et0Forecast` empty: the recompute job fetches recent and forecast weather from Open-Meteo itself.
+
+## Publish (one command)
 
 ```bash
-python backend/scripts/build_snapshots.py data/latur-2024/measurements.json   # -> data/latur-2024/asof/*.json
-python backend/scripts/publish_data.py data/latur-2024/asof/                  # -> S3, served by the API
+python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 ```
+
+This uploads to S3 and runs the recompute Lambda straight away: it builds a snapshot for every
+pass (plus today for the live region), updates the DynamoDB table and prints a summary. The
+same job also runs on its own every 5 days (EventBridge Scheduler).
 
 Sources: Sentinel-2 L2A (Copernicus, via AWS Open Data / Element 84 Earth Search), Open-Meteo (CC BY 4.0).

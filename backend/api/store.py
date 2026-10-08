@@ -76,6 +76,22 @@ def write_json(key: str, doc: dict, if_absent: bool = False) -> bool:
     return True
 
 
+def list_keys(prefix: str) -> list[str]:
+    """Keys under prefix (relative to the data root), sorted."""
+    data_dir = os.environ.get("DATA_DIR")
+    if data_dir:
+        root = Path(data_dir)
+        base = root / prefix
+        if not base.exists():
+            return []
+        return sorted(p.relative_to(root).as_posix() for p in base.rglob("*") if p.is_file())
+    s3 = _s3_client()
+    keys = []
+    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=os.environ["DATA_BUCKET"], Prefix=f"data/{prefix}"):
+        keys.extend(obj["Key"][len("data/"):] for obj in page.get("Contents", []))
+    return sorted(keys)
+
+
 def clear_cache() -> None:
     _cache.clear()
 

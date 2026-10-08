@@ -22,7 +22,12 @@ The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" d
 
 ## Architecture (AWS, us-west-2)
 
-_TODO: diagram in `docs/`._ S3 · Lambda (pipeline + API) · API Gateway HTTP API · DynamoDB · EventBridge Scheduler · Amazon Bedrock + Strands Agents · Amplify Hosting · CloudWatch.
+_Diagram: TODO in `docs/`._
+
+- **Recompute job** (Lambda, EventBridge Scheduler every 5 days): pipeline measurements in S3 → countdowns and flags for every pass → snapshots in S3 + latest pond state in DynamoDB. The live region also pulls observed and forecast heat from Open-Meteo.
+- **API** (Lambda + API Gateway HTTP API): `/ponds`, `/ponds/{id}`, `/plan`.
+- **Plan writer**: deterministic EN/MR template, plus a Strands Agents plan on Amazon Bedrock (async worker Lambda, number guard, cached in S3).
+- **Web** (Amplify Hosting), **logs** (CloudWatch).
 
 ## Repo layout
 
@@ -62,9 +67,9 @@ cd backend && sam build && sam deploy
 python backend/scripts/build_layer.py        # needs `pip install uv`; no Docker
 cd backend && sam build && sam deploy --parameter-overrides PlanAI=on   # PlanAI=off = template only, no Bedrock cost
 
-# publish pipeline output to S3 (one ponds.json, or a folder of them)
+# publish pipeline output: uploads measurements.json and recomputes that region on AWS
 pip install -r backend/scripts/requirements.txt
-python backend/scripts/publish_data.py data/latur-2024/asof/
+python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
 ```
 
 ## Data credits

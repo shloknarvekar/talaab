@@ -159,6 +159,43 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-plan-worker"
       RetentionInDays: 14
 
+  # Every 5 days (one new Sentinel-2 pass): measurements.json -> snapshots + DynamoDB, live weather.
+  RecomputeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-recompute"
+      CodeUri: ./
+      Handler: jobs.recompute.lambda_handler
+      Timeout: 120
+      MemorySize: 512
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+          PONDS_TABLE: !Ref PondsTable
+      EventInvokeConfig:
+        MaximumRetryAttempts: 1
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref DataBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PondsTable
+      LoggingConfig:
+        LogGroup: !Ref RecomputeLogGroup
+      Events:
+        Every5Days:
+          Type: ScheduleV2
+          Properties:
+            Name: !Sub "${AWS::StackName}-every-5-days"
+            Description: Recompute pond countdowns after each Sentinel-2 revisit
+            ScheduleExpression: rate(5 days)
+            State: ENABLED
+
+  RecomputeLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-recompute"
+      RetentionInDays: 14
+
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -194,3 +231,6 @@ Outputs:
   PondsTableName:
     Description: DynamoDB table for per-pond state
     Value: !Ref PondsTable
+  RecomputeFunctionName:
+    Description: Recompute job (invoked by the 5-day schedule and scripts/upload_measurements.py)
+    Value: !Ref RecomputeFunction
