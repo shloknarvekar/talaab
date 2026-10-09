@@ -1,5 +1,7 @@
 # Talaab (तालाब, "pond"): *The sun drinks first*
 
+[![CI](https://github.com/shloknarvekar/talaab/actions/workflows/ci.yml/badge.svg)](https://github.com/shloknarvekar/talaab/actions/workflows/ci.yml)
+
 Per-pond "dry-by" countdowns and pumping flags for drought districts, built from free Sentinel-2 satellite data on AWS.
 
 > Team **Syntax Errors**, WeMakeDevs x AWS *Environmental Hacks* hackathon (Heat & Water track), Oct 2026.

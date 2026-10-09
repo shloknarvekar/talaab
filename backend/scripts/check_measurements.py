@@ -3,7 +3,8 @@
     python backend/scripts/check_measurements.py data/latur-2024/measurements.json [--live]
 
 Exit code 0 = OK to upload (warnings are printed but allowed), 1 = errors to fix.
---live relaxes the weather checks (the recompute job fetches weather for live regions).
+Live regions (mode "live" in backend/jobs/regions.py) get relaxed weather checks automatically, because
+the recompute job fetches their weather; --live forces that for a region id not listed there.
 """
 import argparse
 import json
@@ -12,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/ on the path
 
+from jobs.regions import REGIONS  # noqa: E402
 from logic.validate import validate_measurements  # noqa: E402
 
 
@@ -20,7 +22,10 @@ def check(path: Path, live: bool) -> dict:
         meas = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         return {"errors": [f"cannot read {path}: {e}"], "warnings": [], "stats": {}}
-    return validate_measurements(meas, mode="live" if live else "replay")
+    # Same rule as upload_measurements.py: a known region's mode decides; --live forces live checks.
+    region = (meas.get("region") or {}).get("id")
+    mode = "live" if live else REGIONS.get(region, {}).get("mode", "replay")
+    return validate_measurements(meas, mode=mode)
 
 
 def report(result: dict) -> None:
