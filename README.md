@@ -19,8 +19,9 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
 3. **Two checks per pond:**
    - **Countdown:** a dry-by date *range* (earliest, likely, latest) from the shrink trend, adjusted for expected heat.
    - **Faster than the sun:** a pond shrinking much faster than its neighbours under the same sun is flagged for inspection (likely pumping).
-4. **AI plan.** Amazon Bedrock (Strands Agents) drafts the district's quarterly scarcity plan in English and Marathi, using only our numbers.
-5. **Automatic.** The analysis re-runs every 5 days on AWS.
+4. **By taluka.** Drought is declared per taluka, so every pond is placed in its taluka (Latur's 10, from OpenStreetMap boundaries) and each snapshot, plan and alert email says which taluka needs action first.
+5. **AI plan.** Amazon Bedrock (Strands Agents) drafts the district's quarterly scarcity plan in English and Marathi, using only our numbers.
+6. **Automatic.** The analysis re-runs every 5 days on AWS.
 
 The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" date uses only the data available up to that date.
 
@@ -120,7 +121,7 @@ cd backend && sam delete
 
 - **Sentinel-2 L2A**: contains modified Copernicus Sentinel data 2024, accessed via the [AWS Open Data Registry](https://registry.opendata.aws/sentinel-2-l2a-cogs/) and the Element 84 Earth Search STAC API.
 - **Open-Meteo**: weather data (ET0, precipitation) from [Open-Meteo.com](https://open-meteo.com/), licensed CC BY 4.0.
-- **OpenStreetMap**: village names for each pond (and the map basemap): © OpenStreetMap contributors, ODbL 1.0.
+- **OpenStreetMap**: village names and taluka boundaries for each pond (and the map basemap): © OpenStreetMap contributors, ODbL 1.0.
 - **Pond thumbnails and outlines** in the web app are cut from the same Sentinel-2 L2A true-colour images (`pipeline/imagery.py`).
 - **Optional basemaps**: CARTO Dark Matter (only with `VITE_CARTO_API_KEY`) and the Esri World Imagery satellite layer (Esri, Maxar, Earthstar Geographics).
 

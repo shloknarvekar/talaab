@@ -39,6 +39,9 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   Layer: `build_layer.py --name pipeline-layer` (vendors libexpat; keep under 250 MB). Projection: `docs/scale-projection.md`.
   LIVE district `latur-district-2026`: EventBridge schedule `talaab-live-district` (template LiveDistrict, input kept in
   sync with RUNS in run_district.py) starts the state machine on the 1st/6th/11th/... of each month at 06:00 IST (recompute schedule 06:30 IST); the web opens on it. Alert emails list 20 ponds max.
+- Talukas: recompute tags every pond with `taluka`/`talukaMr` (OSM admin_level 6, `backend/jobs/places/latur-talukas.json`,
+  fetched once by `backend/scripts/fetch_talukas.py`); snapshots carry a `talukas` summary (`backend/logic/talukas.py`);
+  plans open with a by-taluka table and group long low-priority lists per taluka; alert emails name the taluka.
 - Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
   Plan / Accuracy. No countdown maths in the browser.
 

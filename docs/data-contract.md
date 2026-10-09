@@ -23,6 +23,8 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
       "lat": 18.3753, "lon": 76.535,    // pond centroid, WGS84
       "place": "near <village>",        // nearest OSM village within 5 km (or the pipeline's own label); "" if none
       "placeMr": "<गाव>",               // optional: Marathi village name from OSM
+      "taluka": "Udgir",                // optional: the taluka (tehsil) the pond lies in (OSM admin_level 6)
+      "talukaMr": "उदगीर",              // optional: its Marathi name
       "maxAreaHa": 33.3,                // max valid area seen up to asOf (ha)
       "areaNowHa": 8.6,                 // latest valid area up to asOf (ha)
       "history": [                      // every pass, oldest first, all <= asOf
@@ -30,10 +32,14 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
       ],
       "dryBy":    { "earliest": "2024-04-05", "likely": "2024-04-08", "latest": "2024-04-11" },  // or null
       "daysLeft": { "min": 10, "likely": 13, "max": 16 },                                    // or null
-      "shrinkVsNeighbours": 2.33,       // this pond's relative shrink rate ÷ regional median; or null
+      "shrinkVsNeighbours": 2.33,       // relative shrink rate ÷ median of shrinking ponds within 25 km; or null
       "flag": "faster-than-sun",        // or null
       "status": "critical"              // "dry" | "critical" | "watch" | "ok" | "unknown"
     }
+  ],
+  "talukas": [                          // optional (only when ponds have a taluka): most urgent first
+    { "name": "Udgir", "nameMr": "उदगीर", "ponds": 67, "dry": 0, "critical": 3, "watch": 8, "ok": 50,
+      "unknown": 6, "flagged": 3, "earliestLikelyDry": "2026-10-23" }   // earliest dryBy.likely of ponds not yet dry, or null
   ]
 }
 ```
@@ -49,6 +55,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 | `dryBy` / `daysLeft` when `dry` | | `daysLeft` = `{min:0, likely:0, max:0}`, `dryBy` = `null`. |
 | `shrinkVsNeighbours` | number or `null` | `null` for dry/unknown ponds, or when the regional median isn't shrinking. ≥ 2 on a pond ≥ 2 ha → `flag: "faster-than-sun"`. |
 | `status` | enum | See below. |
+| `taluka` / `talukas` | string / array | From OpenStreetMap taluka boundaries bundled with the backend (`backend/jobs/places/<district>-talukas.json`). Counts in `talukas` add up to the ponds that have a taluka; order = most dry + critical, then most watch, then earliest likely dry date. |
 
 ## Status
 
@@ -86,4 +93,4 @@ Errors: `{ "error": "message" }` with HTTP 400 (bad params) or 404 (unknown regi
 
 ## Data credits
 
-Sentinel-2 L2A: contains modified Copernicus Sentinel data 2024, via AWS Open Data / Element 84 Earth Search. ET0 and precipitation: Open-Meteo.com (CC BY 4.0).
+Sentinel-2 L2A: contains modified Copernicus Sentinel data 2024, via AWS Open Data / Element 84 Earth Search. ET0 and precipitation: Open-Meteo.com (CC BY 4.0). Village names and taluka boundaries: © OpenStreetMap contributors (ODbL).

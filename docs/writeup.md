@@ -26,7 +26,7 @@ these ponds in seasonal maps at best. Nobody tells a district **which pond will 
 2. **Measures each pond's water area** on every clear pass, and throws out cloudy, broken or implausible readings with stated reasons.
 3. **Gives each pond a countdown** as a *range* ("likely dry 16 Oct, between 13 and 23 Oct"), adjusted for the heat expected in the coming month.
 4. **Catches ponds shrinking "faster than the sun"**: much faster than nearby ponds under the same weather, which suggests pumping. They're flagged for inspection, never accused.
-5. **Writes the district plan** in **English and Marathi**, structured exactly like the state order (one section per scarcity period, a table by village, an action for every pond).
+5. **Writes the district plan** in **English and Marathi**, structured exactly like the state order: a table **by taluka** first (drought is declared per taluka, and Latur has 10), then by village, one section per scarcity period, and an action for every pond.
 6. **Tells officials when something changes.** Every 5 days AWS recomputes everything, and an email goes out for any pond that *newly* turned critical, dried up or started shrinking faster than the sun.
 
 It runs two ways: **live** on Latur this season, and as an **honest replay of the 2024 drought**, where
@@ -164,7 +164,7 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 
 - **Sentinel-2 L2A**: contains modified Copernicus Sentinel data 2023, 2024 and 2026, via the AWS Open Data Registry and the Element 84 Earth Search STAC API.
 - **Open-Meteo** weather (ET0, rain): CC BY 4.0.
-- **OpenStreetMap** village names and basemap: © OpenStreetMap contributors, ODbL.
+- **OpenStreetMap** village names, taluka boundaries and basemap: © OpenStreetMap contributors, ODbL.
 
 ## AI tools we used
 
