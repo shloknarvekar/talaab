@@ -21,3 +21,19 @@ REGIONS = {
     "latur-district-2026": {"name": "Latur district (live, 2026)", "mode": "live",
                             "bbox": LATUR_DISTRICT_BBOX, "centre": LATUR_DISTRICT_CENTRE},
 }
+
+# The rest of Marathwada (all 8 drought districts of the Chhatrapati Sambhajinagar division), live, run on
+# AWS by the same state machine one district after another. Boundaries: pipeline/boundaries/<slug>-district.json
+# (scripts/fetch_districts.py). (slug, name, bbox [W, S, E, N], centre (lat, lon) for weather)
+MARATHWADA = [
+    ("beed", "Beed", [74.8081, 18.5418, 76.7339, 19.4419], (18.992, 75.771)),
+    ("dharashiv", "Dharashiv", [75.2854, 17.6416, 76.7908, 18.6982], (18.170, 76.038)),
+    ("nanded", "Nanded", [76.9308, 18.2634, 78.3652, 19.9250], (19.094, 77.648)),
+    ("parbhani", "Parbhani", [76.2072, 18.7504, 77.1194, 19.8306], (19.291, 76.663)),
+    ("hingoli", "Hingoli", [76.5119, 19.0672, 77.4893, 20.0179], (19.543, 77.001)),
+    ("jalna", "Jalna", [75.5854, 19.2767, 76.5346, 20.5610], (19.919, 76.060)),
+    ("sambhajinagar", "Chhatrapati Sambhajinagar", [74.5889, 19.3780, 76.0427, 20.6685], (20.023, 75.316)),
+]
+for _slug, _name, _bbox, _centre in MARATHWADA:
+    REGIONS[f"{_slug}-district-2026"] = {"name": f"{_name} district (live, 2026)", "mode": "live",
+                                         "bbox": _bbox, "centre": _centre}

@@ -433,17 +433,84 @@ Resources:
               boundary.$: "$.boundary"
               referenceDate.$: "$.referenceDate"
             End: true
+
+  # All 8 Marathwada districts, one after another (the account allows 10 concurrent Lambdas and each district
+  # run already uses 8): one child execution of the district workflow per district. A failed district is
+  # recorded and the others still run.
+  MarathwadaStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "${AWS::StackName}-marathwada"
+      Type: STANDARD
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: ["states:StartExecution"]
+              Resource: !Ref DistrictStateMachine
+            - Effect: Allow
+              Action: ["states:DescribeExecution", "states:StopExecution"]
+              Resource: !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:${AWS::StackName}-district:*"
+            - Effect: Allow
+              Action: ["events:PutTargets", "events:PutRule", "events:DescribeRule"]
+              Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule"
+      DefinitionSubstitutions:
+        DistrictArn: !Ref DistrictStateMachine
+      Definition:
+        Comment: "Talaab: every Marathwada district, one district workflow after another"
+        StartAt: Districts
+        States:
+          Districts:
+            Type: Map
+            ItemsPath: "$.districts"
+            MaxConcurrency: 1
+            ItemSelector:
+              region.$: "$$.Map.Item.Value.region"
+              name.$: "$$.Map.Item.Value.name"
+              boundary.$: "$$.Map.Item.Value.boundary"
+              start.$: "$.start"
+              end.$: "$.end"
+              referenceDate.$: "$.referenceDate"
+              maxCloud.$: "$.maxCloud"
+            ItemProcessor:
+              ProcessorConfig:
+                Mode: INLINE
+              StartAt: RunDistrict
+              States:
+                RunDistrict:
+                  Type: Task
+                  Resource: "arn:aws:states:::states:startExecution.sync:2"
+                  Parameters:
+                    StateMachineArn: "${DistrictArn}"
+                    Input.$: "$"
+                  ResultSelector:
+                    region.$: "$.Input.region"
+                    status.$: "$.Status"
+                    run.$: "$.Output"
+                  Catch:
+                    - ErrorEquals: ["States.ALL"]
+                      ResultPath: "$.error"
+                      Next: DistrictFailed
+                  End: true
+                DistrictFailed:
+                  Type: Pass
+                  Parameters:
+                    region.$: "$.region"
+                    status: FAILED
+                    error.$: "$.error"
+                  End: true
+            ResultPath: "$.results"
+            End: true
       Events:
-        # The live district: re-measured from Sentinel-2 every 5 days (one revisit). end "today" is
-        # resolved by each cell; the merge then starts recompute, which emails new alerts.
-        LiveDistrict:
+        # The live Marathwada districts: re-measured from Sentinel-2 every 5 days (one revisit). end "today"
+        # is resolved by each cell; each district's merge then starts recompute, which emails new alerts.
+        LiveMarathwada:
           Type: ScheduleV2
           Properties:
-            Name: !Sub "${AWS::StackName}-live-district"
+            Name: !Sub "${AWS::StackName}-live-marathwada"
             # every 5 days on fixed dates (1st, 6th, 11th ... of each month), 06:00 IST
             ScheduleExpression: cron(0 6 1/5 * ? *)
             ScheduleExpressionTimezone: Asia/Kolkata
-            Input: '{"region": "latur-district-2026", "name": "Latur district (live, 2026)", "boundary": "latur-district", "start": "2026-09-01", "end": "today", "referenceDate": "2026-09-27", "maxCloud": 45}'
+            Input: '{"start": "2026-09-01", "end": "today", "referenceDate": "2026-09-27", "maxCloud": 45, "districts": [{"region": "latur-district-2026", "name": "Latur district (live, 2026)", "boundary": "latur-district"}, {"region": "beed-district-2026", "name": "Beed district (live, 2026)", "boundary": "beed-district"}, {"region": "dharashiv-district-2026", "name": "Dharashiv district (live, 2026)", "boundary": "dharashiv-district"}, {"region": "nanded-district-2026", "name": "Nanded district (live, 2026)", "boundary": "nanded-district"}, {"region": "parbhani-district-2026", "name": "Parbhani district (live, 2026)", "boundary": "parbhani-district"}, {"region": "hingoli-district-2026", "name": "Hingoli district (live, 2026)", "boundary": "hingoli-district"}, {"region": "jalna-district-2026", "name": "Jalna district (live, 2026)", "boundary": "jalna-district"}, {"region": "sambhajinagar-district-2026", "name": "Chhatrapati Sambhajinagar district (live, 2026)", "boundary": "sambhajinagar-district"}]}'
 
   HelloFunction:
     Type: AWS::Serverless::Function
@@ -489,6 +556,9 @@ Outputs:
   DistrictStateMachineArn:
     Description: Step Functions workflow that processes a whole district (start with scripts/run_district.py)
     Value: !Ref DistrictStateMachine
+  MarathwadaStateMachineArn:
+    Description: Runs the district workflow for every Marathwada district in turn (scripts/run_district.py --marathwada)
+    Value: !Ref MarathwadaStateMachine
   RecomputeFunctionName:
     Description: Recompute job (invoked by the 5-day schedule and scripts/upload_measurements.py)
     Value: !Ref RecomputeFunction
