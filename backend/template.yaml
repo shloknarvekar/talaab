@@ -18,6 +18,7 @@ Parameters:
 Globals:
   Function:
     Runtime: python3.12
+    Tracing: Active  # AWS X-Ray: every invocation traced (free tier: 100,000 traces/month)
     Architectures: [arm64]
     MemorySize: 256
     Timeout: 10
@@ -267,6 +268,8 @@ Resources:
               {"type": "log", "x": 0, "y": 14, "width": 24, "height": 8,
                "properties": {"title": "Every-5-days recompute: latest runs", "region": "${AWS::Region}", "view": "table",
                  "query": "SOURCE '/aws/lambda/${Recompute}' | fields @timestamp, region, mode, latestAsOf, ponds, flagged.0, sunShareMm, skipped, error | filter msg = 'recompute' | sort @timestamp desc | limit 20"}},
+              {"type": "alarm", "x": 0, "y": 36, "width": 24, "height": 3,
+               "properties": {"title": "Ops alarms (email via SNS talaab-ops)", "alarms": ["${A1}", "${A2}", "${A3}", "${A4}", "${A5}", "${A6}"]}},
               {"type": "text", "x": 0, "y": 22, "width": 24, "height": 1,
                "properties": {"markdown": "### Whole district from satellite: EventBridge Scheduler → Step Functions `${StateMachineName}` → one Lambda per 0.15° grid cell (42 for Latur) → merge → recompute → SNS"}},
               {"type": "metric", "x": 0, "y": 23, "width": 8, "height": 6,
@@ -293,6 +296,12 @@ Resources:
           Merge: !Ref MergeFunction
           StateMachine: !Ref DistrictStateMachine
           StateMachineName: !GetAtt DistrictStateMachine.Name
+          A1: !GetAtt MarathwadaRunFailedAlarm.Arn
+          A2: !GetAtt DistrictRunFailedAlarm.Arn
+          A3: !GetAtt CellErrorsAlarm.Arn
+          A4: !GetAtt RecomputeErrorsAlarm.Arn
+          A5: !GetAtt ApiErrorsAlarm.Arn
+          A6: !GetAtt Api5xxAlarm.Arn
 
   # ---- District scale: the satellite pipeline itself on AWS (one Lambda per grid cell, in parallel) ----
   PipelineLayer:
@@ -377,6 +386,8 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}-district"
       Type: STANDARD
+      Tracing:
+        Enabled: true
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref GridFunction
@@ -442,6 +453,8 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}-marathwada"
       Type: STANDARD
+      Tracing:
+        Enabled: true
       Policies:
         - Statement:
             - Effect: Allow
@@ -512,6 +525,125 @@ Resources:
             ScheduleExpressionTimezone: Asia/Kolkata
             Input: '{"start": "2026-09-01", "end": "today", "referenceDate": "2026-09-27", "maxCloud": 45, "districts": [{"region": "latur-district-2026", "name": "Latur district (live, 2026)", "boundary": "latur-district"}, {"region": "beed-district-2026", "name": "Beed district (live, 2026)", "boundary": "beed-district"}, {"region": "dharashiv-district-2026", "name": "Dharashiv district (live, 2026)", "boundary": "dharashiv-district"}, {"region": "nanded-district-2026", "name": "Nanded district (live, 2026)", "boundary": "nanded-district"}, {"region": "parbhani-district-2026", "name": "Parbhani district (live, 2026)", "boundary": "parbhani-district"}, {"region": "hingoli-district-2026", "name": "Hingoli district (live, 2026)", "boundary": "hingoli-district"}, {"region": "jalna-district-2026", "name": "Jalna district (live, 2026)", "boundary": "jalna-district"}, {"region": "sambhajinagar-district-2026", "name": "Chhatrapati Sambhajinagar district (live, 2026)", "boundary": "sambhajinagar-district"}]}'
 
+  # ---- Ops: technical alarms go to their own topic (pond alerts stay on talaab-alerts). 6 alarms (10 are free).
+  # Subscribe with: aws sns subscribe --topic-arn <OpsTopicArn> --protocol email --notification-endpoint <you>
+  OpsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-ops"
+      DisplayName: Talaab ops
+      Tags:
+        - Key: project
+          Value: talaab
+
+  DistrictRunFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-district-run-failed"
+      AlarmDescription: "Talaab ops: district run failed"
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref DistrictStateMachine
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
+  MarathwadaRunFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-marathwada-run-failed"
+      AlarmDescription: "Talaab ops: marathwada run failed"
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref MarathwadaStateMachine
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
+  ApiErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-api-lambda-errors"
+      AlarmDescription: "Talaab ops: api lambda errors"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref ApiFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
+  RecomputeErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-recompute-lambda-errors"
+      AlarmDescription: "Talaab ops: recompute lambda errors"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref RecomputeFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
+  CellErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-pipeline-cell-errors"
+      AlarmDescription: "Talaab ops: pipeline cell errors"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CellFunction
+      Statistic: Sum
+      Period: 900
+      EvaluationPeriods: 1
+      Threshold: 3
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
+  Api5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${AWS::StackName}-api-5xx"
+      AlarmDescription: "Talaab ops: api 5xx"
+      Namespace: AWS/ApiGateway
+      MetricName: 5xx
+      Dimensions:
+        - Name: ApiId
+          Value: !Ref HttpApi
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref OpsTopic]
+
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -556,6 +688,9 @@ Outputs:
   DistrictStateMachineArn:
     Description: Step Functions workflow that processes a whole district (start with scripts/run_district.py)
     Value: !Ref DistrictStateMachine
+  OpsTopicArn:
+    Description: SNS topic for technical alarms (failed runs, Lambda errors, API 5xx)
+    Value: !Ref OpsTopic
   MarathwadaStateMachineArn:
     Description: Runs the district workflow for every Marathwada district in turn (scripts/run_district.py --marathwada)
     Value: !Ref MarathwadaStateMachine
