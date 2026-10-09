@@ -319,7 +319,7 @@ a { color: #5eead4; }
   .legend span { font-size: 8px; }
   .sat-toggle { padding: 8px; font-size: 9px; }
   .map-note { display: none; }
-  .sidebar { position: absolute; z-index: 1000; left: 8px; right: 8px; bottom: 8px; max-height: 34%; border: 1px solid #3a5144; border-radius: 17px; background: rgba(12,24,17,.97); box-shadow: 0 16px 42px rgba(0,0,0,.42); backdrop-filter: blur(12px); transition: max-height .22s ease; }
+  .sidebar { position: absolute; z-index: 1000; left: 8px; right: 8px; bottom: 8px; max-height: 34%; border: 1px solid #3a5144; border-radius: 17px; background: rgba(12,24,17,.97); box-shadow: 0 16px 42px rgba(0,0,0,.42); backdrop-filter: blur(12px); transition: transform .22s ease, opacity .22s ease; }
   .sidebar.sheet-expanded { max-height: 82%; }
   .sidebar-head { padding: 11px 13px 10px; min-height: 57px; align-items: center; }
   .sidebar-head h2 { font-size: 15px; }
@@ -379,7 +379,7 @@ a { color: #5eead4; }
   .about-section p { font-size: 12px; }
   .about-footer { flex-direction: column; font-size: 9px; }
   .image-lightbox { padding: 15px; }
-  .image-lightbox > img { max-width: 94vw; max-height: 63vh; }
+  .image-lightbox > img { max-width: 94vw; max-height: 78vh; }
 }
 @media (max-width: 390px) {
   .brand-lockup p { display: none; }
@@ -1047,3 +1047,48 @@ body { color: var(--ink); background: #dbe6ee; font-family: 'Instrument Sans', -
 @media (prefers-reduced-motion: reduce) {
   .tab-button, .region-switch button, .primary-action, .secondary-action, .map-story-overlay { transition-duration: .01ms !important; }
 }
+
+
+/* District-scale readability: persistent pond labels appear only at zoom 13+. */
+.map-host:not(.pond-labels-visible) .pond-label { display: none !important; }
+.map-host.pond-labels-visible .pond-label { display: inline-block !important; }
+.pond-marker.is-dry .pond-dot { width: 19px; height: 19px; border-width: 2.5px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--pond-color), transparent 54%), 0 0 17px color-mix(in srgb, var(--pond-color), transparent 8%); }
+.pond-marker.is-critical .pond-dot { width: 16px; height: 16px; border-width: 2px; box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--pond-color), transparent 56%), 0 0 15px color-mix(in srgb, var(--pond-color), transparent 12%); }
+.pond-marker.is-flagged .pond-dot { width: 15px; height: 15px; border-width: 2px; box-shadow: 0 0 0 2px rgba(249,115,22,.36), 0 0 15px rgba(249,115,22,.45); }
+.pond-marker.is-dry .pond-label, .pond-marker.is-critical .pond-label, .pond-marker.is-flagged .pond-label { font-size: 10px; font-weight: 800; border-width: 1.5px; }
+.pond-marker.is-selected { filter: drop-shadow(0 3px 9px rgba(0,0,0,.75)); }
+
+/* Clickable map legend: status toggles filter markers and their pond outlines. */
+.legend-status, .legend-reset { display: inline-flex; align-items: center; gap: 6px; appearance: none; border: 0; padding: 1px 0; background: transparent; color: #c6d6cc; font: inherit; font-size: 9px; font-weight: 800; letter-spacing: .01em; white-space: nowrap; cursor: pointer; transition: opacity .18s ease, transform .18s ease; }
+.legend-status i { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px currentColor; }
+.legend-status.is-off { opacity: .37; text-decoration: line-through; }
+.legend-status:hover, .legend-reset:hover { transform: translateY(-1px); }
+.legend-status:focus-visible, .legend-reset:focus-visible { outline: 2px solid #a8e9d3; outline-offset: 3px; border-radius: 3px; }
+.legend-reset { padding-left: 7px; color: #a8e9d3; border-left: 1px solid rgba(124,157,139,.3); }
+
+/* API-provided taluka filter and labels (no client-side forecasting/calculation). */
+.taluka-filter { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 6px 8px; padding: 9px 13px 10px; border-bottom: 1px solid #d5dfd9; background: #f0f1e9; }
+.taluka-filter label { grid-column: 1 / -1; color: #728077; font-size: 8px; font-weight: 800; letter-spacing: .13em; }
+.taluka-filter select { width: 100%; min-width: 0; border: 1px solid #c4d0ca; border-radius: 4px; padding: 7px 9px; background: #faf9f3; color: #26372d; font: 500 11px 'Instrument Sans', sans-serif; }
+.taluka-filter > button { border: 1px solid #b9c8bf; border-radius: 4px; padding: 7px 9px; color: #315f4d; background: transparent; font-size: 10px; }
+.pond-taluka { margin-top: 3px; color: #78867d; font-size: 9px; letter-spacing: .01em; }
+.detail-title-row .detail-taluka { margin-top: 3px; color: #7a8980; font-size: 10px; }
+.imagery-empty { display: grid; gap: 5px; margin-top: 18px; border: 1px solid #c9d8ce; border-left: 3px solid #7da28a; padding: 12px 13px; background: #f0f3eb; color: #52645a; font-size: 11px; line-height: 1.55; }
+
+/* The bottom sheet changes its height without animating width/height properties. */
+@media (max-width: 760px) {
+  .sidebar { transform: translateY(2px); }
+  .sidebar.sheet-expanded { transform: translateY(0); }
+  .legend { gap: 7px 9px; }
+  .legend-status, .legend-reset { font-size: 8px; }
+  .taluka-filter { grid-template-columns: minmax(0,1fr) auto; padding: 7px 12px; }
+  .taluka-filter select { font-size: 10px; }
+}
+@media (max-width: 390px) {
+  .legend { max-width: calc(100% - 92px); gap: 6px 7px; }
+  .legend-status, .legend-reset { font-size: 7px; gap: 4px; }
+  .legend-status i { width: 6px; height: 6px; }
+  .taluka-filter label { font-size: 7px; }
+}
+.too-early-note { margin: 0; padding: 0 13px 9px; color: #66766d; font-size: 10px; line-height: 1.45; }
+@media (max-width: 760px) { .too-early-note { padding: 0 13px 7px; font-size: 9px; } }

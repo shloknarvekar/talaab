@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Scatter, ReferenceLine } from 'recharts';
@@ -47,6 +47,9 @@ export default function App() {
   const [data, setData] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [satellite, setSatellite] = useState(false);
+  const [visibleStatuses, setVisibleStatuses] = useState(STATUS_KEYS);
+  const [focusRequest, setFocusRequest] = useState(0);
+  const [talukaFilter, setTalukaFilter] = useState('');
   const [activeTab, setActiveTab] = useState('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -161,10 +164,17 @@ export default function App() {
     setPlaying(false);
     setRegionId(id);
     setDateIndex(next.dates.length - 1);
+    setTalukaFilter('');
+    setVisibleStatuses(STATUS_KEYS);
     setMobileDetailOpen(false);
   };
 
   const ponds = useMemo(() => sortPonds(data?.ponds ?? []), [data]);
+  const talukas = data?.talukas ?? [];
+  const filteredPonds = useMemo(
+    () => talukaFilter ? ponds.filter((pond) => pond.taluka === talukaFilter) : ponds,
+    [ponds, talukaFilter],
+  );
   const selected = ponds.find((pond) => pond.id === selectedId) ?? ponds[0];
   const counts = useMemo(() => ponds.reduce((acc, pond) => ({ ...acc, [pond.status]: (acc[pond.status] || 0) + 1 }), {}), [ponds]);
   const isLive = region?.mode === 'live';
@@ -181,10 +191,44 @@ export default function App() {
     .filter((alert) => !alertDate(alert) || !asOf || alertDate(alert) <= asOf)
     .sort((a, b) => alertDate(b).localeCompare(alertDate(a)))
     .slice(0, 5), [alerts, asOf]);
-  const selectPond = (id) => {
+  const openPondFromList = useCallback((id) => {
+    setSelectedId(id);
+    const pond = ponds.find((item) => item.id === id);
+    if (pond) setVisibleStatuses((current) => current.includes(pond.status) ? current : [...current, pond.status]);
+    setFocusRequest((current) => current + 1);
+    if (window.matchMedia('(max-width: 900px)').matches) setMobileDetailOpen(true);
+  }, [ponds]);
+
+  const selectPondFromMap = useCallback((id) => {
     setSelectedId(id);
     if (window.matchMedia('(max-width: 900px)').matches) setMobileDetailOpen(true);
+  }, []);
+
+  const toggleMapStatus = useCallback((status) => {
+    setVisibleStatuses((current) => {
+      if (current.includes(status)) {
+        const remaining = current.filter((item) => item !== status);
+        return remaining.length ? remaining : STATUS_KEYS;
+      }
+      return STATUS_KEYS.filter((item) => item === status || current.includes(item));
+    });
+  }, []);
+
+  const toggleTimelinePlayback = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    if (dateIndex >= dates.length - 1) setDateIndex(0);
+    setPlaying(true);
   };
+
+  const changeTaluka = useCallback((event) => {
+    const nextTaluka = event.target.value;
+    setTalukaFilter(nextTaluka);
+    const firstMatch = nextTaluka ? ponds.find((pond) => pond.taluka === nextTaluka) : ponds[0];
+    if (firstMatch) openPondFromList(firstMatch.id);
+  }, [openPondFromList, ponds]);
 
   if (activeTab === 'home') {
     return <TalaabLandingPage onExplore={() => setActiveTab('ponds')} onOpenView={setActiveTab} />;
@@ -284,7 +328,7 @@ export default function App() {
 
       <div className={`mode-banner ${isLive ? 'live' : 'replay'}`}>
         {isLive
-          ? <><b><span className="live-pulse" /> Live region</b> · Recomputed on AWS after new Sentinel-2 passes. Early in the season, some ponds are “too early to forecast”.</>
+          ? <><b><span className="live-pulse" /> Live region</b> · Recomputed on AWS after new Sentinel-2 passes. Grey “Too early” ponds have fewer than three valid passes in the last 45 days, so Talaab will not guess a drying date.</>
           : <><b>2024 replay</b> · Each date shows only what Talaab could have known then. Ranges, not exact dates.</>}
       </div>
       {error && <div className="error-strip" role="status">{error}</div>}
@@ -317,11 +361,26 @@ export default function App() {
             <div className="status-summary">
               {STATUS_KEYS.filter((status) => counts[status]).map((status) => <span key={status}><i style={{ background: statusMeta(status).color }} />{counts[status]} {statusMeta(status).label.toLowerCase()}</span>)}
             </div>
+            {isLive && <p className="too-early-note">“Too early” means there are not enough valid recent satellite passes to estimate a drying window.</p>}
+            {talukas.length > 0 && (
+              <div className="taluka-filter">
+                <label htmlFor="taluka-filter">FILTER BY TALUKA</label>
+                <select id="taluka-filter" value={talukaFilter} onChange={changeTaluka}>
+                  <option value="">All talukas · {ponds.length} ponds</option>
+                  {talukas.map((taluka) => (
+                    <option key={taluka.name} value={taluka.name}>
+                      {taluka.name}{taluka.nameMr ? ` · ${taluka.nameMr}` : ''} · {taluka.ponds} ponds
+                    </option>
+                  ))}
+                </select>
+                {talukaFilter && <button type="button" onClick={() => changeTaluka({ target: { value: '' } })}>Clear</button>}
+              </div>
+            )}
             <AlertsFeed alerts={visibleAlerts} asOf={asOf} isReplay={!isLive} />
-            <PondList ponds={ponds} selectedId={selected?.id} onSelect={selectPond} />
+            <PondList ponds={filteredPonds} selectedId={selected?.id} onSelect={openPondFromList} />
             <div className="data-footer">
               <strong>About the data</strong>
-              <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors © CARTO</span>
+              <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · © CARTO</span>
               <span>{data.scenes?.length ?? 0} satellite passes · {data.scenes?.filter((scene) => scene.status === 'suspect').length ?? 0} suspect, not used.</span>
               <ExcludedPonds excluded={data.excludedPonds} />
             </div>
@@ -334,25 +393,39 @@ export default function App() {
               <small>{flaggedCount} faster-than-sun inspection flag{flaggedCount === 1 ? '' : 's'}</small>
             </div>
             <div className="map-toolbar">
-              <div className="legend">
-                {STATUS_KEYS.map((status) => <span key={status}><i style={{ background: statusMeta(status).color }} />{statusMeta(status).label}</span>)}
+              <div className="legend" aria-label="Filter map by pond status">
+                {STATUS_KEYS.map((status) => (
+                  <button
+                    type="button"
+                    key={status}
+                    className={`legend-status ${visibleStatuses.includes(status) ? 'is-on' : 'is-off'}`}
+                    aria-pressed={visibleStatuses.includes(status)}
+                    onClick={() => toggleMapStatus(status)}
+                    title={`${visibleStatuses.includes(status) ? 'Hide' : 'Show'} ${statusMeta(status).label.toLowerCase()} ponds`}
+                  >
+                    <i style={{ background: statusMeta(status).color }} />{statusMeta(status).label}
+                  </button>
+                ))}
+                {visibleStatuses.length !== STATUS_KEYS.length && (
+                  <button type="button" className="legend-reset" onClick={() => setVisibleStatuses(STATUS_KEYS)}>All</button>
+                )}
               </div>
               <button className={`sat-toggle ${satellite ? 'on' : ''}`} aria-pressed={satellite} onClick={() => setSatellite((value) => !value)}>{satellite ? 'Satellite' : 'Dark map'} <span>◉</span></button>
             </div>
-            <MapView region={data.region} ponds={ponds} selectedId={selected?.id} onSelect={selectPond} satellite={satellite} outlines={outlines} />
+            <MapView region={data.region} ponds={ponds} selectedId={selected?.id} onSelect={selectPondFromMap} satellite={satellite} outlines={outlines} visibleStatuses={visibleStatuses} focusRequest={focusRequest} />
             <div className="map-note">{outlines?.features?.length ? 'Pond outlines · click a shape to inspect it' : 'Pond locations · outlines appear when imagery files arrive'}</div>
           </section>
 
           <aside className={`detail-panel ${mobileDetailOpen ? 'mobile-open' : ''}`}>
             <button className="drawer-close" onClick={() => setMobileDetailOpen(false)} aria-label="Close pond details">✕ Close details</button>
-            <PondDetailCard pond={selected} asOf={asOf} scenes={data.scenes} imageryIndex={imageryIndex} imageryRegion={imageryRegion} />
+            <PondDetailCard pond={selected} asOf={asOf} scenes={data.scenes} imageryIndex={imageryIndex} imageryRegion={imageryRegion} regionId={regionId} />
           </aside>
         </section>
       )}
 
       {activeTab === 'ponds' && (
         <SeasonTimeline dates={dates} dateIndex={dateIndex} onChange={(index) => { setPlaying(false); setDateIndex(index); }}
-          playing={playing} onTogglePlay={() => setPlaying((value) => !value)} disabled={reducedMotion || isLive} />
+          playing={playing} onTogglePlay={toggleTimelinePlayback} disabled={reducedMotion || isLive} />
       )}
     </main>
   );
@@ -416,7 +489,7 @@ function dryByText(pond) {
   return formatRange(pond.dryBy);
 }
 
-function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion }) {
+function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regionId }) {
   const [expandedPass, setExpandedPass] = useState(null);
   useEffect(() => setExpandedPass(null), [pond?.id, asOf]);
   if (!pond) return <div className="detail-empty">Select a pond to inspect its history.</div>;
@@ -424,12 +497,13 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion }) {
   const shrinkPct = pond.maxAreaHa && pond.areaNowHa != null ? Math.max(0, Math.round((1 - pond.areaNowHa / pond.maxAreaHa) * 100)) : null;
   const pondImagery = imageryIndex?.ponds?.[pond.id];
   const passes = (pondImagery?.dates ?? []).filter((date) => !asOf || date <= asOf).sort();
+  const districtImageryMissing = String(regionId || '').includes('district') && passes.length === 0;
   const historyByDate = new Map((pond.history ?? []).filter((point) => !asOf || point.date <= asOf).map((point) => [point.date, point]));
   const sceneByDate = new Map((scenes ?? []).filter((scene) => !asOf || scene.date <= asOf).map((scene) => [scene.date, scene]));
   return (
     <div className="detail-card">
       <div className="detail-kicker">SELECTED POND · {formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-      <div className="detail-title-row"><div><h2>{pond.id}</h2><p>{placeLabel(pond)}</p></div><span className="status-pill large" style={{ '--status-color': meta.color, '--status-soft': meta.soft }}>{meta.label}</span></div>
+      <div className="detail-title-row"><div><h2>{pond.id}</h2><p>{placeLabel(pond)}</p>{(pond.taluka || pond.talukaMr) && <p className="detail-taluka">Taluka · {pond.taluka || '—'}{pond.talukaMr ? ` · ${pond.talukaMr}` : ''}</p>}</div><span className="status-pill large" style={{ '--status-color': meta.color, '--status-soft': meta.soft }}>{meta.label}</span></div>
       <div className="headline-metric"><strong>{pond.areaNowHa ?? '—'}</strong><span>ha water area now</span></div>
       <div className="metric-grid">
         <Stat label="Max area" value={`${pond.maxAreaHa ?? '—'} ha`} />
@@ -464,6 +538,11 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion }) {
             <small>{imageryIndex?.credit}</small>
           </div>}
         </section>
+      )}
+      {districtImageryMissing && (
+        <div className="imagery-empty" role="note">
+          Satellite thumbnails available in the Latur 2024 view. District imagery is being prepared.
+        </div>
       )}
     </div>
   );
@@ -635,7 +714,7 @@ function AboutTab({ onExplore }) {
         <span>Amplify Hosting</span>
       </div>
     </section>
-    <section className="about-section credits-section"><div><span className="eyebrow">SOURCES & CREDITS</span><h3>Open data, labelled honestly.</h3><p>Sentinel-2 (Copernicus) via AWS Open Data / Element84 Earth Search · Open-Meteo daily ET₀ and precipitation (CC BY 4.0) · © OpenStreetMap contributors · © CARTO dark basemap.</p><p>Historical views are labelled <b>2024 replay</b>; live views use the latest published region snapshot. Drying dates are presented as ranges, not guarantees. “Faster than the sun” suggests pumping and should prompt inspection, not an accusation.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></section>
+    <section className="about-section credits-section"><div><span className="eyebrow">SOURCES & CREDITS</span><h3>Open data, labelled honestly.</h3><p>Sentinel-2 (Copernicus) via AWS Open Data / Element84 Earth Search · Open-Meteo daily ET₀ and precipitation (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · © CARTO dark basemap.</p><p>Historical views are labelled <b>2024 replay</b>; live views use the latest published region snapshot. Drying dates are presented as ranges, not guarantees. “Faster than the sun” suggests pumping and should prompt inspection, not an accusation.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></section>
     <footer className="about-footer"><span>Syntax Errors · Environmental Hacks · Heat & Water</span><span>Designed for district officers, field teams and a water-secure future.</span></footer>
   </section>;
 }

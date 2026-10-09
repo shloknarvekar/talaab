@@ -12,7 +12,8 @@ export default function PondList({ ponds, selectedId, onSelect }) {
               <span className="pond-id">{pond.id}</span>
               <span className="status-pill" style={{ '--status-color': meta.color, '--status-soft': meta.soft }}>{meta.label}</span>
             </div>
-            <div className="pond-place">{pond.place.replace(' (mock)', '')}</div>
+            <div className="pond-place">{(pond.place || '').replace(' (mock)', '') || 'Unnamed location'}</div>
+            {(pond.taluka || pond.talukaMr) && <div className="pond-taluka">{pond.taluka || 'Taluka'}{pond.talukaMr ? ` · ${pond.talukaMr}` : ''}</div>}
             <div className="pond-metrics">
               <div><strong>{pond.areaNowHa ?? '—'}</strong><span>ha now</span></div>
               <div><strong>{pond.daysLeft?.likely ?? '—'}</strong><span>days likely</span></div>
