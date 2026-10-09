@@ -230,7 +230,9 @@ Resources:
           Properties:
             Name: !Sub "${AWS::StackName}-every-5-days"
             Description: Recompute pond countdowns after each Sentinel-2 revisit
-            ScheduleExpression: rate(5 days)
+            # every 5 days on fixed dates (1st, 6th, 11th ... of each month), 06:30 IST, after the district run
+            ScheduleExpression: cron(30 6 1/5 * ? *)
+            ScheduleExpressionTimezone: Asia/Kolkata
             State: ENABLED
 
   RecomputeLogGroup:
@@ -438,7 +440,9 @@ Resources:
           Type: ScheduleV2
           Properties:
             Name: !Sub "${AWS::StackName}-live-district"
-            ScheduleExpression: rate(5 days)
+            # every 5 days on fixed dates (1st, 6th, 11th ... of each month), 06:00 IST
+            ScheduleExpression: cron(0 6 1/5 * ? *)
+            ScheduleExpressionTimezone: Asia/Kolkata
             Input: '{"region": "latur-district-2026", "name": "Latur district (live, 2026)", "boundary": "latur-district", "start": "2026-09-01", "end": "today", "referenceDate": "2026-09-27", "maxCloud": 45}'
 
   HelloFunction:

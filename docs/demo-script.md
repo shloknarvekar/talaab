@@ -8,8 +8,9 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 
 ## Before recording (checklist)
 
-- [ ] Shlok runs `python backend/scripts/run_district.py --region latur-district-2026 --wait` ~10 min
-      before recording, so the Step Functions graph and the CloudWatch dashboard show a fresh run.
+- [ ] If recording before Sun 11 Oct 06:00 IST: Shlok runs `python backend/scripts/run_district.py --region latur-district-2026 --wait`
+      ~10 min before recording, so the Step Functions graph and the CloudWatch dashboard show a fresh run.
+      After that time, use the automatic 11 Oct run instead.
 - [ ] Tabs open in this order: (1) the site, (2) EventBridge Scheduler → Schedules → `talaab-live-district`,
       (3) Step Functions → `talaab-district` → latest execution → Graph view, (4) CloudWatch → Dashboards →
       `talaab-ops`, (5) the Talaab alert email in the inbox (subject "Talaab: … need action in Latur district").
@@ -47,8 +48,10 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 
 - That the AI plan is written by Bedrock today. It is built and tested, but AWS hasn't enabled Bedrock on
   our new account yet; the plan shown is the deterministic one (the tab says so).
-- That the schedule has already run by itself. It's set up for every 5 days; the runs shown were started
-  by us (same input). Say "runs every five days", which is true.
+- That the schedule ran by itself, **unless** you record after **Sun 11 Oct, 06:00 IST**. The schedules fire on
+  the 1st, 6th, 11th, 16th, 21st, 26th and 31st of each month (06:00 IST district, 06:30 IST recompute), so the
+  first automatic run is 11 Oct. After that, the Step Functions execution list shows it (scheduler-started
+  runs are not named `latur-district-...`; ours are). Before then, say "runs every five days", which is true.
 - A single dry date. Always "a range" or "likely around".
 - That a flagged pond **is** being pumped. Say "suggests pumping; worth an inspection".
 
