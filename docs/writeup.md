@@ -52,6 +52,10 @@ actually happened.
   without it). On 435 ponds the rules had never seen, 71% of critical calls came true, 60% of ponds
   about to dry were caught in time, and the median warning was 25 days (197 ponds warned in advance).
   See `docs/scale-projection.md`.
+- **And it runs live.** Every 5 days EventBridge Scheduler starts the same state machine for the
+  2026 season: the whole district is re-measured from the newest Sentinel-2 passes in about 60 s, and
+  new critical, dry or flagged ponds are emailed. The first live run (9 Oct 2026) measured 383 ponds;
+  most are honestly "too early to forecast" this soon after the monsoon.
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P002 and P006
   had turned critical. P006 was dry on the 30 April pass and P002 on the 5 May pass, giving 25 and
   30 days to arrange tankers. Over the whole season Talaab would have sent **9 emails** and never
@@ -89,10 +93,10 @@ one SAM template, with **no hourly cost while idle**.
 | AWS service | What it does in Talaab |
 |---|---|
 | **AWS Open Data** (Sentinel-2 L2A COGs on S3) | The satellite imagery: windows read directly over HTTPS, no downloads |
-| **AWS Lambda** (6 functions) | `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
+| **AWS Lambda** (7 functions) | `pipeline-grid` (lists the district's grid cells), `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
 | **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 8 in parallel, with retries), then merges. Latur district takes 161 s. |
 | **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`; throttled, CORS limited to our site |
-| **Amazon EventBridge Scheduler** | Re-runs everything every 5 days, matching the satellite revisit |
+| **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures the live district from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
 | **Amazon DynamoDB** | Latest state of every pond |
 | **Amazon SNS** | Email alerts to the district officer (only new changes) |

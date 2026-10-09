@@ -17,7 +17,7 @@ flowchart LR
   end
 
   subgraph AWS["AWS (us-west-2)"]
-    SFN["Step Functions: talaab-district<br/>Map over 42 grid cells, 8 in parallel"]
+    SFN["Step Functions: talaab-district<br/>grid → Map over 42 cells (8 in parallel) → merge"]
     CELL["Lambda: pipeline-cell ×42<br/>best tile per date · fixed 10 m grid<br/>ponds owned by the cell core"]
     MRG["Lambda: pipeline-merge<br/>district boundary · quality rules<br/>weather"]
     S3[("S3 data bucket<br/>measurements · snapshots<br/>plans · backtest")]
@@ -33,6 +33,7 @@ flowchart LR
   end
 
   S2 --> P --> |measurements.json| S3
+  SCH --> |live district, every 5 days| SFN
   SFN --> CELL
   S2 --> |in-region reads| CELL
   CELL --> |cells/*.json| S3

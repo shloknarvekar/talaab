@@ -37,6 +37,8 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   `talaab-district` (`backend/scripts/run_district.py`): `pipeline/district.py` grid (0.15 deg cells + overlap,
   OSM boundary) -> `pipeline/cell.py` per cell (Lambda `pipeline-cell`) -> `pipeline_lambda/merge_handler.py`.
   Layer: `build_layer.py --name pipeline-layer` (vendors libexpat; keep under 250 MB). Projection: `docs/scale-projection.md`.
+  LIVE district `latur-district-2026`: EventBridge schedule `talaab-live-district` (template LiveDistrict, input kept in
+  sync with RUNS in run_district.py) starts the state machine every 5 days; the web opens on it. Alert emails list 20 ponds max.
 - Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
   Plan / Accuracy. No countdown maths in the browser.
 

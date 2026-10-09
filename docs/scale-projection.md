@@ -22,6 +22,15 @@ python backend/scripts/run_district.py --wait      # Step Functions talaab-distr
 
 The same cell processed on a laptop took 447 s. On Lambda it took 50 s (the first, cold run) or 26 s on average, because Lambda reads the images inside the same AWS region.
 
+### And live, every 5 days (measured, 9 Oct 2026)
+
+EventBridge Scheduler starts the same state machine for `latur-district-2026` (`end: "today"`, the
+season since 1 Sep 2026, scenes up to 45% tile cloud with the per-pond cloud check). First run:
+**60 s wall clock, 383 ponds, 6 passes, 573 GB-s** (about $0.008 without the free tier). The run
+reprocesses the season so far each time, so the cost grows with the season. At ~30 passes by June it
+should be roughly the replay's 2,200 GB-s per run, about 13,000 GB-s per month, still about 3% of
+the free tier.
+
 ### Do the forecasts still hold at district scale?
 
 Same honest backtest as the validated 0.15° box (`docs/backtest-latur-district-2024.md`). Each as-of date uses only data up to that date.
