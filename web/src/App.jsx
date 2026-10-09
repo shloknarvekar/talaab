@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Scatter, ReferenceLine } from 'recharts';
 import MapView from './components/MapView';
 import PondList from './components/PondList';
+import TalaabPortfolio from './components/ui/TalaabPortfolio';
+import TalaabLandingPage from './components/ui/TalaabLandingPage';
 import { fetchAlerts, fetchBacktest, fetchPonds, fetchRegions, requestPlan } from './api';
 import { STATUS_KEYS, addDays, formatDate, formatRange, pct, placeLabel, sortPonds, statusMeta } from './utils';
 
@@ -45,7 +47,7 @@ export default function App() {
   const [data, setData] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [satellite, setSatellite] = useState(false);
-  const [activeTab, setActiveTab] = useState('ponds');
+  const [activeTab, setActiveTab] = useState('home');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [alerts, setAlerts] = useState([]);
@@ -181,8 +183,12 @@ export default function App() {
     .slice(0, 5), [alerts, asOf]);
   const selectPond = (id) => {
     setSelectedId(id);
-    if (window.matchMedia('(max-width: 760px)').matches) setMobileDetailOpen(true);
+    if (window.matchMedia('(max-width: 900px)').matches) setMobileDetailOpen(true);
   };
+
+  if (activeTab === 'home') {
+    return <TalaabLandingPage onExplore={() => setActiveTab('ponds')} onOpenView={setActiveTab} />;
+  }
 
   if (!data) {
     return <main className="loading-screen"><div className="loading-mark">तालाब</div><p>{error || 'Loading pond intelligence…'}</p></main>;
@@ -191,6 +197,7 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
+<<<<<<< Updated upstream
         <div className="brand-lockup">
           <div className="brand-mark">जल</div>
           <div><h1>Talaab</h1><p>The sun drinks first.</p></div>
@@ -210,23 +217,43 @@ export default function App() {
                 {otherDistricts.map((r) => <option key={r.id} value={r.id}>{regionLabel(r)} · {r.mode === 'live' ? 'LIVE' : 'REPLAY'}</option>)}
               </select>
             )}
+=======
+        <div className="app-primary-nav">
+          <button type="button" className="brand-lockup brand-home-button" onClick={() => setActiveTab('home')} aria-label="Return to Talaab website home">
+            <div className="brand-mark" aria-hidden="true">जल</div>
+            <div><h1>Talaab</h1><p>Water intelligence, with honest uncertainty.</p></div>
+          </button>
+          <nav className="tab-group" aria-label="Main navigation">
+            {[[ 'ponds', 'Pond map' ], ['plan', 'Plan'], ['accuracy', 'Accuracy'], ['about', 'About']].map(([key, label]) => (
+              <button key={key} className={`tab-button ${activeTab === key ? 'active' : ''}`} aria-current={activeTab === key ? 'page' : undefined} onClick={() => setActiveTab(key)}>{label}</button>
+            ))}
+          </nav>
+        </div>
+        <div className="app-context-row">
+          <div className="region-block">
+            <span className="eyebrow">REGION</span>
+            <div className="region-switch" role="tablist" aria-label="Choose region">
+              {regions.map((r) => (
+                <button key={r.id} role="tab" aria-selected={r.id === regionId} className={r.id === regionId ? 'active' : ''} onClick={() => switchRegion(r.id)}>
+                  {regionLabel(r)} <em className={r.mode}>{r.mode === 'live' ? 'LIVE' : 'REPLAY'}</em>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="app-context-meta">
+            <div className="asof-block">
+              <span className="eyebrow">AS OF {loading && <span className="loading-dot">· updating</span>}</span>
+              <strong>{formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
+              <small>Only data available by this date</small>
+            </div>
+            <div className="sun-share">
+              <span className="eyebrow">☀ SUN'S SHARE</span>
+              <strong>{data.sunShareMm ?? '—'} <small>mm</small></strong>
+              <span className="since">evaporation since {formatDate(addDays(asOf, -45), { day: '2-digit', month: 'short' })}</span>
+            </div>
+>>>>>>> Stashed changes
           </div>
         </div>
-        <div className="asof-block">
-          <span className="eyebrow">AS OF {loading && <span className="loading-dot">· updating</span>}</span>
-          <strong>{formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
-          <small>Every view uses data available by this date</small>
-        </div>
-        <div className="sun-share">
-          <span className="eyebrow">☀ SUN'S SHARE</span>
-          <strong>{data.sunShareMm ?? '—'} <small>mm</small></strong>
-          <span className="since">evaporation since {formatDate(addDays(asOf, -45), { day: '2-digit', month: 'short' })}</span>
-        </div>
-        <nav className="tab-group" aria-label="Views">
-          {[['ponds', 'Ponds'], ['plan', 'Plan'], ['accuracy', 'Accuracy'], ['about', 'About']].map(([key, label]) => (
-            <button key={key} className={`tab-button ${activeTab === key ? 'active' : ''}`} onClick={() => setActiveTab(key)}>{label}</button>
-          ))}
-        </nav>
       </header>
 
       <div className={`mode-banner ${isLive ? 'live' : 'replay'}`}>
@@ -238,7 +265,7 @@ export default function App() {
 
       {activeTab === 'plan' && <PlanTab regionId={regionId} asOf={asOf} regionName={data.region.name} />}
       {activeTab === 'accuracy' && <AccuracyTab />}
-      {activeTab === 'about' && <AboutTab />}
+      {activeTab === 'about' && <AboutTab onExplore={() => setActiveTab('ponds')} />}
       {activeTab === 'ponds' && (
         <section className="workspace">
           <aside className={`sidebar ${mobileSheetExpanded ? 'sheet-expanded' : ''}`}>
@@ -551,13 +578,18 @@ function AccuracyTab() {
   </section>;
 }
 
-function AboutTab() {
+function AboutTab({ onExplore }) {
   return <section className="about-screen">
+<<<<<<< Updated upstream
     <header className="about-hero"><span className="eyebrow">TALAAB · तालाब · WATER INTELLIGENCE</span><h2>The sun drinks first.<br /><em>Know which pond runs out next.</em></h2>
       <p>Small ponds sustain villages through the dry season. Talaab turns satellite observations into per-pond drying windows and a field plan—so district teams can act before water disappears.</p>
     </header>
     <div className="about-process"><article><span>01</span><div className="process-icon">◉</div><h3>Observe</h3><p>Sentinel-2 imagery finds ponds and revisits the landscape when skies are clear.</p></article><article><span>02</span><div className="process-icon">▤</div><h3>Measure</h3><p>Water area is measured on each pass; cloud, suspect and noisy readings are excluded.</p></article><article><span>03</span><div className="process-icon">↘</div><h3>Forecast</h3><p>The backend estimates drying ranges and flags ponds shrinking faster than nearby ponds.</p></article><article><span>04</span><div className="process-icon">✓</div><h3>Act</h3><p>A district plan turns evidence into inspection and water-supply priorities.</p></article></div>
     <section className="about-section"><div><span className="eyebrow">BUILT ON AWS</span><h3>From satellite pass to district action.</h3><p>Every 5 days EventBridge Scheduler starts a Step Functions run that splits the whole district into 42 grid cells and measures each one on its own Lambda, reading Sentinel-2 straight from AWS Open Data (about a minute for 7,157 km²). The merge step cleans the readings; recompute builds a snapshot per date in S3 and DynamoDB, and SNS emails the district officer about ponds that newly need action. Forecasting stays deterministic; the plan writer on Amazon Bedrock may only use these numbers.</p></div><div className="aws-chip-row"><span>AWS Open Data</span><span>EventBridge Scheduler</span><span>Step Functions</span><span>AWS Lambda</span><span>Amazon S3</span><span>DynamoDB</span><span>Amazon SNS</span><span>API Gateway</span><span>Amazon Bedrock</span><span>CloudWatch</span><span>Amplify Hosting</span></div></section>
+=======
+    <TalaabPortfolio onExplore={onExplore} />
+    <section className="about-section"><div><span className="eyebrow">BUILT ON AWS</span><h3>From satellite pass to district action.</h3><p>EventBridge schedules recomputation, serverless pipeline and API components publish snapshots, S3 stores outputs, and the web app reads the live API. Forecasting logic stays deterministic; the plan endpoint returns a source-labelled action plan.</p></div><div className="aws-chip-row"><span>Amazon S3</span><span>AWS Lambda</span><span>EventBridge</span><span>API Gateway</span><span>Amazon Bedrock</span><span>Amplify Hosting</span></div></section>
+>>>>>>> Stashed changes
     <section className="about-section credits-section"><div><span className="eyebrow">SOURCES & CREDITS</span><h3>Open data, labelled honestly.</h3><p>Sentinel-2 (Copernicus) via AWS Open Data / Element84 Earth Search · Open-Meteo daily ET₀ and precipitation (CC BY 4.0) · © OpenStreetMap contributors · © CARTO dark basemap.</p><p>Historical views are labelled <b>2024 replay</b>; live views use the latest published region snapshot. Drying dates are presented as ranges, not guarantees. “Faster than the sun” suggests pumping and should prompt inspection, not an accusation.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></section>
     <footer className="about-footer"><span>Syntax Errors · Environmental Hacks · Heat & Water</span><span>Designed for district officers, field teams and a water-secure future.</span></footer>
   </section>;
