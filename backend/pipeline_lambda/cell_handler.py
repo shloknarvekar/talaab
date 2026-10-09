@@ -2,6 +2,7 @@
 import json
 import os
 import time
+from datetime import datetime, timezone
 
 import boto3
 
@@ -14,10 +15,16 @@ os.environ.setdefault("GDAL_HTTP_MERGE_CONSECUTIVE_RANGES", "YES")
 os.environ.setdefault("CPL_VSIL_CURL_ALLOWED_EXTENSIONS", ".tif")
 
 
+def season_end(end: str) -> str:
+    """'today' (scheduled live runs) -> today's UTC date; anything else is a fixed replay end date."""
+    return datetime.now(timezone.utc).date().isoformat() if end == "today" else end
+
+
 def lambda_handler(event, context):
     started = time.time()
     cell = event["cell"]
-    result = process_cell(cell, event["start"], event["end"], event["referenceDate"], event.get("maxCloud", 20.0))
+    result = process_cell(cell, event["start"], season_end(event["end"]), event["referenceDate"],
+                          float(event.get("maxCloud") or 20.0))
     result["seconds"] = round(time.time() - started, 1)
     boto3.client("s3").put_object(Bucket=os.environ["DATA_BUCKET"], Key=f"data/{event['region']}/cells/{cell['id']}.json",
                                   Body=json.dumps(result).encode(), ContentType="application/json")

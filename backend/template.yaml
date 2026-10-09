@@ -331,7 +331,24 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-pipeline-merge"
       RetentionInDays: 14
 
-  # Map over every grid cell (8 at a time, under the account's 10-Lambda limit), then merge.
+  GridFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-pipeline-grid"
+      CodeUri: ../.build/pipeline-fn
+      Handler: grid_handler.lambda_handler
+      Timeout: 30
+      MemorySize: 256
+      LoggingConfig:
+        LogGroup: !Ref GridLogGroup
+
+  GridLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-pipeline-grid"
+      RetentionInDays: 14
+
+  # Grid -> Map over every cell (8 at a time, under the account's 10-Lambda limit) -> merge.
   DistrictStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
@@ -339,19 +356,27 @@ Resources:
       Type: STANDARD
       Policies:
         - LambdaInvokePolicy:
+            FunctionName: !Ref GridFunction
+        - LambdaInvokePolicy:
             FunctionName: !Ref CellFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref MergeFunction
       DefinitionSubstitutions:
+        GridArn: !GetAtt GridFunction.Arn
         CellArn: !GetAtt CellFunction.Arn
         MergeArn: !GetAtt MergeFunction.Arn
       Definition:
         Comment: "Talaab: process a whole district from Sentinel-2, one Lambda per grid cell"
-        StartAt: ProcessCells
+        StartAt: Grid
         States:
+          Grid:
+            Type: Task
+            Resource: "${GridArn}"
+            ResultPath: "$.grid"
+            Next: ProcessCells
           ProcessCells:
             Type: Map
-            ItemsPath: "$.cells"
+            ItemsPath: "$.grid.cells"
             MaxConcurrency: 8
             ItemSelector:
               cell.$: "$$.Map.Item.Value"
@@ -359,6 +384,7 @@ Resources:
               start.$: "$.start"
               end.$: "$.end"
               referenceDate.$: "$.referenceDate"
+              maxCloud.$: "$.maxCloud"
             ItemProcessor:
               ProcessorConfig:
                 Mode: INLINE
@@ -384,6 +410,15 @@ Resources:
               boundary.$: "$.boundary"
               referenceDate.$: "$.referenceDate"
             End: true
+      Events:
+        # The live district: re-measured from Sentinel-2 every 5 days (one revisit). end "today" is
+        # resolved by each cell; the merge then starts recompute, which emails new alerts.
+        LiveDistrict:
+          Type: ScheduleV2
+          Properties:
+            Name: !Sub "${AWS::StackName}-live-district"
+            ScheduleExpression: rate(5 days)
+            Input: '{"region": "latur-district-2026", "name": "Latur district (live, 2026)", "boundary": "latur-district", "start": "2026-09-01", "end": "today", "referenceDate": "2026-09-27", "maxCloud": 45}'
 
   HelloFunction:
     Type: AWS::Serverless::Function
