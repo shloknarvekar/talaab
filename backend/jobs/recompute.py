@@ -17,6 +17,7 @@ from typing import Callable
 from api import store
 from jobs.alerts import alert_state, alert_timeline, format_alert, new_alerts
 from jobs.places import name_ponds, places_for_region
+from jobs.talukas import tag_ponds, talukas_for_region
 from jobs.regions import REGIONS
 from jobs.weather import merge_observed, recent_and_forecast
 from logic.snapshot import build_snapshot
@@ -104,6 +105,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
 
     meas = {**meas, "ponds": [dict(p) for p in meas["ponds"]]}
     named = name_ponds(meas["ponds"], places_for_region(region))
+    in_taluka = tag_ponds(meas["ponds"], talukas_for_region(region))
 
     live = cfg["mode"] == "live"
     forecast: list[dict] = []
@@ -147,6 +149,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
         "forecastDays": len(forecast),
         "dynamoRows": rows,
         "pondsNamed": named,
+        "pondsWithTaluka": in_taluka,
         "alertsSent": alerts_sent,
     }
 

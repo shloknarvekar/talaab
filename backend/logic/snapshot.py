@@ -10,6 +10,7 @@ from datetime import date, timedelta
 
 from logic.countdown import WINDOW_DAYS, countdown, fit_window
 from logic.flags import faster_than_sun, sun_share_mm
+from logic.talukas import summarise as summarise_talukas
 
 EXPECT_DAYS = 30
 
@@ -67,6 +68,8 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
                 "lon": p["lon"],
                 "place": p.get("place", ""),
                 **({"placeMr": p["placeMr"]} if p.get("placeMr") else {}),
+                **({"taluka": p["taluka"]} if p.get("taluka") else {}),
+                **({"talukaMr": p["talukaMr"]} if p.get("talukaMr") else {}),
                 "maxAreaHa": c["maxAreaHa"] if c["maxAreaHa"] is not None else p.get("refAreaHa"),
                 "areaNowHa": c["areaNowHa"],
                 "history": hist,
@@ -85,6 +88,8 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
         "scenes": [s for s in meas["scenes"] if _d(s["date"]) <= t],
         "ponds": sorted(ponds, key=lambda p: p["id"]),
     }
+    if any(p.get("taluka") for p in ponds):  # per-taluka counts: drought is declared and planned per taluka
+        doc["talukas"] = summarise_talukas(doc["ponds"])
     if meas.get("excludedPonds"):  # detections dropped by the pipeline's quality rules, with reasons
         doc["excludedPonds"] = meas["excludedPonds"]
     return doc
