@@ -3,7 +3,8 @@
     python backend/scripts/deploy_web.py [--skip-build]
 
 Creates the Amplify app "talaab" and branch "main" in us-west-2 the first time, then uploads
-web/dist as a zip and waits until the deployment is live. Prints the public URL.
+web/dist as a zip and waits until the deployment is live. Prints the public URL. Imagery the
+district pipeline wrote to S3 (data/<region>/imagery/) is copied into the build first.
 Cost: within the Amplify free tier for this traffic.
 """
 import argparse
@@ -49,6 +50,28 @@ def build() -> None:
     subprocess.run([npm, "run", "build"], cwd=WEB, check=True)
 
 
+def sync_cloud_imagery() -> None:
+    """District imagery is produced on AWS (pipeline merge -> s3://<data bucket>/data/<region>/imagery/),
+    not committed to web/public. Copy it into the build so the site serves it at /imagery/<region>/
+    with the same layout as committed imagery (docs/imagery-contract.md). Regions without it are skipped."""
+    cfn = boto3.client("cloudformation", region_name=REGION)
+    outputs = cfn.describe_stacks(StackName="talaab")["Stacks"][0]["Outputs"]
+    bucket = next(o["OutputValue"] for o in outputs if o["OutputKey"] == "DataBucketName")
+    s3 = boto3.client("s3", region_name=REGION)
+    copied = {}
+    for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix="data/"):
+        for obj in page.get("Contents", []):
+            parts = obj["Key"].split("/")  # data/<region>/imagery/<rest...>
+            if len(parts) < 4 or parts[2] != "imagery":
+                continue
+            dest = DIST / "imagery" / parts[1] / Path(*parts[3:])
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            s3.download_file(bucket, obj["Key"], str(dest))
+            copied[parts[1]] = copied.get(parts[1], 0) + 1
+    for region, n in sorted(copied.items()):
+        print(f"imagery from S3: {region} ({n} files)")
+
+
 def zip_dist() -> bytes:
     out = ROOT / ".build" / "web-dist.zip"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -68,6 +91,7 @@ def main() -> None:
         build()
     if not (DIST / "index.html").is_file():
         sys.exit("web/dist/index.html missing: build failed?")
+    sync_cloud_imagery()
 
     amp = boto3.client("amplify", region_name=REGION)
     app_id = get_or_create_app(amp)

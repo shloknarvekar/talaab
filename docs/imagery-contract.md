@@ -60,3 +60,19 @@ one 10 m pixel so the file stays small.
 - Map: draw `outlines.geojson`, filled with the pond's status colour, under the existing markers. Clicking an outline selects the pond.
 - Pond panel: a horizontal strip of thumbnails for the passes up to the current as-of date (never after it, to keep the replay honest), with the date under each; dim invalid passes. Clicking one enlarges it.
 - If `index.json` is missing for a region, hide these features silently (the live region may not have imagery yet).
+
+## District regions (produced on AWS)
+
+`latur-district-2024` and `latur-district-2026` are built by the Step Functions pipeline, so their
+imagery cannot be committed to `web/public`. The pipeline writes it to the data bucket with **the same
+layout and the final pond ids** (after the merge renumbers ponds P001…):
+
+```
+s3://<DataBucketName>/data/<region>/imagery/index.json
+s3://<DataBucketName>/data/<region>/imagery/outlines.geojson
+s3://<DataBucketName>/data/<region>/imagery/<pondId>/<YYYY-MM-DD>.jpg
+```
+
+`backend/scripts/deploy_web.py` copies everything under `data/<region>/imagery/` into the site at
+`/imagery/<region>/`, so the web app needs no change. Cell Lambdas name ponds `cXX-YY-P###`; only the merge
+step knows the final ids, so the merge writes these files (match ponds by their lat/lon before renumbering).

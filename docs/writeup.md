@@ -77,13 +77,16 @@ We treated honesty as a feature, because district officials will only use a tool
 - **We pre-registered our experiments.** To fix over-pessimism on big tanks we tested shape-aware
   models with a decision rule committed to git *before* the run. They didn't beat the current model
   on the unseen season, so we kept it and **published the negative result** (`docs/model-experiment.md`).
+- **Every reading has its satellite image.** Click a pond and the app shows the Sentinel-2 thumbnail
+  behind each measurement, with cloudy or suspect passes marked "not used", so an officer can check
+  a forecast with their own eyes instead of trusting a number.
 - **The AI can't invent numbers.** The plan writer (Claude on Amazon Bedrock, via Strands Agents)
   sees our data only through two tools locked to one date, and a **number guard** rejects any draft
   containing a number that isn't in the data. Without it, Talaab still produces a deterministic plan.
 - **Known limits, stated plainly.** Big tanks are often predicted to dry too early (8 times in 2024).
   Passes are about 5 days apart, so a dry date is known only to within a window. The heat
-  adjustment helped clearly in 2024 (median error 18 vs 33 days) but made little difference in 2023.
-  12–19 ponds per season is a small sample.
+  adjustment helped clearly in 2024 (median error 23 vs 31 days) but made little difference in 2023.
+  The validated box has only 13–19 ponds per season; the whole-district replay (435 ponds) is the larger check.
 
 ## Built on AWS
 
