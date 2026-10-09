@@ -14,9 +14,12 @@ from rasterio.windows import Window
 from PIL import Image
 
 from pipeline.imagery import (
-    extract_pond_outline_geometry,
+    export_cell_imagery,
     export_region_imagery,
+    extract_pond_outline_geometry,
     get_pond_crop_window_and_bbox,
+    match_ponds_by_location,
+    promote_district_imagery,
     rdp_simplify,
     simplify_ring,
 )
@@ -175,3 +178,211 @@ def test_export_region_imagery(tmp_path: Path):
     img = Image.open(out_dir / "P001" / "2024-01-16.jpg")
     assert img.size == (256, 256)
     assert img.format == "JPEG"
+
+
+def test_match_ponds_by_location():
+    kept = [{"id": "P001", "lat": 18.35, "lon": 76.50, "refAreaHa": 10.0}]
+    orig = [
+        {"id": "c03-02-P001", "lat": 18.3501, "lon": 76.5001, "refAreaHa": 10.0},
+        {"id": "c03-02-P002", "lat": 18.45, "lon": 76.60, "refAreaHa": 5.0},
+    ]
+    matched = match_ponds_by_location(kept, orig)
+    assert "P001" in matched
+    assert matched["P001"]["id"] == "c03-02-P001"
+
+
+def test_match_ponds_by_location_ambiguity():
+    # 2 orig cell ponds within ambiguity_threshold_km (0.02 km = 20 m) of 1 kept pond
+    # Distances to (18.35, 76.50):
+    # orig1: (18.3501, 76.5001) ~ 0.015 km
+    # orig2: (18.3502, 76.5002) ~ 0.030 km
+    # diff = 0.015 km < 0.02 km -> ambiguous!
+    kept = [{"id": "P001", "lat": 18.35, "lon": 76.50}]
+    orig = [
+        {"id": "c01-P001", "lat": 18.3501, "lon": 76.5001},
+        {"id": "c01-P002", "lat": 18.3502, "lon": 76.5002},
+    ]
+    matched = match_ponds_by_location(kept, orig)
+    assert "P001" not in matched
+
+    # 2 kept ponds competing for 1 orig pond within 20m
+    kept_dual = [
+        {"id": "P001", "lat": 18.3501, "lon": 76.5001},
+        {"id": "P002", "lat": 18.3502, "lon": 76.5002},
+    ]
+    orig_single = [{"id": "c01-P001", "lat": 18.35, "lon": 76.50}]
+    matched_dual = match_ponds_by_location(kept_dual, orig_single)
+    assert len(matched_dual) == 0
+
+
+def test_export_cell_imagery_valid_dates_only(tmp_path: Path):
+    cell_id = "c03-02"
+    region_id = "latur-district-2024"
+    mask = np.zeros((50, 50), dtype=bool)
+    mask[15:35, 15:35] = True
+    affine = from_origin(500000.0, 2000000.0, 10.0, 10.0)
+
+    items = [
+        {"date": "2024-01-16", "id": "S2B_20240116", "visual": "https://example.com/v1.tif"},
+        {"date": "2024-01-21", "id": "S2B_20240121", "visual": "https://example.com/v2.tif"},
+    ]
+
+    pond_dict = {
+        "id": "c03-02-P001",
+        "refAreaHa": 4.0,
+        "lat": 18.08,
+        "lon": 50.00,
+        "footprint_mask": mask,
+        "water_component_mask": mask,
+        "history": [
+            {"date": "2024-01-16", "valid": True},
+            {"date": "2024-01-21", "valid": False},
+        ],
+    }
+
+    mock_src = MagicMock()
+    mock_src.__enter__.return_value = mock_src
+    mock_src.crs = "EPSG:32643"
+    mock_src.transform = affine
+    rgb_arr = np.full((3, 50, 50), 128, dtype=np.uint8)
+    mock_src.read.return_value = rgb_arr
+
+    with patch("rasterio.open", return_value=mock_src):
+        export_cell_imagery(
+            region_id=region_id,
+            cell_id=cell_id,
+            items=items,
+            ponds=[pond_dict],
+            affine=affine,
+            crs="EPSG:32643",
+            output_dir=tmp_path,
+        )
+
+    cell_out_dir = tmp_path / "imagery-cells" / cell_id
+    assert (cell_out_dir / "c03-02-P001" / "2024-01-16.jpg").exists()
+    assert not (cell_out_dir / "c03-02-P001" / "2024-01-21.jpg").exists()
+
+    index_data = json.loads((cell_out_dir / "index.json").read_text(encoding="utf-8"))
+    assert index_data["ponds"]["c03-02-P001"]["dates"] == ["2024-01-16"]
+
+
+def test_export_cell_imagery_and_promote(tmp_path: Path):
+    region_id = "latur-district-2024"
+    cell_id = "c03-02"
+
+    mask = np.zeros((50, 50), dtype=bool)
+    mask[15:35, 15:35] = True
+    affine = from_origin(500000.0, 2000000.0, 10.0, 10.0)
+
+    items = [{
+        "date": "2024-01-16",
+        "id": "S2B_20240116",
+        "visual": "https://example.com/visual.tif",
+    }]
+
+    ponds = [{
+        "id": "c03-02-P001",
+        "refAreaHa": 4.0,
+        "lat": 18.08,
+        "lon": 50.00,
+        "footprint_mask": mask,
+        "water_component_mask": mask,
+    }]
+
+    mock_src = MagicMock()
+    mock_src.__enter__.return_value = mock_src
+    mock_src.crs = "EPSG:32643"
+    mock_src.transform = affine
+    rgb_arr = np.full((3, 50, 50), 128, dtype=np.uint8)
+    mock_src.read.return_value = rgb_arr
+
+    with patch("rasterio.open", return_value=mock_src):
+        export_cell_imagery(
+            region_id=region_id,
+            cell_id=cell_id,
+            items=items,
+            ponds=ponds,
+            affine=affine,
+            crs="EPSG:32643",
+            output_dir=tmp_path,
+        )
+
+    cell_out_dir = tmp_path / "imagery-cells" / cell_id
+    assert (cell_out_dir / "outlines.geojson").exists()
+    assert (cell_out_dir / "index.json").exists()
+    assert (cell_out_dir / "c03-02-P001" / "2024-01-16.jpg").exists()
+
+    kept_ponds = [{
+        "id": "P001",
+        "lat": 18.08,
+        "lon": 50.00,
+        "refAreaHa": 4.0,
+    }]
+
+    promote_district_imagery(
+        region_id=region_id,
+        kept_ponds=kept_ponds,
+        original_cell_ponds=ponds,
+        output_dir=tmp_path,
+    )
+
+    dist_out_dir = tmp_path / "imagery"
+    assert (dist_out_dir / "outlines.geojson").exists()
+    assert (dist_out_dir / "index.json").exists()
+    assert (dist_out_dir / "P001" / "2024-01-16.jpg").exists()
+
+    index_data = json.loads((dist_out_dir / "index.json").read_text(encoding="utf-8"))
+    assert "P001" in index_data["ponds"]
+    assert index_data["ponds"]["P001"]["dates"] == ["2024-01-16"]
+
+
+def test_match_ponds_by_location_missing_coords():
+    kept = [
+        {"id": "P001", "lat": 18.35, "lon": 76.50},
+        {"id": "P002", "lat": None, "lon": 76.50},
+    ]
+    orig = [
+        {"id": "c01-P001", "lat": 18.35001, "lon": 76.50001},
+        {"id": "c01-P002", "lat": 18.40},
+    ]
+    matched = match_ponds_by_location(kept, orig)
+    assert "P001" in matched
+    assert matched["P001"]["id"] == "c01-P001"
+    assert "P002" not in matched
+
+
+def test_match_ponds_by_location_empty_input():
+    assert match_ponds_by_location([], []) == {}
+    assert match_ponds_by_location([{"id": "P001", "lat": 18.35, "lon": 76.50}], []) == {}
+
+
+def test_export_cell_imagery_no_visual(tmp_path: Path):
+    region_id = "latur-district-2024"
+    cell_id = "c03-02"
+    mask = np.zeros((50, 50), dtype=bool)
+    mask[15:35, 15:35] = True
+    affine = from_origin(500000.0, 2000000.0, 10.0, 10.0)
+
+    items = [{"date": "2024-01-16", "id": "S2B_20240116"}]
+    ponds = [{
+        "id": "c03-02-P001",
+        "refAreaHa": 4.0,
+        "lat": 18.08,
+        "lon": 50.00,
+        "footprint_mask": mask,
+        "water_component_mask": mask,
+    }]
+
+    export_cell_imagery(
+        region_id=region_id,
+        cell_id=cell_id,
+        items=items,
+        ponds=ponds,
+        affine=affine,
+        crs="EPSG:32643",
+        output_dir=tmp_path,
+    )
+
+    cell_out_dir = tmp_path / "imagery-cells" / cell_id
+    assert (cell_out_dir / "outlines.geojson").exists()
+    assert (cell_out_dir / "index.json").exists()
