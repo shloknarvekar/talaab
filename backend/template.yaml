@@ -264,12 +264,33 @@ Resources:
                  "metrics": [["AWS/Lambda", "Duration", "FunctionName", "${Api}"], ["...", "${Recompute}"], ["...", "${Worker}"]]}},
               {"type": "log", "x": 0, "y": 14, "width": 24, "height": 8,
                "properties": {"title": "Every-5-days recompute: latest runs", "region": "${AWS::Region}", "view": "table",
-                 "query": "SOURCE '/aws/lambda/${Recompute}' | fields @timestamp, region, mode, latestAsOf, ponds, flagged.0, sunShareMm, skipped, error | filter msg = 'recompute' | sort @timestamp desc | limit 20"}}
+                 "query": "SOURCE '/aws/lambda/${Recompute}' | fields @timestamp, region, mode, latestAsOf, ponds, flagged.0, sunShareMm, skipped, error | filter msg = 'recompute' | sort @timestamp desc | limit 20"}},
+              {"type": "text", "x": 0, "y": 22, "width": 24, "height": 1,
+               "properties": {"markdown": "### Whole district from satellite: EventBridge Scheduler → Step Functions `${StateMachineName}` → one Lambda per 0.15° grid cell (42 for Latur) → merge → recompute → SNS"}},
+              {"type": "metric", "x": 0, "y": 23, "width": 8, "height": 6,
+               "properties": {"title": "District runs (Step Functions)", "region": "${AWS::Region}", "stat": "Sum", "period": 3600,
+                 "metrics": [["AWS/States", "ExecutionsStarted", "StateMachineArn", "${StateMachine}"], [".", "ExecutionsSucceeded", ".", "."], [".", "ExecutionsFailed", ".", "."]]}},
+              {"type": "metric", "x": 8, "y": 23, "width": 8, "height": 6,
+               "properties": {"title": "Grid cells measured in parallel (Lambda)", "region": "${AWS::Region}", "period": 60,
+                 "metrics": [["AWS/Lambda", "ConcurrentExecutions", "FunctionName", "${Cell}", {"stat": "Maximum", "label": "cells at once"}], [".", "Invocations", ".", ".", {"stat": "Sum", "label": "cells run"}]]}},
+              {"type": "metric", "x": 16, "y": 23, "width": 8, "height": 6,
+               "properties": {"title": "Seconds per grid cell (p95) and errors", "region": "${AWS::Region}", "period": 300,
+                 "metrics": [["AWS/Lambda", "Duration", "FunctionName", "${Cell}", {"stat": "p95", "label": "cell duration ms"}], [".", "Errors", ".", ".", {"stat": "Sum", "yAxis": "right"}]]}},
+              {"type": "log", "x": 0, "y": 29, "width": 12, "height": 7,
+               "properties": {"title": "District runs: ponds found per run", "region": "${AWS::Region}", "view": "table",
+                 "query": "SOURCE '/aws/lambda/${Merge}' | fields @timestamp, region, cells, pondsKept, pondsExcluded, passes, cellSeconds, mergeSeconds | filter msg = 'district merged' | sort @timestamp desc | limit 20"}},
+              {"type": "log", "x": 12, "y": 29, "width": 12, "height": 7,
+               "properties": {"title": "Alert emails sent (Amazon SNS)", "region": "${AWS::Region}", "view": "table",
+                 "query": "SOURCE '/aws/lambda/${Recompute}' | fields @timestamp, region, count, delivered, subject | filter msg = 'alerts' | sort @timestamp desc | limit 20"}}
             ]
           }
         - Api: !Ref ApiFunction
           Recompute: !Ref RecomputeFunction
           Worker: !Ref PlanWorkerFunction
+          Cell: !Ref CellFunction
+          Merge: !Ref MergeFunction
+          StateMachine: !Ref DistrictStateMachine
+          StateMachineName: !GetAtt DistrictStateMachine.Name
 
   # ---- District scale: the satellite pipeline itself on AWS (one Lambda per grid cell, in parallel) ----
   PipelineLayer:
