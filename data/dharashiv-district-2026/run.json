@@ -1,0 +1,12 @@
+{
+  "cells": 50,
+  "pondsDetected": 386,
+  "pondsKept": 348,
+  "pondsExcluded": 38,
+  "passes": 12,
+  "cellSeconds": 441.1,
+  "slowestCellSeconds": 16.8,
+  "mergeSeconds": 3.7,
+  "lambdaGbSeconds": 886,
+  "lambdaCostUsdWithoutFreeTier": 0.0118
+}

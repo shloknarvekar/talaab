@@ -1,13 +1,12 @@
 {
   "cells": 42,
   "pondsDetected": 383,
-  "pondsKept": 374,
-  "pondsExcluded": 9,
-  "passes": 6,
-  "cellSeconds": 300.0,
-  "slowestCellSeconds": 12.5,
-  "mergeSeconds": 2.4,
-  "wallSeconds": 45,
-  "lambdaGbSeconds": 602,
-  "lambdaCostUsdWithoutFreeTier": 0.008
+  "pondsKept": 361,
+  "pondsExcluded": 22,
+  "passes": 7,
+  "cellSeconds": 326.5,
+  "slowestCellSeconds": 13.6,
+  "mergeSeconds": 3.2,
+  "lambdaGbSeconds": 656,
+  "lambdaCostUsdWithoutFreeTier": 0.0087
 }
