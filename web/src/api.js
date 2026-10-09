@@ -1,5 +1,4 @@
-// Talaab API client. All maths happens on the backend; the web app only displays it.
-// Override the API with VITE_TALAAB_API_URL (e.g. a local backend); defaults to the live AWS API.
+// Talaab API client. Forecasting maths stays on the backend; the web only presents results.
 const DEFAULT_API = 'https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com';
 export const API_BASE = (import.meta.env.VITE_TALAAB_API_URL || DEFAULT_API).replace(/\/$/, '');
 
@@ -9,11 +8,7 @@ const PLAN_POLL_LIMIT_MS = 120000;
 async function getJson(path, options) {
   const response = await fetch(`${API_BASE}${path}`, options);
   let body = null;
-  try {
-    body = await response.json();
-  } catch {
-    body = null;
-  }
+  try { body = await response.json(); } catch { body = null; }
   if (!response.ok) {
     const error = new Error(body?.error || `Request failed (${response.status})`);
     error.status = response.status;
@@ -22,7 +17,7 @@ async function getJson(path, options) {
   return body;
 }
 
-/** Regions with published snapshots. Synthetic test data is hidden from the website. */
+/** Regions with published snapshots. Synthetic test data is intentionally hidden. */
 export async function fetchRegions() {
   const { regions } = await getJson('/regions');
   return regions.filter((region) => !region.synthetic);
@@ -32,21 +27,25 @@ export function fetchPonds(regionId, asOf) {
   return getJson(`/ponds?region=${encodeURIComponent(regionId)}&asOf=${encodeURIComponent(asOf)}`);
 }
 
-/** Backtest report for a region, or null if none has been published yet. */
-export async function fetchBacktest(regionId) {
+/** Alert timeline. Regions without a published timeline may return 404; that is not fatal. */
+export async function fetchAlerts(regionId) {
   try {
-    return await getJson(`/backtest?region=${encodeURIComponent(regionId)}`);
+    const payload = await getJson(`/alerts?region=${encodeURIComponent(regionId)}`);
+    if (Array.isArray(payload)) return payload;
+    return payload.alerts ?? payload.timeline ?? payload.items ?? [];
   } catch (error) {
-    if (error.status === 404) return null;
+    if (error.status === 404) return [];
     throw error;
   }
 }
 
-/**
- * POST /plan returns the deterministic plan instantly. When the AI writer is on, it answers
- * status "generating" and the Bedrock plan arrives on a later call; poll until it is "ready"
- * (or give up after two minutes and keep the deterministic plan). onUpdate gets every response.
- */
+/** Backtest report for a region, or null when none has been published. */
+export async function fetchBacktest(regionId) {
+  try { return await getJson(`/backtest?region=${encodeURIComponent(regionId)}`); }
+  catch (error) { if (error.status === 404) return null; throw error; }
+}
+
+/** Poll POST /plan while the plan is being generated. */
 export async function requestPlan({ region, asOf, language }, { onUpdate, signal } = {}) {
   const body = JSON.stringify({ region, asOf, language });
   const post = () => getJson('/plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, signal });
