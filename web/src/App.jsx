@@ -15,7 +15,8 @@ function Stat({ label, value, tone }) {
 }
 
 function regionLabel(region) {
-  return region.mode === 'live' ? 'Latur today' : 'Latur 2024';
+  if (region.mode === 'live') return 'Latur today';
+  return region.id.includes('district') ? 'Whole district 2024' : 'Latur 2024';
 }
 
 export default function App() {

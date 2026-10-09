@@ -51,13 +51,14 @@ export default function MapView({ region, ponds, selectedId, onSelect, satellite
     if (!mapRef.current || !ponds) return;
     const group = layersRef.current.markers;
     group.clearLayers();
+    const dense = ponds.length > 60;
     ponds.forEach((pond) => {
       const meta = statusMeta(pond.status);
       const icon = L.divIcon({
         className: 'pond-marker-wrap',
-        html: `<div class="pond-marker ${pond.id === selectedId ? 'is-selected' : ''}" style="--pond-color:${meta.color}"><span class="pond-dot"></span><span class="pond-label">${pond.id}</span></div>`,
+        html: `<div class="pond-marker ${dense ? 'dense' : ''} ${pond.id === selectedId ? 'is-selected' : ''}" style="--pond-color:${meta.color}"><span class="pond-dot"></span><span class="pond-label">${pond.id}</span></div>`,
         iconSize: [96, 38],
-        iconAnchor: [12, 19],
+        iconAnchor: dense ? [6, 19] : [12, 19],
       });
       const marker = L.marker([pond.lat, pond.lon], { icon, title: `${pond.id} — ${meta.label}` });
       marker.bindTooltip(`${pond.id} · ${meta.label}`, { direction: 'top', offset: [26, -18] });

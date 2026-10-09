@@ -90,6 +90,10 @@ button { cursor: pointer; }
 .pond-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--pond-color); border: 2px solid white; box-shadow: 0 0 0 2px rgba(255,255,255,.55); }
 .pond-label { padding: 3px 5px; border-radius: 6px; background: rgba(255,255,255,.92); color: #243029; border: 1px solid rgba(220,228,222,.85); font-size: 8px; font-weight: 900; }
 .pond-marker.is-selected { transform: scale(1.14); }
+/* District view (hundreds of ponds): dots only; the id shows on hover and on the selected pond */
+.pond-marker.dense { filter: none; }
+.pond-marker.dense .pond-dot { width: 9px; height: 9px; border-width: 1px; box-shadow: none; }
+.pond-marker.dense:not(.is-selected) .pond-label { display: none; }
 
 .detail-panel { border-left: 1px solid var(--line); overflow: auto; }
 .detail-card { padding: 19px 18px 24px; }
