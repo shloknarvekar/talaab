@@ -1,0 +1,3442 @@
+{
+ "region": {
+  "id": "latur-district-2024",
+  "name": "Latur district (2024 replay)",
+  "bbox": [
+   76.2024244,
+   17.8708918,
+   77.2952771,
+   18.8388846
+  ]
+ },
+ "synthetic": false,
+ "evaluated": {
+  "from": "2024-01-21",
+  "to": "2024-05-30",
+  "snapshots": 22,
+  "ponds": 435,
+  "pondsThatDried": 259
+ },
+ "summary": {
+  "rangeHitRate": 0.406,
+  "rangeHits": 1399,
+  "rangeMisses": 1859,
+  "tooEarly": 192,
+  "unresolved": 2517,
+  "medianErrorDays": 9.0,
+  "medianAbsErrorDays": 19.0,
+  "criticalPrecision": 0.711,
+  "criticalCalls": 1089,
+  "criticalRecall": 0.603,
+  "shouldHaveWarned": 1283,
+  "medianLeadDays": 25,
+  "pondsWarnedInAdvance": 197
+ },
+ "ponds": [
+  {
+   "id": "P001",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P002",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P003",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P004",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P005",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P006",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P007",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P008",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P009",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P010",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P011",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P012",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P013",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P014",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P015",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P016",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P017",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P018",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P019",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P020",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P021",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P022",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P023",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P024",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P025",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P026",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P027",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P028",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P029",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P030",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P031",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P032",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 45
+  },
+  {
+   "id": "P033",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P034",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P035",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P036",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 40
+  },
+  {
+   "id": "P037",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P038",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P039",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P040",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P041",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P042",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P043",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 5
+  },
+  {
+   "id": "P044",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 55
+  },
+  {
+   "id": "P045",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P046",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P047",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P048",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P049",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P050",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P051",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P052",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P053",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P054",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P055",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 5
+  },
+  {
+   "id": "P056",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P057",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P058",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P059",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P060",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P061",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P062",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P063",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P064",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P065",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P066",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P067",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P068",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P069",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P070",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P071",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P072",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P073",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P074",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P075",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P076",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P077",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P078",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P079",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P080",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 25
+  },
+  {
+   "id": "P081",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P082",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-25",
+   "leadDays": 20
+  },
+  {
+   "id": "P083",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 30
+  },
+  {
+   "id": "P084",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P085",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P086",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 20
+  },
+  {
+   "id": "P087",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P088",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P089",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P090",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P091",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P092",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-30",
+   "leadDays": 5
+  },
+  {
+   "id": "P093",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-02-25",
+   "leadDays": 25
+  },
+  {
+   "id": "P094",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P095",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P096",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P097",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P098",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P099",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P100",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P101",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P102",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P103",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P104",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P105",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P106",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-25",
+   "leadDays": 35
+  },
+  {
+   "id": "P107",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P108",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P109",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P110",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P111",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P112",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 20
+  },
+  {
+   "id": "P113",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P114",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P115",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P116",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P117",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P118",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P119",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 30
+  },
+  {
+   "id": "P120",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P121",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P122",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P123",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P124",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P125",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P126",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P127",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-30",
+   "leadDays": 5
+  },
+  {
+   "id": "P128",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P129",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-20",
+   "leadDays": 15
+  },
+  {
+   "id": "P130",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P131",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P132",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P133",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 70
+  },
+  {
+   "id": "P134",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P135",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P136",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 30
+  },
+  {
+   "id": "P137",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P138",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P139",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P140",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": "2024-03-11",
+   "leadDays": 30
+  },
+  {
+   "id": "P141",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P142",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-25",
+   "leadDays": 20
+  },
+  {
+   "id": "P143",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P144",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P145",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P146",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P147",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P148",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P149",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P150",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P151",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P152",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 35
+  },
+  {
+   "id": "P153",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P154",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P155",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P156",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 35
+  },
+  {
+   "id": "P157",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P158",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P159",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P160",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P161",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 45
+  },
+  {
+   "id": "P162",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P163",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P164",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P165",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 30
+  },
+  {
+   "id": "P166",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P167",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-26",
+   "leadDays": 35
+  },
+  {
+   "id": "P168",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P169",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
+  },
+  {
+   "id": "P170",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P171",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P172",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P173",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P174",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 10
+  },
+  {
+   "id": "P175",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P176",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P177",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P178",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P179",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P180",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P181",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-26",
+   "leadDays": 10
+  },
+  {
+   "id": "P182",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-25",
+   "leadDays": 10
+  },
+  {
+   "id": "P183",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 60
+  },
+  {
+   "id": "P184",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P185",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P186",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 35
+  },
+  {
+   "id": "P187",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P188",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P189",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P190",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P191",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P192",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P193",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P194",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 10
+  },
+  {
+   "id": "P195",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P196",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P197",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P198",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P199",
+   "actualDry": {
+    "from": "2024-04-10",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 30
+  },
+  {
+   "id": "P200",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P201",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P202",
+   "actualDry": {
+    "from": "2024-04-15",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 20
+  },
+  {
+   "id": "P203",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P204",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P205",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P206",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P207",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P208",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P209",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P210",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 40
+  },
+  {
+   "id": "P211",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P212",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P213",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P214",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 30
+  },
+  {
+   "id": "P215",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
+  },
+  {
+   "id": "P216",
+   "actualDry": {
+    "from": "2024-04-15",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 65
+  },
+  {
+   "id": "P217",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P218",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P219",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P220",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P221",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 35
+  },
+  {
+   "id": "P222",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P223",
+   "actualDry": {
+    "from": "2024-04-10",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-03-11",
+   "leadDays": 35
+  },
+  {
+   "id": "P224",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P225",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P226",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P227",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P228",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P229",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 45
+  },
+  {
+   "id": "P230",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P231",
+   "actualDry": {
+    "from": "2024-01-31",
+    "to": "2024-02-05"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 15
+  },
+  {
+   "id": "P232",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P233",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P234",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P235",
+   "actualDry": {
+    "from": "2024-03-01",
+    "to": "2024-03-06"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 15
+  },
+  {
+   "id": "P236",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P237",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 30
+  },
+  {
+   "id": "P238",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P239",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P240",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P241",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P242",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P243",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P244",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P245",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P246",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P247",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P248",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P249",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P250",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P251",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P252",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P253",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 55
+  },
+  {
+   "id": "P254",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 35
+  },
+  {
+   "id": "P255",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 40
+  },
+  {
+   "id": "P256",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P257",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P258",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P259",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P260",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P261",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-11",
+   "leadDays": 10
+  },
+  {
+   "id": "P262",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P263",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P264",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P265",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P266",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P267",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P268",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-03-26",
+   "leadDays": 40
+  },
+  {
+   "id": "P269",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P270",
+   "actualDry": {
+    "from": "2024-04-15",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-03-26",
+   "leadDays": 30
+  },
+  {
+   "id": "P271",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P272",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P273",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P274",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P275",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 15
+  },
+  {
+   "id": "P276",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P277",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P278",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P279",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P280",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
+  },
+  {
+   "id": "P281",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P282",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P283",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P284",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 5
+  },
+  {
+   "id": "P285",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P286",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P287",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P288",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 35
+  },
+  {
+   "id": "P289",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 45
+  },
+  {
+   "id": "P290",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P291",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P292",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 30
+  },
+  {
+   "id": "P293",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P294",
+   "actualDry": {
+    "from": "2024-04-10",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 55
+  },
+  {
+   "id": "P295",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P296",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P297",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 35
+  },
+  {
+   "id": "P298",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P299",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P300",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P301",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P302",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P303",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 15
+  },
+  {
+   "id": "P304",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P305",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P306",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P307",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P308",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P309",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-20"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P310",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P311",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P312",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P313",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P314",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 20
+  },
+  {
+   "id": "P315",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P316",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P317",
+   "actualDry": {
+    "from": "2024-01-21",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P318",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P319",
+   "actualDry": {
+    "from": "2024-03-01",
+    "to": "2024-03-06"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P320",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P321",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 30
+  },
+  {
+   "id": "P322",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 25
+  },
+  {
+   "id": "P323",
+   "actualDry": {
+    "from": "2024-03-01",
+    "to": "2024-03-06"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 25
+  },
+  {
+   "id": "P324",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 20
+  },
+  {
+   "id": "P325",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P326",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 50
+  },
+  {
+   "id": "P327",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-04-10",
+   "leadDays": 50
+  },
+  {
+   "id": "P328",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P329",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 40
+  },
+  {
+   "id": "P330",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P331",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P332",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P333",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 30
+  },
+  {
+   "id": "P334",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P335",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 5
+  },
+  {
+   "id": "P336",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P337",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P338",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 10
+  },
+  {
+   "id": "P339",
+   "actualDry": {
+    "from": "2024-04-10",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 10
+  },
+  {
+   "id": "P340",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-02-25",
+   "leadDays": 65
+  },
+  {
+   "id": "P341",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 5
+  },
+  {
+   "id": "P342",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-11",
+   "leadDays": 25
+  },
+  {
+   "id": "P343",
+   "actualDry": {
+    "from": "2024-03-16",
+    "to": "2024-03-21"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 5
+  },
+  {
+   "id": "P344",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P345",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P346",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 25
+  },
+  {
+   "id": "P347",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P348",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P349",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 25
+  },
+  {
+   "id": "P350",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P351",
+   "actualDry": {
+    "from": "2024-03-01",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-25",
+   "leadDays": 15
+  },
+  {
+   "id": "P352",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P353",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 5
+  },
+  {
+   "id": "P354",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P355",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 10
+  },
+  {
+   "id": "P356",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P357",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P358",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P359",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P360",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 30
+  },
+  {
+   "id": "P361",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P362",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 60
+  },
+  {
+   "id": "P363",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P364",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 20
+  },
+  {
+   "id": "P365",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P366",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-15"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 10
+  },
+  {
+   "id": "P367",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 10
+  },
+  {
+   "id": "P368",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P369",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P370",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P371",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P372",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-06",
+   "leadDays": 55
+  },
+  {
+   "id": "P373",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 40
+  },
+  {
+   "id": "P374",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P375",
+   "actualDry": {
+    "from": "2024-01-21",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P376",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P377",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P378",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 15
+  },
+  {
+   "id": "P379",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 65
+  },
+  {
+   "id": "P380",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P381",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 15
+  },
+  {
+   "id": "P382",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 35
+  },
+  {
+   "id": "P383",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P384",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P385",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
+  },
+  {
+   "id": "P386",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P387",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 20
+  },
+  {
+   "id": "P388",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P389",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P390",
+   "actualDry": {
+    "from": "2024-01-21",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P391",
+   "actualDry": {
+    "from": "2024-03-06",
+    "to": "2024-03-11"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 20
+  },
+  {
+   "id": "P392",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P393",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P394",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P395",
+   "actualDry": {
+    "from": "2024-01-16",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P396",
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
+   "firstCritical": "2024-05-05",
+   "leadDays": 25
+  },
+  {
+   "id": "P397",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-02-10",
+   "leadDays": 35
+  },
+  {
+   "id": "P398",
+   "actualDry": {
+    "from": "2024-04-15",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 10
+  },
+  {
+   "id": "P399",
+   "actualDry": {
+    "from": "2024-01-16",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P400",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P401",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P402",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 15
+  },
+  {
+   "id": "P403",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 20
+  },
+  {
+   "id": "P404",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 20
+  },
+  {
+   "id": "P405",
+   "actualDry": {
+    "from": "2024-04-15",
+    "to": "2024-04-25"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 10
+  },
+  {
+   "id": "P406",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P407",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
+  },
+  {
+   "id": "P408",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P409",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 45
+  },
+  {
+   "id": "P410",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-15",
+   "leadDays": 20
+  },
+  {
+   "id": "P411",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P412",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P413",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P414",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P415",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P416",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  },
+  {
+   "id": "P417",
+   "actualDry": {
+    "from": "2024-01-21",
+    "to": "2024-01-31"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 10
+  },
+  {
+   "id": "P418",
+   "actualDry": {
+    "from": "2024-01-31",
+    "to": "2024-02-05"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 5
+  },
+  {
+   "id": "P419",
+   "actualDry": {
+    "from": "2024-03-11",
+    "to": "2024-03-16"
+   },
+   "firstCritical": "2024-03-01",
+   "leadDays": 15
+  },
+  {
+   "id": "P420",
+   "actualDry": {
+    "from": "2024-03-21",
+    "to": "2024-03-26"
+   },
+   "firstCritical": "2024-03-21",
+   "leadDays": 5
+  },
+  {
+   "id": "P421",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P422",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 15
+  },
+  {
+   "id": "P423",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-02-20",
+   "leadDays": 45
+  },
+  {
+   "id": "P424",
+   "actualDry": {
+    "from": "2024-03-26",
+    "to": "2024-04-05"
+   },
+   "firstCritical": "2024-03-11",
+   "leadDays": 25
+  },
+  {
+   "id": "P425",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P426",
+   "actualDry": {
+    "from": "2024-01-31",
+    "to": "2024-02-05"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 5
+  },
+  {
+   "id": "P427",
+   "actualDry": {
+    "from": "2024-04-05",
+    "to": "2024-04-10"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 5
+  },
+  {
+   "id": "P428",
+   "actualDry": {
+    "from": "2024-04-30",
+    "to": "2024-05-05"
+   },
+   "firstCritical": "2024-04-05",
+   "leadDays": 30
+  },
+  {
+   "id": "P429",
+   "actualDry": {
+    "from": "2024-02-05",
+    "to": "2024-02-10"
+   },
+   "firstCritical": "2024-02-05",
+   "leadDays": 5
+  },
+  {
+   "id": "P430",
+   "actualDry": {
+    "from": "2024-01-31",
+    "to": "2024-02-05"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 15
+  },
+  {
+   "id": "P431",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P432",
+   "actualDry": {
+    "from": "2024-02-20",
+    "to": "2024-03-01"
+   },
+   "firstCritical": "2024-01-31",
+   "leadDays": 30
+  },
+  {
+   "id": "P433",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P434",
+   "actualDry": {
+    "from": "2024-04-25",
+    "to": "2024-04-30"
+   },
+   "firstCritical": "2024-03-16",
+   "leadDays": 45
+  },
+  {
+   "id": "P435",
+   "actualDry": {
+    "from": "2024-02-10",
+    "to": "2024-02-20"
+   },
+   "firstCritical": "2024-01-21",
+   "leadDays": 30
+  }
+ ],
+ "variants": {
+  "noHeatAdjustment": {
+   "rangeHitRate": 0.362,
+   "rangeHits": 1219,
+   "rangeMisses": 2021,
+   "tooEarly": 132,
+   "unresolved": 2463,
+   "medianErrorDays": 16.0,
+   "medianAbsErrorDays": 23.0,
+   "criticalPrecision": 0.737,
+   "criticalCalls": 962,
+   "criticalRecall": 0.553,
+   "shouldHaveWarned": 1283,
+   "medianLeadDays": 25.0,
+   "pondsWarnedInAdvance": 190
+  }
+ },
+ "comparisons": []
+}
