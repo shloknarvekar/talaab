@@ -52,6 +52,10 @@ def main() -> None:
         shape_ok = all({"id", "lat", "lon", "status", "history", "dryBy", "daysLeft", "flag"} <= set(p) for p in ponds)
         check(f"GET /ponds {rid} @ {last}", s == 200 and doc.get("asOf") == last and ponds and shape_ok,
               f"{len(ponds)} ponds, {dt:.2f}s")
+        if "district" in rid:  # every district pond carries its taluka; the snapshot sums them per taluka
+            talukas = doc.get("talukas") or []
+            check(f"talukas {rid}", len(talukas) == 10 and sum(g["ponds"] for g in talukas) == len(ponds)
+                  and all(p.get("taluka") for p in ponds), f"{len(talukas)} talukas")
         if ponds:
             s, p, _ = call("GET", f"{api}/ponds/{ponds[0]['id']}?region={rid}&asOf={last}")
             check(f"GET /ponds/{ponds[0]['id']} {rid}", s == 200 and p.get("id") == ponds[0]["id"])
