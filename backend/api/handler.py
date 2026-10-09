@@ -98,6 +98,29 @@ def post_plan(body: dict) -> dict:
 
 
 GZIP_MIN_BYTES = 1024
+# District imagery is made on AWS (pipeline merge -> s3://<bucket>/data/<region>/imagery/...). Only these files can
+# be asked for; a thumbnail is answered with a short-lived signed S3 link so the image bytes never pass the Lambda.
+IMAGERY_RE = re.compile(r"^(?P<region>[a-z0-9]+(?:-[a-z0-9]+)*)/(?P<file>index\.json|outlines\.geojson|P\d{3,5}/\d{4}-\d{2}-\d{2}\.jpg)$")
+THUMB_LINK_SECONDS = 3600
+
+
+def get_imagery(path: str | None) -> dict:
+    m = IMAGERY_RE.match(path or "")
+    if not m:
+        raise HttpError(404, "no such imagery file")
+    region, name = m["region"], m["file"]
+    if name.endswith(".jpg"):
+        bucket = os.environ.get("DATA_BUCKET")
+        if not bucket:
+            raise HttpError(404, "thumbnails are served from S3 only")
+        url = store._s3_client().generate_presigned_url(
+            "get_object", Params={"Bucket": bucket, "Key": f"data/{region}/imagery/{name}"}, ExpiresIn=THUMB_LINK_SECONDS)
+        return {"statusCode": 302, "headers": {"location": url, "cache-control": f"private, max-age={THUMB_LINK_SECONDS - 300}"},
+                "body": ""}
+    doc = store.read_json(f"{region}/imagery/{name}")
+    if doc is None:
+        raise HttpError(404, f"no imagery for region {region!r} yet")
+    return _response(200, doc)
 
 
 def _compress(response: dict, event: dict) -> dict:
@@ -129,6 +152,8 @@ def _route(event):
             return _response(200, get_ponds(query))
         if route == "GET /ponds/{id}":
             return _response(200, get_pond((event.get("pathParameters") or {}).get("id"), query))
+        if route == "GET /imagery/{proxy+}":
+            return get_imagery((event.get("pathParameters") or {}).get("proxy"))
         if route == "GET /alerts":
             region, _ = _region_and_date(query.get("region"), None)
             timeline = store.read_json(f"{region}/alerts/timeline.json")

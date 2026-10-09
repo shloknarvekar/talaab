@@ -44,6 +44,24 @@ def test_large_responses_are_gzipped_for_clients_that_accept_it():
     assert "isBase64Encoded" not in small
 
 
+def test_imagery_route_serves_index_and_refuses_anything_else(data_dir):
+    idx = {"region": "latur-2024", "credit": "Contains modified Copernicus Sentinel data", "ponds": {"P001": {"dates": ["2024-01-16"]}}}
+    (data_dir / "latur-2024" / "imagery").mkdir()
+    (data_dir / "latur-2024" / "imagery" / "index.json").write_text(json.dumps(idx), encoding="utf-8")
+
+    def get(path):
+        r = handler.lambda_handler({"routeKey": "GET /imagery/{proxy+}", "pathParameters": {"proxy": path}}, None)
+        return r["statusCode"], r
+
+    status, r = get("latur-2024/index.json")
+    assert status == 200 and json.loads(r["body"]) == idx
+    for bad in ["latur-2024/../secret.json", "../data/x.json", "latur-2024/measurements.json", "latur-2024/P001/../../a.jpg",
+                "latur-2024/P001/2024-01-16.png", "LATUR/index.json", ""]:
+        assert get(bad)[0] == 404, bad
+    assert get("latur-2024/outlines.geojson")[0] == 404          # not published yet
+    assert get("latur-2024/P001/2024-01-16.jpg")[0] == 404       # thumbnails only via S3 links (no DATA_BUCKET here)
+
+
 def test_get_ponds_latest_and_as_of_resolution():
     status, doc = call("GET /ponds", {"region": "latur-2024"})
     assert status == 200 and doc["asOf"] == "2024-03-26" and len(doc["ponds"]) == 4
