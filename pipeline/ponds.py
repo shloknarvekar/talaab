@@ -27,6 +27,7 @@ class DetectedPond:
     place_mr: str | None
     ref_area_ha: float
     footprint_mask: np.ndarray  # 2D boolean array matching scene shape
+    water_component_mask: np.ndarray | None = None  # Undilated water component on reference date
 
     def to_dict(self) -> dict:
         d = {
@@ -159,6 +160,7 @@ def detect_ponds(
             "place_mr": place_mr,
             "ref_area_ha": ref_area,
             "footprint_mask": footprint,
+            "water_component_mask": comp_mask,
         })
 
     # Sort ponds largest first by ref_area_ha
@@ -176,6 +178,7 @@ def detect_ponds(
             place_mr=p["place_mr"],
             ref_area_ha=p["ref_area_ha"],
             footprint_mask=p["footprint_mask"],
+            water_component_mask=p["water_component_mask"],
         )
         detected_ponds.append(pond)
 
