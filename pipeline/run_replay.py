@@ -155,6 +155,12 @@ def run_pipeline_for_region(
         bbox=bbox,
     )
 
+    # Filter out internal array masks before exporting measurements.json
+    doc_ponds = [
+        {k: v for k, v in p.items() if k not in ("footprint_mask", "water_component_mask")}
+        for p in cleaned_ponds
+    ]
+
     # 6. Export measurements JSON
     print(f"\nStep 6: Exporting measurements JSON to {output_path}...")
     doc = build_measurements_doc(
@@ -163,7 +169,7 @@ def run_pipeline_for_region(
         bbox=bbox,
         reference_date=reference_date,
         scenes=scene_records,
-        ponds=cleaned_ponds,
+        ponds=doc_ponds,
         et0=et0_data,
         et0_climatology=et0_clim,
     )
