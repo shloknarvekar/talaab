@@ -41,24 +41,24 @@ actually happened.
 | | **Latur 2024** (rules built on this) | **Latur 2023** (never seen: held out) |
 |---|---|---|
 | Ponds about to dry (≤ 30 days) that Talaab had marked **critical** | **50%** | **62%** |
-| "Critical" calls that came true within 30 days | **55%** | **70%** |
+| "Critical" calls that came true within 30 days | **59%** | **66%** |
 | Median warning before a pond dried | **27.5 days** | **25 days** |
-| Ponds that dried during the season | 7 of 13 | 13 of 19 |
+| Ponds that dried during the season | 7 of 13 | 13 of 18 |
 
 - **Validated on an unseen season.** Every rule and model choice was made on 2024. Latur 2023 was
   processed afterwards as a final exam, and the results held.
 - **Validated on the whole district.** We then ran all **7,157 km² of Latur district** on AWS:
   42 grid cells, **435 ponds**, done in **161 seconds** for **$0** (inside the free tier, and $0.03
-  without it). On 435 ponds the rules had never seen, 71% of critical calls came true, 60% of ponds
+  without it). On 435 ponds the rules had never seen, 70% of critical calls came true, 60% of ponds
   about to dry were caught in time, and the median warning was 25 days (197 ponds warned in advance).
   See `docs/scale-projection.md`.
 - **And it runs live.** Every 5 days EventBridge Scheduler starts the same state machine for the
   2026 season: the whole district is re-measured from the newest Sentinel-2 passes in about 60 s, and
-  new critical, dry or flagged ponds are emailed. The first live run (9 Oct 2026) measured 383 ponds;
-  most are honestly "too early to forecast" this soon after the monsoon.
+  new critical, dry or flagged ponds are emailed. On 9 Oct 2026 it measured 374 ponds;
+  164 are still honestly "too early to forecast" this soon after the monsoon.
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P003 and P007
   had turned critical. P007 was dry on the 30 April pass and P003 on the 5 May pass, giving 25 and
-  30 days to arrange tankers. Over the whole season Talaab would have sent **10 emails** and never
+  30 days to arrange tankers. Over the whole season Talaab would have sent **9 emails** and never
   repeated one.
 
 ## Honest by design
@@ -83,10 +83,10 @@ We treated honesty as a feature, because district officials will only use a tool
 - **The AI can't invent numbers.** The plan writer (Claude on Amazon Bedrock, via Strands Agents)
   sees our data only through two tools locked to one date, and a **number guard** rejects any draft
   containing a number that isn't in the data. Without it, Talaab still produces a deterministic plan.
-- **Known limits, stated plainly.** Big tanks are often predicted to dry too early (8 times in 2024).
+- **Known limits, stated plainly.** Big tanks are often predicted to dry too early (9 times in 2024).
   Passes are about 5 days apart, so a dry date is known only to within a window. The heat
-  adjustment helped clearly in 2024 (median error 23 vs 31 days) but made little difference in 2023.
-  The validated box has only 13–19 ponds per season; the whole-district replay (435 ponds) is the larger check.
+  adjustment helped clearly in 2024 (median error 18.5 vs 31 days) but made no difference in 2023.
+  The validated box has only 13–18 ponds per season; the whole-district replay (435 ponds) is the larger check.
 
 ## Built on AWS
 
@@ -137,6 +137,12 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
   surprises: GDAL needs a system library (`libexpat`) that Lambda's image lacks, so we bundle a
   pinned, checksum-verified copy; and the 250 MB layer limit forced us to trim unused SciPy parts
   carefully. One cell takes 447 s on a laptop and 26–50 s on Lambda next to the imagery.
+- **A rule that worked on one box broke at district scale.** Our "broken pass" check compared the total
+  water area of a pass with its neighbours'. On a partly cloudy district pass far fewer ponds are visible,
+  so the total fell 62% although no water was lost, and whole passes were thrown away: 276 of 383 live
+  ponds were "too early". Comparing passes over the same ponds fixed it (164 left), with accuracy
+  unchanged on the scored seasons. We also tested admitting cloudier images: it made forecasts worse,
+  so we didn't. Before/after: `docs/data-quality.md`.
 - **A district is many satellite tiles.** Each 0.15° cell picks, for every date, the image that
   covers it best, and reads it onto one fixed 10 m grid, so a pond lines up across dates. Each cell
   owns only the ponds whose centre is in its core, which removes duplicates at cell edges.

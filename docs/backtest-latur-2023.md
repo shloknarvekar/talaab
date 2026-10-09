@@ -2,34 +2,34 @@
 
 > Every prediction below was made using only satellite passes and weather available on that date.
 
-Replayed **28 satellite passes** (2023-01-21 to 2023-06-20) for **19 ponds**; **13** of them dried up during the season.
+Replayed **28 satellite passes** (2023-01-21 to 2023-06-20) for **18 ponds**; **13** of them dried up during the season.
 
 | Question | Talaab | Without heat adjustment |
 |---|---|---|
-| Actual dry date inside our predicted range | **32%** (60 of 188) | 33% |
-| Median error of the likely date (+ = we said later) | 12 days | 15 days |
-| "Critical" calls that came true within 30 days | **70%** (66 calls) | 68% |
-| Ponds about to dry (≤ 30 days) that we had marked critical | **62%** | 61% |
+| Actual dry date inside our predicted range | **33%** (60 of 184) | 35% |
+| Median error of the likely date (+ = we said later) | 9 days | 11.5 days |
+| "Critical" calls that came true within 30 days | **66%** (68 calls) | 69% |
+| Ponds about to dry (≤ 30 days) that we had marked critical | **62%** | 60% |
 | Median warning before a pond dried | **25 days** (11 ponds) | 20 days |
-| Predicted dry, but the pond survived the season | 2 | 2 |
+| Predicted dry, but the pond survived the season | 2 | 0 |
 
 ## Ponds that dried
 
 | Pond | Actually dried between | First marked critical | Warning |
 |---|---|---|---|
 | P001 | 2023-05-31 and 2023-06-05 | never | - |
-| P005 | 2023-04-11 and 2023-04-21 | 2023-04-06 | 15 days |
-| P006 | 2023-05-21 and 2023-06-05 | 2023-05-11 | 25 days |
-| P008 | 2023-06-05 and 2023-06-20 | 2023-05-21 | 30 days |
-| P010 | 2023-06-05 and 2023-06-10 | 2023-05-31 | 10 days |
-| P011 | 2023-03-07 and 2023-03-12 | 2023-02-15 | 25 days |
-| P012 | 2023-05-21 and 2023-06-05 | 2023-05-21 | 15 days |
-| P013 | 2023-03-22 and 2023-03-27 | never | - |
-| P014 | 2023-03-12 and 2023-03-22 | 2023-02-15 | 35 days |
-| P015 | 2023-03-07 and 2023-03-12 | 2023-02-05 | 35 days |
-| P016 | 2023-05-21 and 2023-05-31 | 2023-03-27 | 65 days |
-| P017 | 2023-02-25 and 2023-03-02 | 2023-02-20 | 10 days |
-| P019 | 2023-04-11 and 2023-04-21 | 2023-04-06 | 15 days |
+| P004 | 2023-04-11 and 2023-04-21 | 2023-04-06 | 15 days |
+| P005 | 2023-05-26 and 2023-06-05 | 2023-05-11 | 25 days |
+| P007 | 2023-06-05 and 2023-06-20 | 2023-05-21 | 30 days |
+| P009 | 2023-06-05 and 2023-06-10 | 2023-05-31 | 10 days |
+| P010 | 2023-03-07 and 2023-03-12 | 2023-02-15 | 25 days |
+| P011 | 2023-05-26 and 2023-06-05 | 2023-05-21 | 15 days |
+| P012 | 2023-03-22 and 2023-03-27 | never | - |
+| P013 | 2023-03-12 and 2023-03-22 | 2023-01-31 | 50 days |
+| P014 | 2023-03-07 and 2023-03-12 | 2023-01-31 | 40 days |
+| P015 | 2023-05-21 and 2023-05-26 | 2023-03-27 | 60 days |
+| P016 | 2023-02-25 and 2023-03-02 | 2023-02-20 | 10 days |
+| P018 | 2023-04-11 and 2023-04-21 | 2023-04-06 | 15 days |
 
 ## How this is scored
 

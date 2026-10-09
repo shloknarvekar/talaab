@@ -6,12 +6,12 @@ Replayed **20 satellite passes** (2024-01-21 to 2024-05-30) for **13 ponds**; **
 
 | Question | Talaab | Without heat adjustment |
 |---|---|---|
-| Actual dry date inside our predicted range | **48%** (47 of 99) | 36% |
-| Median error of the likely date (+ = we said later) | 10 days | 17 days |
-| "Critical" calls that came true within 30 days | **55%** (29 calls) | 54% |
+| Actual dry date inside our predicted range | **45%** (44 of 97) | 38% |
+| Median error of the likely date (+ = we said later) | 10 days | 17.5 days |
+| "Critical" calls that came true within 30 days | **59%** (27 calls) | 58% |
 | Ponds about to dry (≤ 30 days) that we had marked critical | **50%** | 47% |
 | Median warning before a pond dried | **27.5 days** (4 ponds) | 25 days |
-| Predicted dry, but the pond survived the season | 8 | 6 |
+| Predicted dry, but the pond survived the season | 9 | 7 |
 
 ## Ponds that dried
 

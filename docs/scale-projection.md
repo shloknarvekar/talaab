@@ -25,8 +25,9 @@ The same cell processed on a laptop took 447 s. On Lambda it took 50 s (the firs
 ### And live, every 5 days (measured, 9 Oct 2026)
 
 EventBridge Scheduler starts the same state machine for `latur-district-2026` (`end: "today"`, the
-season since 1 Sep 2026, scenes up to 45% tile cloud with the per-pond cloud check). First run:
-**60 s wall clock, 383 ponds, 6 passes, 573 GB-s** (about $0.008 without the free tier). The run
+season since 1 Sep 2026, scenes up to 45% tile cloud with the per-pond cloud check). Latest run:
+**45 s wall clock, 374 ponds (383 found, 9 excluded with a reason), 6 passes, 602 GB-s** (about $0.008
+without the free tier). The run
 reprocesses the season so far each time, so the cost grows with the season. At ~30 passes by June it
 should be roughly the replay's 2,200 GB-s per run, about 13,000 GB-s per month, still about 3% of
 the free tier.
@@ -37,11 +38,11 @@ Same honest backtest as the validated 0.15° box (`docs/backtest-latur-district-
 
 | | Validated box (13 ponds) | **Whole district (435 ponds)** |
 |---|---|---|
-| Critical calls that were right (precision) | 55% | **71%** |
+| Critical calls that were right (precision) | 59% | **70%** |
 | Ponds about to dry that we had marked critical (recall) | 50% | **60%** |
 | Median warning before a pond dried | 27.5 days | **25 days** (197 ponds) |
-| Median absolute error of the likely date | 23 days | **19 days** |
-| Actual dry date inside our range | 48% | **41%** |
+| Median absolute error of the likely date | 18.5 days | **19 days** |
+| Actual dry date inside our range | 45% | **40%** |
 
 259 of the 435 ponds dried during the 2024 season. The method was tuned on a 13-pond box and held up, slightly better, on 435 ponds it had never seen.
 

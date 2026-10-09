@@ -36,7 +36,7 @@ All rules are physical, written down and tested
 Backtest on real Latur 2024 data as it stood on 8 Oct, 12 ponds (reproduce with `python backend/scripts/ablation.py`, which
 reads that dataset from git). On 9 Oct the satellite pipeline was re-run with the imagery export; the same rules
 now keep 13 ponds (the 36.7 ha tank near Kawa passes, because 20 mm of rain fell on 11–13 April 2024), and the
-current 2024 scores are in `docs/backtest-latur-2024.md` (50% flagged in time, 55% of calls right, 27.5-day warning).
+current 2024 scores are in `docs/backtest-latur-2024.md` (after the 9 Oct fix below: 50% flagged in time, 59% of calls right, 27.5-day warning).
 
 | | Before | Clean data | Robust fit | **Both** |
 |---|---|---|---|---|
@@ -50,6 +50,47 @@ current 2024 scores are in `docs/backtest-latur-2024.md` (50% flagged in time, 5
 - On synthetic data the same changes move nothing (79% → 80% range hits), so they fix real-data problems rather than gaming the score.
 - With clean data, the **heat adjustment now helps**: 45% of dry dates fall inside the range with it, 37% without it.
 - Rule 6 changes no 2024 number; it only stops early-season false alarms on the live map.
+
+## 9 Oct: judging suspect passes like for like (found at district scale)
+
+**The problem.** Rule 1 compared a pass's *total* water area with its neighbours'. The total only
+counts ponds that were clear on that pass. On the small box almost every pond is clear on every
+usable pass, so that was fine. Across a whole district, a partly cloudy pass measures far fewer
+ponds, so its total collapses although no water was lost. On the live district the 17 and 19 Sep
+passes measured 214 and 124 ponds against 539 on 27 Sep: their totals fell about 62% and both
+were thrown away. Compared over the ponds measured on *both* passes, the change was only −2% to −10%.
+Losing them left most ponds with 3 passes over 10 days, under the 15 days a forecast needs, which
+is why 276 of 383 live ponds were "too early".
+
+**The fix.** A pass is now compared with each neighbouring pass over the ponds valid on both
+(at least 3), and the median of those paired changes is tested against the same 40% threshold, with
+the same rain and end-of-series rules. A pass that really is broken still fails: every pond it
+measured reads low against the same ponds on its neighbours. Tests:
+`pipeline/tests/test_cleanup.py` (`test_partly_cloudy_pass_is_not_suspect_when_compared_like_for_like`,
+`test_paired_rule_still_catches_a_broken_pass`).
+
+**Effect, same raw data, old rule → new rule:**
+
+| | Suspect passes | Critical calls right | Caught in time | Median warning | Median error | Range hits |
+|---|---|---|---|---|---|---|
+| Live district 2026 | 2 → 0 | – | – | – | – | – ("too early" 276 → **164** of 383) |
+| District 2024 (435 ponds) | 4 → 0 | 71% → 70% | 60% → 60% | 25 → 25 days | 19 → 19 days | 41% → 40% |
+| Box 2024 (13 ponds) | 2 → 1 | 55% → **59%** | 50% → 50% | 27.5 → 27.5 days | 23 → **18.5** days | 48% → 45% |
+| Box 2023, held out (19 → 18 ponds) | 5 → 2 | 70% → 66% | 62% → 62% | 25 → 25 days | 28 → **25** days | 32% → 33% |
+
+Accuracy is about the same overall (one season up, one down by a few points, the district flat), and
+the live district gets a forecast for about 100 more ponds. In 2023 the recovered passes also exposed
+one more implausible signal (a "pond" that rose from 11.4 to 35.5 ha without rain), now excluded with
+that reason. The change was made because of the live-district evidence, not to move a score, and the
+before/after is published here.
+
+**Cloud limit, tested rather than assumed.** We also tried admitting cloudier scenes. Scored on the
+2024 district (same new rule), 45% and 60% tile cloud both made forecasts **worse** than 20%: critical
+calls right 70% → 66%, median warning 25 → 20 days at 60%, and twice as many "predicted dry but
+survived". Haze that the scene-classification mask misses seems to make ponds read low. So replays
+keep the validated 20%. The live district keeps 45%, because right after the monsoon 20% leaves only
+4 passes and 268 of 383 ponds "too early"; that costs about 4 points of precision (measured on 2024), and
+we say so.
 
 ## Honest limits
 

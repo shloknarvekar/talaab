@@ -30,7 +30,7 @@ The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" d
 
 - **Ranges, not fake dates.** Every pond gets an earliest–likely–latest dry-by range. A pond whose shrinking is within measurement noise is called *stable*; we don't invent a date.
 - **Replays can't see the future.** Each as-of snapshot is built only from satellite passes and weather available on that day, so the 2024 replay is a real backtest.
-- **Validated on an unseen season.** All rules were built on 2024; on the held-out 2023 season Talaab still flagged 62% of ponds about to dry in time (25-day median warning, 70% of critical calls right). See [`docs/model-experiment.md`](docs/model-experiment.md).
+- **Validated on an unseen season.** All rules were built on 2024; on the held-out 2023 season Talaab still flagged 62% of ponds about to dry in time (25-day median warning, 66% of critical calls right). See [`docs/model-experiment.md`](docs/model-experiment.md).
 - **Proof, not claims.** [`docs/backtest-*.md`](docs/) scores every past prediction against what actually happened: dry dates inside our range, days of warning, false and missed alarms. It also runs with the heat adjustment switched off for comparison.
 - **The AI can't invent numbers.** The Bedrock plan writer only sees our data through two tools, and a *number guard* rejects any draft containing a number that isn't in the data.
 - **It tells you; you don't have to check.** After each 5-day recompute, Amazon SNS emails the district officer about ponds that *newly* turned critical, dried up, or started shrinking faster than the sun. There are no repeats, and every number comes from the snapshot.

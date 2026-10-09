@@ -77,7 +77,8 @@ option and kept L**, and published every number here.
 - **The current model generalises.** On a season it had never seen, it flagged 62% of ponds in
   time (2024: 61%), 70% of its critical calls came true (2024: 61%), with a 25-day median warning
   (2024: 27.5). *(2024 figures as measured on 8 Oct; after the 9 Oct pipeline re-run with 13 ponds,
-  2024 scores 50% / 55% / 27.5 days. See `docs/backtest-latur-2024.md`.)*
+  2024 scores 50% / 55% / 27.5 days; after the 9 Oct like-for-like suspect-pass fix, 2024 is 50% / 59% / 27.5 days and
+  2023 is 62% / 66% / 25 days. See `docs/data-quality.md` and `docs/backtest-latur-*.md`.)*
 - **Shape alone doesn't fix big tanks.** The square-root model warns too late for the ponds that
   matter most, the small fast-drying ones. A better fix probably needs per-pond depth information
   (for example a DEM, or surface area from an earlier drought year), which is future work.
