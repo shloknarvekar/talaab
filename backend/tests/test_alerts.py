@@ -69,7 +69,7 @@ def test_alert_text_uses_only_snapshot_numbers():
 
 @pytest.fixture
 def data_dir(tmp_path, monkeypatch):
-    for region in ("latur-2024-synthetic", "latur-2026"):
+    for region in ("latur-2024-synthetic", "latur-2026", "latur-district-2026"):
         d = tmp_path / region
         d.mkdir()
         (d / "measurements.json").write_text(json.dumps(generate()), encoding="utf-8")
@@ -88,12 +88,21 @@ def test_live_recompute_sends_once_then_stays_quiet(data_dir):
     sent = []
     publish = lambda subject, body: sent.append((subject, body)) or True  # noqa: E731
     today = date(2024, 6, 16)
-    first = recompute.recompute_region("latur-2026", today, fetch_weather=fake_weather, write_table=lambda r, s: 0, publish=publish)
+    first = recompute.recompute_region("latur-district-2026", today, fetch_weather=fake_weather, write_table=lambda r, s: 0, publish=publish)
     assert first["alertsSent"] > 0 and len(sent) == 1
-    log = json.loads((data_dir / "latur-2026" / "alerts" / f"{today}.json").read_text(encoding="utf-8"))
+    log = json.loads((data_dir / "latur-district-2026" / "alerts" / f"{today}.json").read_text(encoding="utf-8"))
     assert log["delivered"] is True and log["alerts"]
-    again = recompute.recompute_region("latur-2026", today, fetch_weather=fake_weather, write_table=lambda r, s: 0, publish=publish)
+    again = recompute.recompute_region("latur-district-2026", today, fetch_weather=fake_weather, write_table=lambda r, s: 0, publish=publish)
     assert again["alertsSent"] == 0 and len(sent) == 1  # nothing new: no second email
+
+
+def test_live_box_inside_the_district_never_emails(data_dir):
+    # the live district covers the box, so the box is shown on the site but never emails (no duplicates)
+    sent = []
+    out = recompute.recompute_region("latur-2026", date(2024, 6, 16), fetch_weather=fake_weather,
+                                     write_table=lambda r, s: 0, publish=lambda s, b: sent.append(s) or True)
+    assert out["ponds"] > 0 and out["status"].get("critical", 0) + out["status"].get("dry", 0) > 0  # there was something to send
+    assert out["alertsSent"] == 0 and sent == []
 
 
 def test_replay_regions_never_alert(data_dir):
@@ -127,9 +136,9 @@ def test_replay_timeline_is_simulated_and_ordered(data_dir):
 
 
 def test_live_timeline_lists_sent_alerts(data_dir):
-    recompute.recompute_region("latur-2026", date(2024, 6, 16), fetch_weather=fake_weather, write_table=lambda r, s: 0,
+    recompute.recompute_region("latur-district-2026", date(2024, 6, 16), fetch_weather=fake_weather, write_table=lambda r, s: 0,
                                publish=lambda s, b: True)
-    timeline = json.loads((data_dir / "latur-2026" / "alerts" / "timeline.json").read_text(encoding="utf-8"))
+    timeline = json.loads((data_dir / "latur-district-2026" / "alerts" / "timeline.json").read_text(encoding="utf-8"))
     assert timeline["simulated"] is False and timeline["events"][0]["delivered"] is True
 
 

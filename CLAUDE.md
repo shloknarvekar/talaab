@@ -31,7 +31,7 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   single-pass spikes AND dips are dropped; detections that were never real ponds or whose signal is not water level
   are excluded with a reason (`excludedPonds`). Countdown uses a robust Theil–Sen fit and needs 3 passes over 15 days.
 - Faster-than-sun baseline = median rate of SHRINKING ponds within 25 km (needs >= 3); stable tanks no longer inflate ratios. The 0.15 deg box fits inside 25 km, so box results are unchanged; at district scale the baseline is local.
-- Alerts: SNS topic `talaab-alerts`; recompute emails NEW critical/dry/flagged ponds for live regions only (state in
+- Alerts: SNS topic `talaab-alerts`; recompute emails NEW critical/dry/flagged ponds for live regions only (not the live box `latur-2026`: REGIONS `alerts: False`, the live district covers it) (state in
   `data/{region}/alerts/state.json`, keyed by location). Subscribe with `aws sns subscribe` (emails never in the repo).
 - District scale: region `latur-district-2024` (whole district, 435 ponds) is produced ON AWS by Step Functions
   `talaab-district` (`backend/scripts/run_district.py`): `pipeline/district.py` grid (0.15 deg cells + overlap,

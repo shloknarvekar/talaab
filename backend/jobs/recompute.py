@@ -133,7 +133,7 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
     for p in latest["ponds"] if latest else []:
         counts[p["status"]] = counts.get(p["status"], 0) + 1
     rows = write_table(region, latest) if latest else 0
-    alerts_sent = send_alerts(region, cfg, latest, publish) if (live and latest) else 0
+    alerts_sent = send_alerts(region, cfg, latest, publish) if (live and latest and cfg.get("alerts", True)) else 0
     write_alert_timeline(region, cfg, snaps, live)
     return {
         "region": region,
