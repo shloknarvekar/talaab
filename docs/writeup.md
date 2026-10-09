@@ -40,10 +40,10 @@ actually happened.
 
 | | **Latur 2024** (rules built on this) | **Latur 2023** (never seen: held out) |
 |---|---|---|
-| Ponds about to dry (≤ 30 days) that Talaab had marked **critical** | **61%** | **62%** |
-| "Critical" calls that came true within 30 days | **61%** | **70%** |
+| Ponds about to dry (≤ 30 days) that Talaab had marked **critical** | **50%** | **62%** |
+| "Critical" calls that came true within 30 days | **55%** | **70%** |
 | Median warning before a pond dried | **27.5 days** | **25 days** |
-| Ponds that dried during the season | 6 of 12 | 13 of 19 |
+| Ponds that dried during the season | 7 of 13 | 13 of 19 |
 
 - **Validated on an unseen season.** Every rule and model choice was made on 2024. Latur 2023 was
   processed afterwards as a final exam, and the results held.
@@ -56,9 +56,9 @@ actually happened.
   2026 season: the whole district is re-measured from the newest Sentinel-2 passes in about 60 s, and
   new critical, dry or flagged ponds are emailed. The first live run (9 Oct 2026) measured 383 ponds;
   most are honestly "too early to forecast" this soon after the monsoon.
-- **What an officer would have received in 2024:** on **5 April**, an alert that ponds P002 and P006
-  had turned critical. P006 was dry on the 30 April pass and P002 on the 5 May pass, giving 25 and
-  30 days to arrange tankers. Over the whole season Talaab would have sent **9 emails** and never
+- **What an officer would have received in 2024:** on **5 April**, an alert that ponds P003 and P007
+  had turned critical. P007 was dry on the 30 April pass and P003 on the 5 May pass, giving 25 and
+  30 days to arrange tankers. Over the whole season Talaab would have sent **10 emails** and never
   repeated one.
 
 ## Honest by design
@@ -71,8 +71,8 @@ We treated honesty as a feature, because district officials will only use a tool
 - **We fixed the data, not the score.** The first real backtest was weak (only 32% of ponds about to
   dry flagged in time). Pond by pond, we found a broken satellite pass that hit every pond, readings
   the cleanup ignored, four "ponds" that were never there and one signal that couldn't be water. We
-  wrote physical rules for each, kept only the real ponds, and the share flagged in time rose to
-  **61%**, while synthetic results stayed the same, so we weren't gaming the score. Full story:
+  wrote physical rules for each, kept only the real ponds, and the share flagged in time rose from
+  32% to **61%** on that day's data, while synthetic results stayed the same, so we weren't gaming the score. Full story:
   `docs/data-quality.md`.
 - **We pre-registered our experiments.** To fix over-pessimism on big tanks we tested shape-aware
   models with a decision rule committed to git *before* the run. They didn't beat the current model
@@ -80,7 +80,7 @@ We treated honesty as a feature, because district officials will only use a tool
 - **The AI can't invent numbers.** The plan writer (Claude on Amazon Bedrock, via Strands Agents)
   sees our data only through two tools locked to one date, and a **number guard** rejects any draft
   containing a number that isn't in the data. Without it, Talaab still produces a deterministic plan.
-- **Known limits, stated plainly.** Big tanks are often predicted to dry too early (9 times in 2024).
+- **Known limits, stated plainly.** Big tanks are often predicted to dry too early (8 times in 2024).
   Passes are about 5 days apart, so a dry date is known only to within a window. The heat
   adjustment helped clearly in 2024 (median error 18 vs 33 days) but made little difference in 2023.
   12–19 ponds per season is a small sample.

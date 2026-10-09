@@ -14,45 +14,48 @@
   "from": "2024-01-21",
   "to": "2024-05-30",
   "snapshots": 20,
-  "ponds": 12,
-  "pondsThatDried": 6
+  "ponds": 13,
+  "pondsThatDried": 7
  },
  "summary": {
-  "rangeHitRate": 0.447,
-  "rangeHits": 42,
-  "rangeMisses": 43,
-  "tooEarly": 9,
-  "unresolved": 26,
-  "medianErrorDays": 12,
-  "medianAbsErrorDays": 18,
-  "criticalPrecision": 0.607,
-  "criticalCalls": 28,
-  "criticalRecall": 0.607,
-  "shouldHaveWarned": 28,
+  "rangeHitRate": 0.475,
+  "rangeHits": 47,
+  "rangeMisses": 44,
+  "tooEarly": 8,
+  "unresolved": 27,
+  "medianErrorDays": 10,
+  "medianAbsErrorDays": 23,
+  "criticalPrecision": 0.552,
+  "criticalCalls": 29,
+  "criticalRecall": 0.5,
+  "shouldHaveWarned": 32,
   "medianLeadDays": 27.5,
   "pondsWarnedInAdvance": 4
  },
  "ponds": [
   {
    "id": "P001",
-   "actualDry": null,
+   "actualDry": {
+    "from": "2024-05-05",
+    "to": "2024-05-30"
+   },
    "firstCritical": null,
    "leadDays": null
   },
   {
    "id": "P002",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P003",
    "actualDry": {
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
    "firstCritical": "2024-04-05",
    "leadDays": 30
-  },
-  {
-   "id": "P003",
-   "actualDry": null,
-   "firstCritical": null,
-   "leadDays": null
   },
   {
    "id": "P004",
@@ -62,6 +65,12 @@
   },
   {
    "id": "P005",
+   "actualDry": null,
+   "firstCritical": null,
+   "leadDays": null
+  },
+  {
+   "id": "P006",
    "actualDry": {
     "from": "2024-05-05",
     "to": "2024-05-30"
@@ -70,7 +79,7 @@
    "leadDays": 25
   },
   {
-   "id": "P006",
+   "id": "P007",
    "actualDry": {
     "from": "2024-04-25",
     "to": "2024-04-30"
@@ -79,7 +88,7 @@
    "leadDays": 25
   },
   {
-   "id": "P007",
+   "id": "P008",
    "actualDry": {
     "from": "2024-05-05",
     "to": "2024-05-30"
@@ -88,13 +97,13 @@
    "leadDays": null
   },
   {
-   "id": "P008",
+   "id": "P009",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
   },
   {
-   "id": "P009",
+   "id": "P010",
    "actualDry": {
     "from": "2024-02-10",
     "to": "2024-02-20"
@@ -103,13 +112,13 @@
    "leadDays": 30
   },
   {
-   "id": "P010",
+   "id": "P011",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
   },
   {
-   "id": "P011",
+   "id": "P012",
    "actualDry": {
     "from": "2024-04-30",
     "to": "2024-05-05"
@@ -118,7 +127,7 @@
    "leadDays": null
   },
   {
-   "id": "P012",
+   "id": "P013",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
@@ -126,57 +135,20 @@
  ],
  "variants": {
   "noHeatAdjustment": {
-   "rangeHitRate": 0.37,
-   "rangeHits": 34,
-   "rangeMisses": 51,
-   "tooEarly": 7,
-   "unresolved": 28,
-   "medianErrorDays": 18,
-   "medianAbsErrorDays": 33,
-   "criticalPrecision": 0.593,
-   "criticalCalls": 27,
-   "criticalRecall": 0.571,
-   "shouldHaveWarned": 28,
+   "rangeHitRate": 0.361,
+   "rangeHits": 35,
+   "rangeMisses": 56,
+   "tooEarly": 6,
+   "unresolved": 29,
+   "medianErrorDays": 17,
+   "medianAbsErrorDays": 31,
+   "criticalPrecision": 0.536,
+   "criticalCalls": 28,
+   "criticalRecall": 0.469,
+   "shouldHaveWarned": 32,
    "medianLeadDays": 25.0,
    "pondsWarnedInAdvance": 4
   }
  },
- "comparisons": [
-  {
-   "label": "Before data cleanup",
-   "summary": {
-    "rangeHitRate": 0.375,
-    "rangeHits": 27,
-    "rangeMisses": 40,
-    "tooEarly": 5,
-    "unresolved": 18,
-    "medianErrorDays": 13,
-    "medianAbsErrorDays": 24,
-    "criticalPrecision": 0.542,
-    "criticalCalls": 24,
-    "criticalRecall": 0.317,
-    "shouldHaveWarned": 41,
-    "medianLeadDays": 22.5,
-    "pondsWarnedInAdvance": 4
-   }
-  },
-  {
-   "label": "Unseen 2023 season (held out)",
-   "summary": {
-    "rangeHitRate": 0.319,
-    "rangeHits": 60,
-    "rangeMisses": 126,
-    "tooEarly": 2,
-    "unresolved": 122,
-    "medianErrorDays": 12.0,
-    "medianAbsErrorDays": 28.0,
-    "criticalPrecision": 0.697,
-    "criticalCalls": 66,
-    "criticalRecall": 0.622,
-    "shouldHaveWarned": 74,
-    "medianLeadDays": 25,
-    "pondsWarnedInAdvance": 11
-   }
-  }
- ]
+ "comparisons": []
 }

@@ -2,27 +2,28 @@
 
 > Every prediction below was made using only satellite passes and weather available on that date.
 
-Replayed **20 satellite passes** (2024-01-21 to 2024-05-30) for **12 ponds**; **6** of them dried up during the season.
+Replayed **20 satellite passes** (2024-01-21 to 2024-05-30) for **13 ponds**; **7** of them dried up during the season.
 
 | Question | Talaab | Without heat adjustment |
 |---|---|---|
-| Actual dry date inside our predicted range | **45%** (42 of 94) | 37% |
-| Median error of the likely date (+ = we said later) | 12 days | 18 days |
-| "Critical" calls that came true within 30 days | **61%** (28 calls) | 59% |
-| Ponds about to dry (≤ 30 days) that we had marked critical | **61%** | 57% |
+| Actual dry date inside our predicted range | **48%** (47 of 99) | 36% |
+| Median error of the likely date (+ = we said later) | 10 days | 17 days |
+| "Critical" calls that came true within 30 days | **55%** (29 calls) | 54% |
+| Ponds about to dry (≤ 30 days) that we had marked critical | **50%** | 47% |
 | Median warning before a pond dried | **27.5 days** (4 ponds) | 25 days |
-| Predicted dry, but the pond survived the season | 9 | 7 |
+| Predicted dry, but the pond survived the season | 8 | 6 |
 
 ## Ponds that dried
 
 | Pond | Actually dried between | First marked critical | Warning |
 |---|---|---|---|
-| P002 | 2024-04-30 and 2024-05-05 | 2024-04-05 | 30 days |
-| P005 | 2024-05-05 and 2024-05-30 | 2024-05-05 | 25 days |
-| P006 | 2024-04-25 and 2024-04-30 | 2024-04-05 | 25 days |
-| P007 | 2024-05-05 and 2024-05-30 | never | - |
-| P009 | 2024-02-10 and 2024-02-20 | 2024-01-21 | 30 days |
-| P011 | 2024-04-30 and 2024-05-05 | never | - |
+| P001 | 2024-05-05 and 2024-05-30 | never | - |
+| P003 | 2024-04-30 and 2024-05-05 | 2024-04-05 | 30 days |
+| P006 | 2024-05-05 and 2024-05-30 | 2024-05-05 | 25 days |
+| P007 | 2024-04-25 and 2024-04-30 | 2024-04-05 | 25 days |
+| P008 | 2024-05-05 and 2024-05-30 | never | - |
+| P010 | 2024-02-10 and 2024-02-20 | 2024-01-21 | 30 days |
+| P012 | 2024-04-30 and 2024-05-05 | never | - |
 
 ## How this is scored
 

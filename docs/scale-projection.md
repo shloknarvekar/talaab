@@ -35,15 +35,15 @@ the free tier.
 
 Same honest backtest as the validated 0.15° box (`docs/backtest-latur-district-2024.md`). Each as-of date uses only data up to that date.
 
-| | Validated box (12 ponds) | **Whole district (435 ponds)** |
+| | Validated box (13 ponds) | **Whole district (435 ponds)** |
 |---|---|---|
-| Critical calls that were right (precision) | 61% | **71%** |
-| Ponds about to dry that we had marked critical (recall) | 61% | **60%** |
+| Critical calls that were right (precision) | 55% | **71%** |
+| Ponds about to dry that we had marked critical (recall) | 50% | **60%** |
 | Median warning before a pond dried | 27.5 days | **25 days** (197 ponds) |
-| Median absolute error of the likely date | 18 days | **19 days** |
-| Actual dry date inside our range | 45% | **41%** |
+| Median absolute error of the likely date | 23 days | **19 days** |
+| Actual dry date inside our range | 48% | **41%** |
 
-259 of the 435 ponds dried during the 2024 season. The method was tuned on a 12-pond box and kept its accuracy on 435 ponds it had never seen.
+259 of the 435 ponds dried during the 2024 season. The method was tuned on a 13-pond box and held up, slightly better, on 435 ponds it had never seen.
 
 ## Projection (estimates, linear in area)
 

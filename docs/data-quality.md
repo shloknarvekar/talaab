@@ -33,7 +33,10 @@ All rules are physical, written down and tested
 
 ## Effect, measured one change at a time
 
-Backtest on real Latur 2024 data (reproduce with `python backend/scripts/ablation.py`):
+Backtest on real Latur 2024 data as it stood on 8 Oct, 12 ponds (reproduce with `python backend/scripts/ablation.py`, which
+reads that dataset from git). On 9 Oct the satellite pipeline was re-run with the imagery export; the same rules
+now keep 13 ponds (the 36.7 ha tank near Kawa passes, because 20 mm of rain fell on 11–13 April 2024), and the
+current 2024 scores are in `docs/backtest-latur-2024.md` (50% flagged in time, 55% of calls right, 27.5-day warning).
 
 | | Before | Clean data | Robust fit | **Both** |
 |---|---|---|---|---|
