@@ -27,12 +27,28 @@ export function fetchPonds(regionId, asOf) {
   return getJson(`/ponds?region=${encodeURIComponent(regionId)}&asOf=${encodeURIComponent(asOf)}`);
 }
 
-/** Alert timeline. Regions without a published timeline may return 404; that is not fatal. */
+const ALERT_TEXT = {
+  dry: (a) => `Dried up: ${a.areaNowHa} ha left of ${a.maxAreaHa} ha`,
+  critical: (a) => `Turned critical: likely dry ${a.dryBy?.likely ?? 'soon'}, ${a.areaNowHa} of ${a.maxAreaHa} ha left`,
+  flag: (a) => `Shrinking ${a.ratio}× faster than nearby ponds (suggests pumping, not proof)`,
+};
+
+/**
+ * Alert timeline, one item per pond alert. GET /alerts returns events (one email each):
+ * {simulated, events: [{asOf, subject, alerts: [{id, reason, place, areaNowHa, maxAreaHa, dryBy, ratio}]}]}.
+ * Replay regions are simulated (what Talaab would have emailed); live regions list emails actually sent.
+ * Regions without a published timeline return 404; that is not fatal.
+ */
 export async function fetchAlerts(regionId) {
   try {
     const payload = await getJson(`/alerts?region=${encodeURIComponent(regionId)}`);
-    if (Array.isArray(payload)) return payload;
-    return payload.alerts ?? payload.timeline ?? payload.items ?? [];
+    return (payload?.events ?? []).flatMap((event) => (event.alerts ?? []).map((a) => ({
+      date: event.asOf,
+      pondId: a.id,
+      type: a.reason,
+      place: a.place,
+      message: (ALERT_TEXT[a.reason] ?? (() => 'Pond risk changed'))(a),
+    })));
   } catch (error) {
     if (error.status === 404) return [];
     throw error;
