@@ -37,6 +37,20 @@ def lambda_handler(event, context):
     precip = {x["date"]: x.get("precip") or 0.0 for x in et0}
 
     scenes, kept, excluded, quality = apply_quality_rules(scenes, ponds, precip, event["referenceDate"])
+
+    try:
+        from pipeline.imagery import promote_district_imagery
+
+        promote_district_imagery(
+            region_id=region,
+            kept_ponds=kept,
+            original_cell_ponds=ponds,
+            bucket=bucket,
+            s3_client=s3,
+        )
+    except Exception as e:
+        print(f"Warning: imagery promotion failed for {region}: {e}")
+
     doc = {"region": {"id": region, "name": event["name"], "bbox": boundary["bbox"]}, "generatedAt": date.today().isoformat(),
            "referenceDate": event["referenceDate"], "scenes": scenes, "et0": et0, "et0Climatology": clim,
            "ponds": kept, "excludedPonds": excluded, "quality": quality}

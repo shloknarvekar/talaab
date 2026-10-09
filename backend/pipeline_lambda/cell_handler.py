@@ -23,11 +23,27 @@ def season_end(end: str) -> str:
 def lambda_handler(event, context):
     started = time.time()
     cell = event["cell"]
-    result = process_cell(cell, event["start"], season_end(event["end"]), event["referenceDate"],
-                          float(event.get("maxCloud") or 20.0))
+    region = event["region"]
+    bucket = os.environ["DATA_BUCKET"]
+    s3 = boto3.client("s3")
+
+    result = process_cell(
+        cell,
+        event["start"],
+        season_end(event["end"]),
+        event["referenceDate"],
+        float(event.get("maxCloud") or 20.0),
+        region_id=region,
+        bucket=bucket,
+        s3_client=s3,
+    )
     result["seconds"] = round(time.time() - started, 1)
-    boto3.client("s3").put_object(Bucket=os.environ["DATA_BUCKET"], Key=f"data/{event['region']}/cells/{cell['id']}.json",
-                                  Body=json.dumps(result).encode(), ContentType="application/json")
+    s3.put_object(
+        Bucket=bucket,
+        Key=f"data/{region}/cells/{cell['id']}.json",
+        Body=json.dumps(result).encode(),
+        ContentType="application/json",
+    )
     summary = {"cell": cell["id"], "ponds": len(result["ponds"]), "passes": len(result["scenes"]), "seconds": result["seconds"]}
     print(json.dumps({"msg": "cell done", **summary}))
     return summary
