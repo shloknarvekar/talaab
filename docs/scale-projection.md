@@ -26,7 +26,7 @@ The same cell processed on a laptop took 447 s. On Lambda it took 50 s (the firs
 ### And live, every 5 days (measured, 9 Oct 2026)
 
 EventBridge Scheduler starts the same state machine for `latur-district-2026` (`end: "today"`, the
-season since 1 Sep 2026, scenes up to 45% tile cloud with the per-pond cloud check). Latest run:
+season since 1 Sep 2026, scenes up to 45% tile cloud with the per-pond cloud check). Run of 9 Oct (Latur only):
 **45 s wall clock, 374 ponds (383 found, 9 excluded with a reason), 6 passes, 602 GB-s** (about $0.008
 without the free tier). The run
 reprocesses the season so far each time, so the cost grows with the season. At ~30 passes by June it

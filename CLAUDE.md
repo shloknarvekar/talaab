@@ -37,7 +37,7 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   `talaab-district` (`backend/scripts/run_district.py`): `pipeline/district.py` grid (0.15 deg cells + overlap,
   OSM boundary) -> `pipeline/cell.py` per cell (Lambda `pipeline-cell`) -> `pipeline_lambda/merge_handler.py`.
   Layer: `build_layer.py --name pipeline-layer` (vendors libexpat; keep under 250 MB). Projection: `docs/scale-projection.md`.
-  LIVE district `latur-district-2026`: EventBridge schedule `talaab-live-district` (template LiveDistrict, input kept in
+  LIVE districts: EventBridge schedule `talaab-live-marathwada` (template LiveMarathwada on the marathwada workflow, input kept in
   sync with RUNS in run_district.py) starts the state machine on the 1st/6th/11th/... of each month at 06:00 IST (recompute schedule 06:30 IST); the web opens on it. Alert emails list 20 ponds max.
 - Talukas: recompute tags every pond with `taluka`/`talukaMr` (OSM admin_level 6, `backend/jobs/places/latur-talukas.json`,
   fetched once by `backend/scripts/fetch_talukas.py`); snapshots carry a `talukas` summary (`backend/logic/talukas.py`);
