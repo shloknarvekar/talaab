@@ -22,6 +22,8 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
 
 The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" date uses only the data available up to that date.
 
+**Whole district, on AWS.** All of Latur district (7,157 km², **435 ponds**) runs on AWS Step Functions + Lambda in **161 seconds for $0**, inside the free tier. On those 435 ponds, 71% of critical calls came true and the median warning was 25 days. Projection to Maharashtra and India, with an honest list of what would change: [`docs/scale-projection.md`](docs/scale-projection.md).
+
 ## Honest by design
 
 - **Ranges, not fake dates.** Every pond gets an earliest–likely–latest dry-by range. A pond whose shrinking is within measurement noise is called *stable*; we don't invent a date.
@@ -39,7 +41,8 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | AWS service | Role |
 |---|---|
 | **S3** | Pipeline measurements, per-date snapshots, cached plans, backtest |
-| **Lambda** (×4) | `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
+| **Lambda** (×6) | `pipeline-cell` + `pipeline-merge` (satellite pipeline), `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
+| **Step Functions** | `talaab-district`: one Lambda per 0.15° grid cell (42 for Latur, 8 in parallel), then merge |
 | **API Gateway** (HTTP API) | Public API, throttled |
 | **EventBridge Scheduler** | Recompute every 5 days (one Sentinel-2 revisit) |
 | **DynamoDB** | Latest state of every pond |
@@ -94,6 +97,11 @@ cd backend && sam build && sam deploy --parameter-overrides PlanAI=on   # PlanAI
 pip install -r backend/scripts/requirements.txt
 python backend/scripts/check_measurements.py data/latur-2024/measurements.json
 python backend/scripts/upload_measurements.py data/latur-2024/measurements.json
+
+# whole district on AWS: build the pipeline layer + function, deploy, then run (Step Functions)
+python backend/scripts/build_layer.py --name pipeline-layer
+python backend/scripts/stage_pipeline_fn.py
+python backend/scripts/run_district.py --wait
 
 # backtest report (docs/backtest-<region>.md + GET /backtest)
 python backend/scripts/run_backtest.py data/latur-2024/measurements.json --upload

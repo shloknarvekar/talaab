@@ -47,6 +47,11 @@ actually happened.
 
 - **Validated on an unseen season.** Every rule and model choice was made on 2024. Latur 2023 was
   processed afterwards as a final exam, and the results held.
+- **Validated on the whole district.** We then ran all **7,157 km² of Latur district** on AWS:
+  42 grid cells, **435 ponds**, done in **161 seconds** for **$0** (inside the free tier, and $0.03
+  without it). On 435 ponds the rules had never seen, 71% of critical calls came true, 60% of ponds
+  about to dry were caught in time, and the median warning was 25 days (197 ponds warned in advance).
+  See `docs/scale-projection.md`.
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P002 and P006
   had turned critical. P006 was dry on the 30 April pass and P002 on the 5 May pass, giving 25 and
   30 days to arrange tankers. Over the whole season Talaab would have sent **9 emails** and never
@@ -84,7 +89,8 @@ one SAM template, with **no hourly cost while idle**.
 | AWS service | What it does in Talaab |
 |---|---|
 | **AWS Open Data** (Sentinel-2 L2A COGs on S3) | The satellite imagery: windows read directly over HTTPS, no downloads |
-| **AWS Lambda** (4 functions) | `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
+| **AWS Lambda** (6 functions) | `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
+| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 8 in parallel, with retries), then merges. Latur district takes 161 s. |
 | **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`; throttled, CORS limited to our site |
 | **Amazon EventBridge Scheduler** | Re-runs everything every 5 days, matching the satellite revisit |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
@@ -94,7 +100,7 @@ one SAM template, with **no hourly cost while idle**.
 | **Amazon CloudWatch** | One log line per action, plus the `talaab-ops` dashboard |
 | **AWS Amplify Hosting** | The web map |
 
-Data flow: pipeline → `measurements.json` → S3 → recompute Lambda (every 5 days or on upload) → a
+Data flow: Step Functions → one `pipeline-cell` Lambda per cell (reads Sentinel-2 in-region) → `pipeline-merge` → `measurements.json` → S3 → recompute Lambda (every 5 days or on upload) → a
 snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `docs/architecture.md`.
 
 ## How it's built
@@ -120,13 +126,23 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Real satellite data is messy.** Our first honest backtest was weak; the fix was understanding
   the data, not tuning the model.
 - **No Docker on the laptop.** We packaged the Strands Agents Lambda layer for Linux ARM from Windows
-  using `uv`, and ran the satellite step locally with AWS re-running everything on a schedule.
+  using `uv`. The satellite step (rasterio/GDAL) later moved onto Lambda the same way, after two
+  surprises: GDAL needs a system library (`libexpat`) that Lambda's image lacks, so we bundle a
+  pinned, checksum-verified copy; and the 250 MB layer limit forced us to trim unused SciPy parts
+  carefully. One cell takes 447 s on a laptop and 26–50 s on Lambda next to the imagery.
+- **A district is many satellite tiles.** Each 0.15° cell picks, for every date, the image that
+  covers it best, and reads it onto one fixed 10 m grid, so a pond lines up across dates. Each cell
+  owns only the ponds whose centre is in its core, which removes duplicates at cell edges.
 - **Post-monsoon live data:** only a few clear passes, and receding floodwater looks like a pond
   drying, so we added a "too early to forecast" state instead of guessing.
 
 ## What's next
 
-- Every district in Maharashtra (the pipeline is region-agnostic; only a bounding box changes).
+- Every district in Maharashtra, then India. Projected from the measured Latur run
+  (`docs/scale-projection.md`): Maharashtra is about 1,790 cells and roughly 18,500 ponds, about $1.30
+  of Lambda per full season. India is about 19,100 cells, about $13.50 per season and about 8 minutes
+  at the standard Lambda concurrency. The work left is engineering and quotas (Distributed Map, weather
+  per district, local baselines), not the method.
 - Pond depth (from a terrain model or past drought years) for better big-tank forecasts.
 - SMS alerts in Marathi to sarpanches, and a WhatsApp summary for district officers.
 - A field app for inspectors to confirm or dismiss "faster than the sun" flags, feeding back into the model.
