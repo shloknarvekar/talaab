@@ -31,6 +31,19 @@ def call(route, query=None, path=None, body=None):
     return r["statusCode"], json.loads(r["body"])
 
 
+def test_large_responses_are_gzipped_for_clients_that_accept_it():
+    import base64
+    import gzip
+    event = {"routeKey": "GET /ponds", "queryStringParameters": {"region": "latur-2024"}, "headers": {"Accept-Encoding": "gzip, br"}}
+    r = handler.lambda_handler(event, None)
+    assert r["isBase64Encoded"] and r["headers"]["content-encoding"] == "gzip" and r["headers"]["vary"] == "accept-encoding"
+    plain = handler.lambda_handler({**event, "headers": {}}, None)
+    assert "isBase64Encoded" not in plain  # no Accept-Encoding: plain JSON, as before
+    assert json.loads(gzip.decompress(base64.b64decode(r["body"]))) == json.loads(plain["body"])
+    small = handler.lambda_handler({**event, "routeKey": "GET /nope"}, None)  # tiny error bodies stay plain
+    assert "isBase64Encoded" not in small
+
+
 def test_get_ponds_latest_and_as_of_resolution():
     status, doc = call("GET /ponds", {"region": "latur-2024"})
     assert status == 200 and doc["asOf"] == "2024-03-26" and len(doc["ponds"]) == 4

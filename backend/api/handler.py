@@ -12,6 +12,8 @@ shows data from after the date the user chose.
 """
 from __future__ import annotations
 
+import base64
+import gzip
 import json
 import os
 import re
@@ -95,7 +97,28 @@ def post_plan(body: dict) -> dict:
     return get_plan(doc, language)
 
 
+GZIP_MIN_BYTES = 1024
+
+
+def _compress(response: dict, event: dict) -> dict:
+    """gzip the JSON when the client accepts it (every browser does): a district snapshot shrinks ~10x.
+
+    API Gateway HTTP APIs pass a base64 body with content-encoding through unchanged. CloudFront would do
+    this at the edge, but new AWS accounts can't create distributions until AWS verifies them."""
+    headers = {k.lower(): v for k, v in (event.get("headers") or {}).items()}
+    body = response.get("body") or ""
+    if "gzip" not in headers.get("accept-encoding", "") or len(body) < GZIP_MIN_BYTES:
+        return response
+    packed = gzip.compress(body.encode("utf-8"), compresslevel=6)
+    return {**response, "body": base64.b64encode(packed).decode("ascii"), "isBase64Encoded": True,
+            "headers": {**response["headers"], "content-encoding": "gzip", "vary": "accept-encoding"}}
+
+
 def lambda_handler(event, context):
+    return _compress(_route(event), event)
+
+
+def _route(event):
     route = event.get("routeKey", "")
     query = event.get("queryStringParameters") or {}
     print(json.dumps({"route": route, "query": query}))
