@@ -53,7 +53,8 @@ def new_alerts(prev_state: dict, snap: dict) -> list[dict]:
         for r in reasons:
             if r in already:
                 continue
-            out.append({"id": p["id"], "key": pond_key(p), "place": p.get("place") or "", "reason": r, "status": p["status"],
+            out.append({"id": p["id"], "key": pond_key(p), "place": p.get("place") or "", "taluka": p.get("taluka") or "",
+                        "reason": r, "status": p["status"],
                         "areaNowHa": p.get("areaNowHa"), "maxAreaHa": p.get("maxAreaHa"),
                         "dryBy": p.get("dryBy"), "ratio": p.get("shrinkVsNeighbours")})
     return sorted(out, key=lambda a: (ORDER[a["reason"]], a["id"]))
@@ -70,7 +71,8 @@ def format_alert(region_name: str, as_of: str, alerts: list[dict], site_url: str
     subject = f"Talaab: {n} {'ponds need' if n != 1 else 'pond needs'} action in {region_name}"[:100]
     lines = [f"Talaab update for {region_name}, as of {_d(as_of)}.", ""]
     for a in alerts[:MAX_LISTED]:  # most urgent first (new_alerts order)
-        where = f" ({a['place']})" if a["place"] else ""
+        parts = [x for x in (a["place"], f"{a['taluka']} taluka" if a.get("taluka") else "") if x]
+        where = f" ({', '.join(parts)})" if parts else ""
         lines.append(f"- {a['id']}{where} {REASONS[a['reason']]}.")
         if a["reason"] == "critical" and a.get("dryBy"):
             lines.append(f"    Likely dry {_d(a['dryBy']['likely'])} (range {_d(a['dryBy']['earliest'])} to {_d(a['dryBy']['latest'])}); "

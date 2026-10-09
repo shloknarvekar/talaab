@@ -24,7 +24,8 @@ Facts come only from your tools. Call get_ponds first; call get_pond for detail 
 Write Markdown in the requested language:
 - A title naming the region and the as-of date, then two or three sentences on the overall situation, including the sun's share (sunShareMm: evaporation over the last 45 days).
 - A one-line summary: how many ponds are dry, critical, watch and ok, and how many are flagged.
-- A short table by village (the place name without "near"): its ponds, the most urgent status, the earliest likely dry date.
+- If get_ponds returns "talukas", first a table by taluka (drought is declared per taluka): ponds, dry, critical, watch, not visible, flagged and the earliest likely dry date, copied from "talukas"; name each pond's taluka in its line.
+- A short table by village (the place name without "near"): its ponds, the most urgent status, the earliest likely dry date. For hundreds of ponds, list only villages with dry, critical, watch or flagged ponds.
 - "Already dry" ponds first: these need alternative supply now.
 - Then one section for EVERY scarcity period from the as-of date up to the next June, using the government's periods Oct–Dec, Jan–Mar and Apr–Jun (the order asks for a separate plan per period); say so plainly when no pond is expected to dry in a period. A pond likely to last past June lasts until the monsoon. Most urgent first.
 - For each pond: its id in bold, its place, water area now and max (ha), the dry-by range (earliest to latest, with the likely date) and one concrete action.
@@ -49,6 +50,7 @@ def compact_doc(doc: dict) -> dict:
         "scenesClear": sum(s.get("status") == "ok" for s in doc.get("scenes", [])),
         "scenesSuspect": sum(s.get("status") == "suspect" for s in doc.get("scenes", [])),
         "ponds": [{k: v for k, v in p.items() if k != "history"} for p in doc["ponds"]],
+        **({"talukas": doc["talukas"]} if doc.get("talukas") else {}),
     }
 
 
