@@ -9,7 +9,7 @@
       18.48
     ]
   },
-  "generatedAt": "2026-10-08T22:42:49Z",
+  "generatedAt": "2026-10-09T10:49:17Z",
   "referenceDate": "2023-01-01",
   "scenes": [
     {
@@ -40,7 +40,7 @@
     {
       "date": "2023-01-31",
       "id": "S2B_43QFA_20230131_0_L2A",
-      "status": "suspect"
+      "status": "ok"
     },
     {
       "date": "2023-02-05",
@@ -50,7 +50,7 @@
     {
       "date": "2023-02-10",
       "id": "S2B_43QFA_20230210_0_L2A",
-      "status": "suspect"
+      "status": "ok"
     },
     {
       "date": "2023-02-15",
@@ -140,7 +140,7 @@
     {
       "date": "2023-05-26",
       "id": "S2A_43QFA_20230526_0_L2A",
-      "status": "suspect"
+      "status": "ok"
     },
     {
       "date": "2023-05-31",
@@ -1754,7 +1754,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 64.38,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -1818,7 +1818,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 63.82,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -1918,7 +1918,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 40.36,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -1949,170 +1949,6 @@
     },
     {
       "id": "P003",
-      "lat": 18.4743,
-      "lon": 76.5012,
-      "place": "near Indarthana",
-      "refAreaHa": 37.75,
-      "history": [
-        {
-          "date": "2023-01-01",
-          "areaHa": 37.76,
-          "valid": true
-        },
-        {
-          "date": "2023-01-11",
-          "areaHa": 35.76,
-          "valid": true
-        },
-        {
-          "date": "2023-01-16",
-          "areaHa": 35.78,
-          "valid": true
-        },
-        {
-          "date": "2023-01-21",
-          "areaHa": 34.81,
-          "valid": true
-        },
-        {
-          "date": "2023-01-26",
-          "areaHa": 34.18,
-          "valid": true
-        },
-        {
-          "date": "2023-01-31",
-          "areaHa": 25.84,
-          "valid": false
-        },
-        {
-          "date": "2023-02-05",
-          "areaHa": 36.36,
-          "valid": true
-        },
-        {
-          "date": "2023-02-10",
-          "areaHa": 33.73,
-          "valid": false
-        },
-        {
-          "date": "2023-02-15",
-          "areaHa": 35.42,
-          "valid": true
-        },
-        {
-          "date": "2023-02-20",
-          "areaHa": 34.68,
-          "valid": true
-        },
-        {
-          "date": "2023-02-25",
-          "areaHa": 34.29,
-          "valid": true
-        },
-        {
-          "date": "2023-03-02",
-          "areaHa": 34.67,
-          "valid": true
-        },
-        {
-          "date": "2023-03-07",
-          "areaHa": 34.17,
-          "valid": true
-        },
-        {
-          "date": "2023-03-12",
-          "areaHa": 33.34,
-          "valid": true
-        },
-        {
-          "date": "2023-03-22",
-          "areaHa": 34.58,
-          "valid": true
-        },
-        {
-          "date": "2023-03-27",
-          "areaHa": 33.75,
-          "valid": true
-        },
-        {
-          "date": "2023-04-01",
-          "areaHa": 33.2,
-          "valid": true
-        },
-        {
-          "date": "2023-04-06",
-          "areaHa": 32.21,
-          "valid": true
-        },
-        {
-          "date": "2023-04-11",
-          "areaHa": 31.66,
-          "valid": true
-        },
-        {
-          "date": "2023-04-16",
-          "areaHa": 31.72,
-          "valid": false
-        },
-        {
-          "date": "2023-04-21",
-          "areaHa": 28.58,
-          "valid": true
-        },
-        {
-          "date": "2023-04-26",
-          "areaHa": 27.66,
-          "valid": true
-        },
-        {
-          "date": "2023-05-11",
-          "areaHa": 21.29,
-          "valid": true
-        },
-        {
-          "date": "2023-05-16",
-          "areaHa": 15.34,
-          "valid": true
-        },
-        {
-          "date": "2023-05-21",
-          "areaHa": 11.44,
-          "valid": true
-        },
-        {
-          "date": "2023-05-26",
-          "areaHa": 35.45,
-          "valid": false
-        },
-        {
-          "date": "2023-05-31",
-          "areaHa": 8.59,
-          "valid": false
-        },
-        {
-          "date": "2023-06-05",
-          "areaHa": 31.94,
-          "valid": false
-        },
-        {
-          "date": "2023-06-10",
-          "areaHa": 22.44,
-          "valid": true
-        },
-        {
-          "date": "2023-06-15",
-          "areaHa": 28.36,
-          "valid": false
-        },
-        {
-          "date": "2023-06-20",
-          "areaHa": 25.73,
-          "valid": true
-        }
-      ]
-    },
-    {
-      "id": "P004",
       "lat": 18.4696,
       "lon": 76.5612,
       "place": "near Sai",
@@ -2156,7 +1992,7 @@
         {
           "date": "2023-02-10",
           "areaHa": 21.22,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -2246,7 +2082,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 15.06,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -2276,7 +2112,7 @@
       ]
     },
     {
-      "id": "P005",
+      "id": "P004",
       "lat": 18.4724,
       "lon": 76.524,
       "place": "near Arajkheda",
@@ -2310,7 +2146,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 14.76,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -2320,7 +2156,7 @@
         {
           "date": "2023-02-10",
           "areaHa": 16.47,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -2410,7 +2246,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.02,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -2440,7 +2276,7 @@
       ]
     },
     {
-      "id": "P006",
+      "id": "P005",
       "lat": 18.4067,
       "lon": 76.4741,
       "place": "near Harangul Bk",
@@ -2474,7 +2310,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 11.94,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -2574,7 +2410,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 2.11,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -2604,7 +2440,7 @@
       ]
     },
     {
-      "id": "P007",
+      "id": "P006",
       "lat": 18.3943,
       "lon": 76.479,
       "place": "near Harangul Bk",
@@ -2638,7 +2474,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 11.3,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -2738,7 +2574,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 5.2,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -2768,7 +2604,7 @@
       ]
     },
     {
-      "id": "P008",
+      "id": "P007",
       "lat": 18.4749,
       "lon": 76.542,
       "place": "near Arajkheda",
@@ -2812,7 +2648,7 @@
         {
           "date": "2023-02-10",
           "areaHa": 12.08,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -2902,7 +2738,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 3.21,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -2932,7 +2768,7 @@
       ]
     },
     {
-      "id": "P009",
+      "id": "P008",
       "lat": 18.3634,
       "lon": 76.4838,
       "place": "near Khandapur",
@@ -2966,7 +2802,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 9.29,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -3066,7 +2902,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 4.56,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3096,7 +2932,7 @@
       ]
     },
     {
-      "id": "P010",
+      "id": "P009",
       "lat": 18.463,
       "lon": 76.5814,
       "place": "near Mahapur",
@@ -3140,7 +2976,7 @@
         {
           "date": "2023-02-10",
           "areaHa": 9.9,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -3230,7 +3066,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 1.95,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3260,7 +3096,7 @@
       ]
     },
     {
-      "id": "P011",
+      "id": "P010",
       "lat": 18.355,
       "lon": 76.5082,
       "place": "near Khandapur",
@@ -3294,7 +3130,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 3.67,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -3394,7 +3230,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3424,7 +3260,7 @@
       ]
     },
     {
-      "id": "P012",
+      "id": "P011",
       "lat": 18.3816,
       "lon": 76.486,
       "place": "near Khandapur",
@@ -3458,7 +3294,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 2.61,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -3558,7 +3394,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 1.31,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3588,7 +3424,7 @@
       ]
     },
     {
-      "id": "P013",
+      "id": "P012",
       "lat": 18.4594,
       "lon": 76.5921,
       "place": "near Mahapur",
@@ -3622,17 +3458,17 @@
         {
           "date": "2023-01-31",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
           "areaHa": 0.69,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-10",
           "areaHa": 0.42,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -3722,7 +3558,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.01,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3752,7 +3588,7 @@
       ]
     },
     {
-      "id": "P014",
+      "id": "P013",
       "lat": 18.3679,
       "lon": 76.4887,
       "place": "near Khandapur",
@@ -3786,7 +3622,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 1.64,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -3886,7 +3722,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -3916,7 +3752,7 @@
       ]
     },
     {
-      "id": "P015",
+      "id": "P014",
       "lat": 18.3773,
       "lon": 76.5284,
       "place": "near Gangapur",
@@ -3950,7 +3786,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 1.2,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -4050,7 +3886,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -4080,7 +3916,7 @@
       ]
     },
     {
-      "id": "P016",
+      "id": "P015",
       "lat": 18.439,
       "lon": 76.6124,
       "place": "near Malwati",
@@ -4124,7 +3960,7 @@
         {
           "date": "2023-02-10",
           "areaHa": 1.79,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-15",
@@ -4214,7 +4050,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.01,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -4244,7 +4080,7 @@
       ]
     },
     {
-      "id": "P017",
+      "id": "P016",
       "lat": 18.3822,
       "lon": 76.6134,
       "place": "near Babalgaon",
@@ -4378,7 +4214,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -4408,7 +4244,7 @@
       ]
     },
     {
-      "id": "P018",
+      "id": "P017",
       "lat": 18.3733,
       "lon": 76.4845,
       "place": "near Khandapur",
@@ -4442,7 +4278,7 @@
         {
           "date": "2023-01-31",
           "areaHa": 1.35,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-02-05",
@@ -4542,7 +4378,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 1.77,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -4572,7 +4408,7 @@
       ]
     },
     {
-      "id": "P019",
+      "id": "P018",
       "lat": 18.357,
       "lon": 76.6189,
       "place": "near Sirshi",
@@ -4706,7 +4542,7 @@
         {
           "date": "2023-05-26",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2023-05-31",
@@ -4738,6 +4574,14 @@
   ],
   "excludedPonds": [
     {
+      "id": "P003",
+      "lat": 18.4743,
+      "lon": 76.5012,
+      "refAreaHa": 37.75,
+      "place": "near Indarthana",
+      "reason": "unexplained rise from 11.44 ha (2023-05-21) to 35.45 ha (2023-05-26) without rain: the signal is not tracking water level"
+    },
+    {
       "id": "P009",
       "lat": 18.4638,
       "lon": 76.6123,
@@ -4748,14 +4592,11 @@
   ],
   "quality": {
     "suspectScenes": [
-      "2023-01-31",
-      "2023-02-10",
       "2023-04-16",
-      "2023-05-26",
       "2023-06-15"
     ],
-    "spikesAndDipsRemoved": 17,
-    "pondsKept": 19,
-    "pondsExcluded": 1
+    "spikesAndDipsRemoved": 20,
+    "pondsKept": 18,
+    "pondsExcluded": 2
   }
 }

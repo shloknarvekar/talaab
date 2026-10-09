@@ -18,17 +18,17 @@
   "pondsThatDried": 259
  },
  "summary": {
-  "rangeHitRate": 0.406,
-  "rangeHits": 1399,
-  "rangeMisses": 1859,
-  "tooEarly": 192,
-  "unresolved": 2517,
+  "rangeHitRate": 0.397,
+  "rangeHits": 1364,
+  "rangeMisses": 1878,
+  "tooEarly": 198,
+  "unresolved": 2499,
   "medianErrorDays": 9.0,
   "medianAbsErrorDays": 19.0,
-  "criticalPrecision": 0.711,
-  "criticalCalls": 1089,
-  "criticalRecall": 0.603,
-  "shouldHaveWarned": 1283,
+  "criticalPrecision": 0.699,
+  "criticalCalls": 1075,
+  "criticalRecall": 0.596,
+  "shouldHaveWarned": 1261,
   "medianLeadDays": 25,
   "pondsWarnedInAdvance": 197
  },
@@ -120,8 +120,8 @@
     "from": "2024-05-05",
     "to": "2024-05-30"
    },
-   "firstCritical": "2024-05-05",
-   "leadDays": 25
+   "firstCritical": null,
+   "leadDays": null
   },
   {
    "id": "P015",
@@ -594,11 +594,11 @@
   {
    "id": "P083",
    "actualDry": {
-    "from": "2024-03-26",
+    "from": "2024-03-31",
     "to": "2024-04-05"
    },
-   "firstCritical": "2024-03-06",
-   "leadDays": 30
+   "firstCritical": "2024-03-01",
+   "leadDays": 35
   },
   {
    "id": "P084",
@@ -616,10 +616,10 @@
    "id": "P086",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-10",
-   "leadDays": 20
+   "leadDays": 15
   },
   {
    "id": "P087",
@@ -651,8 +651,8 @@
     "from": "2024-03-26",
     "to": "2024-04-05"
    },
-   "firstCritical": null,
-   "leadDays": null
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
   },
   {
    "id": "P092",
@@ -660,8 +660,8 @@
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
-   "firstCritical": "2024-04-30",
-   "leadDays": 5
+   "firstCritical": null,
+   "leadDays": null
   },
   {
    "id": "P093",
@@ -687,8 +687,8 @@
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
-   "firstCritical": "2024-04-10",
-   "leadDays": 25
+   "firstCritical": "2024-04-25",
+   "leadDays": 10
   },
   {
    "id": "P096",
@@ -933,8 +933,8 @@
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
-   "firstCritical": "2024-04-30",
-   "leadDays": 5
+   "firstCritical": null,
+   "leadDays": null
   },
   {
    "id": "P128",
@@ -951,8 +951,8 @@
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
-   "firstCritical": "2024-04-20",
-   "leadDays": 15
+   "firstCritical": "2024-04-15",
+   "leadDays": 20
   },
   {
    "id": "P130",
@@ -975,8 +975,8 @@
     "from": "2024-04-25",
     "to": "2024-04-30"
    },
-   "firstCritical": "2024-04-05",
-   "leadDays": 25
+   "firstCritical": "2024-04-10",
+   "leadDays": 20
   },
   {
    "id": "P133",
@@ -1041,11 +1041,11 @@
   {
    "id": "P141",
    "actualDry": {
-    "from": "2024-03-26",
-    "to": "2024-04-05"
+    "from": "2024-04-20",
+    "to": "2024-04-25"
    },
-   "firstCritical": null,
-   "leadDays": null
+   "firstCritical": "2024-04-20",
+   "leadDays": 5
   },
   {
    "id": "P142",
@@ -1222,10 +1222,10 @@
    "id": "P165",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-01-31",
-   "leadDays": 30
+   "leadDays": 25
   },
   {
    "id": "P166",
@@ -1291,10 +1291,10 @@
    "id": "P174",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-20",
-   "leadDays": 10
+   "leadDays": 5
   },
   {
    "id": "P175",
@@ -1368,8 +1368,8 @@
     "from": "2024-04-25",
     "to": "2024-04-30"
    },
-   "firstCritical": "2024-03-01",
-   "leadDays": 60
+   "firstCritical": "2024-02-25",
+   "leadDays": 65
   },
   {
    "id": "P184",
@@ -1392,8 +1392,8 @@
     "from": "2024-03-26",
     "to": "2024-04-05"
    },
-   "firstCritical": "2024-03-01",
-   "leadDays": 35
+   "firstCritical": "2024-02-25",
+   "leadDays": 40
   },
   {
    "id": "P187",
@@ -1413,8 +1413,8 @@
     "from": "2024-05-05",
     "to": "2024-05-30"
    },
-   "firstCritical": "2024-05-05",
-   "leadDays": 25
+   "firstCritical": "2024-04-05",
+   "leadDays": 55
   },
   {
    "id": "P190",
@@ -1534,10 +1534,10 @@
    "id": "P205",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-05",
-   "leadDays": 25
+   "leadDays": 20
   },
   {
    "id": "P206",
@@ -1606,10 +1606,10 @@
    "id": "P214",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-01-31",
-   "leadDays": 30
+   "leadDays": 25
   },
   {
    "id": "P215",
@@ -1624,10 +1624,10 @@
    "id": "P216",
    "actualDry": {
     "from": "2024-04-15",
-    "to": "2024-04-25"
+    "to": "2024-04-20"
    },
    "firstCritical": "2024-02-20",
-   "leadDays": 65
+   "leadDays": 60
   },
   {
    "id": "P217",
@@ -1662,8 +1662,8 @@
     "from": "2024-03-26",
     "to": "2024-04-05"
    },
-   "firstCritical": "2024-03-01",
-   "leadDays": 35
+   "firstCritical": "2024-02-25",
+   "leadDays": 40
   },
   {
    "id": "P222",
@@ -1677,8 +1677,8 @@
     "from": "2024-04-10",
     "to": "2024-04-15"
    },
-   "firstCritical": "2024-03-11",
-   "leadDays": 35
+   "firstCritical": "2024-03-06",
+   "leadDays": 40
   },
   {
    "id": "P224",
@@ -1992,8 +1992,8 @@
     "from": "2024-04-30",
     "to": "2024-05-05"
    },
-   "firstCritical": "2024-04-10",
-   "leadDays": 25
+   "firstCritical": "2024-04-15",
+   "leadDays": 20
   },
   {
    "id": "P265",
@@ -2185,10 +2185,10 @@
    "id": "P288",
    "actualDry": {
     "from": "2024-03-26",
-    "to": "2024-04-05"
+    "to": "2024-03-31"
    },
    "firstCritical": "2024-03-01",
-   "leadDays": 35
+   "leadDays": 30
   },
   {
    "id": "P289",
@@ -2257,10 +2257,10 @@
    "id": "P297",
    "actualDry": {
     "from": "2024-03-26",
-    "to": "2024-04-05"
+    "to": "2024-03-31"
    },
    "firstCritical": "2024-03-01",
-   "leadDays": 35
+   "leadDays": 30
   },
   {
    "id": "P298",
@@ -2389,10 +2389,10 @@
    "id": "P314",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-10",
-   "leadDays": 20
+   "leadDays": 15
   },
   {
    "id": "P315",
@@ -2446,19 +2446,19 @@
    "id": "P321",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-01-31",
-   "leadDays": 30
+   "leadDays": 25
   },
   {
    "id": "P322",
    "actualDry": {
-    "from": "2024-04-05",
-    "to": "2024-04-10"
+    "from": "2024-04-20",
+    "to": "2024-04-25"
    },
    "firstCritical": "2024-03-16",
-   "leadDays": 25
+   "leadDays": 40
   },
   {
    "id": "P323",
@@ -2493,8 +2493,8 @@
     "from": "2024-05-05",
     "to": "2024-05-30"
    },
-   "firstCritical": "2024-04-10",
-   "leadDays": 50
+   "firstCritical": "2024-04-05",
+   "leadDays": 55
   },
   {
    "id": "P327",
@@ -2502,8 +2502,8 @@
     "from": "2024-05-05",
     "to": "2024-05-30"
    },
-   "firstCritical": "2024-04-10",
-   "leadDays": 50
+   "firstCritical": "2024-04-25",
+   "leadDays": 35
   },
   {
    "id": "P328",
@@ -2551,10 +2551,10 @@
    "id": "P333",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-01-31",
-   "leadDays": 30
+   "leadDays": 25
   },
   {
    "id": "P334",
@@ -2706,8 +2706,8 @@
     "from": "2024-03-01",
     "to": "2024-03-11"
    },
-   "firstCritical": "2024-02-25",
-   "leadDays": 15
+   "firstCritical": "2024-03-01",
+   "leadDays": 10
   },
   {
    "id": "P352",
@@ -2736,11 +2736,11 @@
   {
    "id": "P355",
    "actualDry": {
-    "from": "2024-04-05",
-    "to": "2024-04-15"
+    "from": "2024-04-20",
+    "to": "2024-04-25"
    },
    "firstCritical": "2024-04-05",
-   "leadDays": 10
+   "leadDays": 20
   },
   {
    "id": "P356",
@@ -2812,10 +2812,10 @@
    "id": "P364",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-10",
-   "leadDays": 20
+   "leadDays": 15
   },
   {
    "id": "P365",
@@ -2934,8 +2934,8 @@
     "from": "2024-03-11",
     "to": "2024-03-16"
    },
-   "firstCritical": "2024-03-01",
-   "leadDays": 15
+   "firstCritical": "2024-02-25",
+   "leadDays": 20
   },
   {
    "id": "P379",
@@ -2959,10 +2959,10 @@
    "id": "P381",
    "actualDry": {
     "from": "2024-03-26",
-    "to": "2024-04-05"
+    "to": "2024-03-31"
    },
    "firstCritical": "2024-03-21",
-   "leadDays": 15
+   "leadDays": 10
   },
   {
    "id": "P382",
@@ -3007,10 +3007,10 @@
    "id": "P387",
    "actualDry": {
     "from": "2024-02-20",
-    "to": "2024-03-01"
+    "to": "2024-02-25"
    },
    "firstCritical": "2024-02-10",
-   "leadDays": 20
+   "leadDays": 15
   },
   {
    "id": "P388",
@@ -3102,7 +3102,7 @@
   {
    "id": "P398",
    "actualDry": {
-    "from": "2024-04-15",
+    "from": "2024-04-20",
     "to": "2024-04-25"
    },
    "firstCritical": "2024-04-15",
@@ -3120,11 +3120,11 @@
   {
    "id": "P400",
    "actualDry": {
-    "from": "2024-04-30",
-    "to": "2024-05-05"
+    "from": "2024-03-26",
+    "to": "2024-04-05"
    },
-   "firstCritical": null,
-   "leadDays": null
+   "firstCritical": "2024-03-16",
+   "leadDays": 20
   },
   {
    "id": "P401",
@@ -3345,11 +3345,11 @@
   {
    "id": "P427",
    "actualDry": {
-    "from": "2024-04-05",
-    "to": "2024-04-10"
+    "from": "2024-04-20",
+    "to": "2024-04-25"
    },
    "firstCritical": "2024-04-05",
-   "leadDays": 5
+   "leadDays": 20
   },
   {
    "id": "P428",
@@ -3423,19 +3423,19 @@
  ],
  "variants": {
   "noHeatAdjustment": {
-   "rangeHitRate": 0.362,
-   "rangeHits": 1219,
-   "rangeMisses": 2021,
-   "tooEarly": 132,
-   "unresolved": 2463,
+   "rangeHitRate": 0.359,
+   "rangeHits": 1210,
+   "rangeMisses": 2016,
+   "tooEarly": 143,
+   "unresolved": 2436,
    "medianErrorDays": 16.0,
    "medianAbsErrorDays": 23.0,
-   "criticalPrecision": 0.737,
-   "criticalCalls": 962,
-   "criticalRecall": 0.553,
-   "shouldHaveWarned": 1283,
-   "medianLeadDays": 25.0,
-   "pondsWarnedInAdvance": 190
+   "criticalPrecision": 0.722,
+   "criticalCalls": 943,
+   "criticalRecall": 0.54,
+   "shouldHaveWarned": 1261,
+   "medianLeadDays": 25,
+   "pondsWarnedInAdvance": 191
   }
  },
  "comparisons": []

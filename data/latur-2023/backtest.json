@@ -14,21 +14,21 @@
   "from": "2023-01-21",
   "to": "2023-06-20",
   "snapshots": 28,
-  "ponds": 19,
+  "ponds": 18,
   "pondsThatDried": 13
  },
  "summary": {
-  "rangeHitRate": 0.319,
+  "rangeHitRate": 0.326,
   "rangeHits": 60,
-  "rangeMisses": 126,
+  "rangeMisses": 122,
   "tooEarly": 2,
-  "unresolved": 122,
-  "medianErrorDays": 12.0,
-  "medianAbsErrorDays": 28.0,
-  "criticalPrecision": 0.697,
-  "criticalCalls": 66,
-  "criticalRecall": 0.622,
-  "shouldHaveWarned": 74,
+  "unresolved": 106,
+  "medianErrorDays": 9.0,
+  "medianAbsErrorDays": 25.0,
+  "criticalPrecision": 0.662,
+  "criticalCalls": 68,
+  "criticalRecall": 0.616,
+  "shouldHaveWarned": 73,
   "medianLeadDays": 25,
   "pondsWarnedInAdvance": 11
  },
@@ -56,12 +56,6 @@
   },
   {
    "id": "P004",
-   "actualDry": null,
-   "firstCritical": null,
-   "leadDays": null
-  },
-  {
-   "id": "P005",
    "actualDry": {
     "from": "2023-04-11",
     "to": "2023-04-21"
@@ -70,22 +64,22 @@
    "leadDays": 15
   },
   {
-   "id": "P006",
+   "id": "P005",
    "actualDry": {
-    "from": "2023-05-21",
+    "from": "2023-05-26",
     "to": "2023-06-05"
    },
    "firstCritical": "2023-05-11",
    "leadDays": 25
   },
   {
-   "id": "P007",
+   "id": "P006",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
   },
   {
-   "id": "P008",
+   "id": "P007",
    "actualDry": {
     "from": "2023-06-05",
     "to": "2023-06-20"
@@ -94,13 +88,13 @@
    "leadDays": 30
   },
   {
-   "id": "P009",
+   "id": "P008",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
   },
   {
-   "id": "P010",
+   "id": "P009",
    "actualDry": {
     "from": "2023-06-05",
     "to": "2023-06-10"
@@ -109,7 +103,7 @@
    "leadDays": 10
   },
   {
-   "id": "P011",
+   "id": "P010",
    "actualDry": {
     "from": "2023-03-07",
     "to": "2023-03-12"
@@ -118,16 +112,16 @@
    "leadDays": 25
   },
   {
-   "id": "P012",
+   "id": "P011",
    "actualDry": {
-    "from": "2023-05-21",
+    "from": "2023-05-26",
     "to": "2023-06-05"
    },
    "firstCritical": "2023-05-21",
    "leadDays": 15
   },
   {
-   "id": "P013",
+   "id": "P012",
    "actualDry": {
     "from": "2023-03-22",
     "to": "2023-03-27"
@@ -136,34 +130,34 @@
    "leadDays": null
   },
   {
-   "id": "P014",
+   "id": "P013",
    "actualDry": {
     "from": "2023-03-12",
     "to": "2023-03-22"
    },
-   "firstCritical": "2023-02-15",
-   "leadDays": 35
+   "firstCritical": "2023-01-31",
+   "leadDays": 50
   },
   {
-   "id": "P015",
+   "id": "P014",
    "actualDry": {
     "from": "2023-03-07",
     "to": "2023-03-12"
    },
-   "firstCritical": "2023-02-05",
-   "leadDays": 35
+   "firstCritical": "2023-01-31",
+   "leadDays": 40
+  },
+  {
+   "id": "P015",
+   "actualDry": {
+    "from": "2023-05-21",
+    "to": "2023-05-26"
+   },
+   "firstCritical": "2023-03-27",
+   "leadDays": 60
   },
   {
    "id": "P016",
-   "actualDry": {
-    "from": "2023-05-21",
-    "to": "2023-05-31"
-   },
-   "firstCritical": "2023-03-27",
-   "leadDays": 65
-  },
-  {
-   "id": "P017",
    "actualDry": {
     "from": "2023-02-25",
     "to": "2023-03-02"
@@ -172,13 +166,13 @@
    "leadDays": 10
   },
   {
-   "id": "P018",
+   "id": "P017",
    "actualDry": null,
    "firstCritical": null,
    "leadDays": null
   },
   {
-   "id": "P019",
+   "id": "P018",
    "actualDry": {
     "from": "2023-04-11",
     "to": "2023-04-21"
@@ -189,17 +183,17 @@
  ],
  "variants": {
   "noHeatAdjustment": {
-   "rangeHitRate": 0.33,
-   "rangeHits": 61,
-   "rangeMisses": 122,
-   "tooEarly": 2,
-   "unresolved": 116,
-   "medianErrorDays": 15,
-   "medianAbsErrorDays": 29,
-   "criticalPrecision": 0.682,
-   "criticalCalls": 66,
-   "criticalRecall": 0.608,
-   "shouldHaveWarned": 74,
+   "rangeHitRate": 0.35,
+   "rangeHits": 63,
+   "rangeMisses": 117,
+   "tooEarly": 0,
+   "unresolved": 106,
+   "medianErrorDays": 11.5,
+   "medianAbsErrorDays": 25.0,
+   "criticalPrecision": 0.688,
+   "criticalCalls": 64,
+   "criticalRecall": 0.603,
+   "shouldHaveWarned": 73,
    "medianLeadDays": 20,
    "pondsWarnedInAdvance": 11
   }

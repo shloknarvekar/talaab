@@ -9,7 +9,7 @@
       18.48
     ]
   },
-  "generatedAt": "2026-10-09T08:30:24Z",
+  "generatedAt": "2026-10-09T10:42:29Z",
   "referenceDate": "2024-01-16",
   "scenes": [
     {
@@ -60,7 +60,7 @@
     {
       "date": "2024-02-25",
       "id": "S2B_43QFA_20240225_0_L2A",
-      "status": "suspect"
+      "status": "ok"
     },
     {
       "date": "2024-03-01",
@@ -1797,7 +1797,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 18.77,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2184,7 +2184,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 8.46,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2442,7 +2442,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 4.1,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2571,7 +2571,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 3.11,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2700,7 +2700,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2829,7 +2829,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 1.52,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -2958,7 +2958,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 0.0,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -3087,7 +3087,7 @@
         {
           "date": "2024-02-25",
           "areaHa": 0.06,
-          "valid": false
+          "valid": true
         },
         {
           "date": "2024-03-01",
@@ -3198,10 +3198,9 @@
   ],
   "quality": {
     "suspectScenes": [
-      "2024-01-06",
-      "2024-02-25"
+      "2024-01-06"
     ],
-    "spikesAndDipsRemoved": 22,
+    "spikesAndDipsRemoved": 24,
     "pondsKept": 13,
     "pondsExcluded": 4
   }
