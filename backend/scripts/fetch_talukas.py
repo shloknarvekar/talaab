@@ -1,9 +1,11 @@
 """Fetch a district's taluka (tehsil) boundaries from OpenStreetMap, once.
 
-    python backend/scripts/fetch_talukas.py [--name latur]
+    python backend/scripts/fetch_talukas.py [--name latur|beed|...]
 
-One Nominatim lookup for the district's admin_level=6 relations (ids found with an Overpass query
-for boundary=administrative + admin_level=6 inside the district), simplified to ~50 m. The result is
+One Nominatim lookup for the district's admin_level=6 relations, simplified to ~50 m. Latur's relation ids
+are listed below (checked by hand); for any other district they are found with one Overpass query for
+boundary=administrative + admin_level=6 inside the district relation (its id is in
+pipeline/boundaries/<name>-district.json, written by fetch_districts.py). The result is
 committed as backend/jobs/places/<name>-talukas.json and bundled with the Lambdas, so OSM is never
 called at run time. Data (c) OpenStreetMap contributors, ODbL.
 """
@@ -23,6 +25,25 @@ DISTRICTS = {
                                                   10348485, 10348486, 10348487, 10348488, 10348489]},
 }
 SIMPLIFY_DEG = 0.0005  # ~50 m: plenty for "which taluka is this pond in"
+BOUNDARIES = Path(__file__).resolve().parents[2] / "pipeline" / "boundaries"
+OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
+
+
+def discover(name: str) -> dict:
+    """District name + its talukas' relation ids, from the district boundary file and one Overpass query."""
+    b = json.loads((BOUNDARIES / f"{name}-district.json").read_text(encoding="utf-8"))
+    query = (f'[out:json][timeout:90];rel({b["osmId"]});map_to_area->.d;'
+             'rel(area.d)["boundary"="administrative"]["admin_level"="6"];out ids;')
+    for url in OVERPASS:
+        try:
+            req = Request(url, data=urlencode({"data": query}).encode(), headers={"User-Agent": "Talaab hackathon prototype (github.com/shloknarvekar/talaab)"})
+            with urlopen(req, timeout=120, context=tls_context()) as r:  # noqa: S310 (fixed https URLs)
+                ids = sorted(e["id"] for e in json.loads(r.read())["elements"])
+            if ids:
+                return {"district": b["name"].removesuffix(" district"), "relations": ids}
+        except Exception as e:  # noqa: BLE001 - try the next mirror
+            print(f"{url} failed: {e}")
+    raise SystemExit("could not list the talukas (Overpass busy); try again later")
 
 
 def tls_context() -> ssl.SSLContext:
@@ -36,9 +57,9 @@ def tls_context() -> ssl.SSLContext:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--name", default="latur", choices=sorted(DISTRICTS))
+    ap.add_argument("--name", default="latur")
     args = ap.parse_args()
-    cfg = DISTRICTS[args.name]
+    cfg = DISTRICTS.get(args.name) or discover(args.name)
 
     query = urlencode({"osm_ids": ",".join(f"R{r}" for r in cfg["relations"]), "format": "json",
                        "polygon_geojson": 1, "polygon_threshold": SIMPLIFY_DEG, "extratags": 1, "namedetails": 1})
