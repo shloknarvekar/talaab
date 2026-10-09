@@ -16,6 +16,9 @@ function Stat({ label, value, tone }) {
 
 function regionLabel(region) {
   const district = region.id.includes('district');
+  if (district && !region.id.startsWith('latur')) {
+    return `${region.name.split(' district')[0]} district`;  // the other Marathwada districts, by name
+  }
   if (region.mode === 'live') return district ? 'Whole district today' : 'Latur today';
   return district ? 'Whole district 2024' : 'Latur 2024';
 }
@@ -163,6 +166,7 @@ export default function App() {
   const selected = ponds.find((pond) => pond.id === selectedId) ?? ponds[0];
   const counts = useMemo(() => ponds.reduce((acc, pond) => ({ ...acc, [pond.status]: (acc[pond.status] || 0) + 1 }), {}), [ponds]);
   const isLive = region?.mode === 'live';
+  const otherDistricts = regions.filter((r) => !r.id.startsWith('latur'));  // rest of Marathwada, in a dropdown
   const criticalPonds = ponds.filter((pond) => pond.status === 'critical');
   const flaggedCount = ponds.filter((pond) => pond.flag === 'faster-than-sun').length;
   const soonestCritical = [...criticalPonds].sort((a, b) => (a.daysLeft?.likely ?? Infinity) - (b.daysLeft?.likely ?? Infinity))[0];
@@ -194,11 +198,18 @@ export default function App() {
         <div className="region-block">
           <span className="eyebrow">REGION</span>
           <div className="region-switch" role="tablist" aria-label="Choose region">
-            {regions.map((r) => (
+            {regions.filter((r) => r.id.startsWith('latur')).map((r) => (
               <button key={r.id} role="tab" aria-selected={r.id === regionId} className={r.id === regionId ? 'active' : ''} onClick={() => switchRegion(r.id)}>
                 {regionLabel(r)} <em className={r.mode}>{r.mode === 'live' ? 'LIVE' : 'REPLAY'}</em>
               </button>
             ))}
+            {otherDistricts.length > 0 && (
+              <select aria-label="Other Marathwada districts" className={otherDistricts.some((r) => r.id === regionId) ? 'active' : ''}
+                value={otherDistricts.some((r) => r.id === regionId) ? regionId : ''} onChange={(e) => e.target.value && switchRegion(e.target.value)}>
+                <option value="">+ {otherDistricts.length} more districts</option>
+                {otherDistricts.map((r) => <option key={r.id} value={r.id}>{regionLabel(r)} · {r.mode === 'live' ? 'LIVE' : 'REPLAY'}</option>)}
+              </select>
+            )}
           </div>
         </div>
         <div className="asof-block">
