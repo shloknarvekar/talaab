@@ -3,4 +3,5 @@ scipy>=1.11
 rasterio>=1.3
 pystac-client>=0.7
 requests>=2.31
+pillow>=10  # pipeline/imagery.py: satellite thumbnails
 pytest>=8
