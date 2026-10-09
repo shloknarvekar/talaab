@@ -18,6 +18,7 @@ from typing import Dict, List
 from pipeline.cleanup import apply_quality_rules
 from pipeline.evaporation import fetch_climatology_2019_2023, fetch_daily_weather
 from pipeline.export import build_measurements_doc, export_measurements_json
+from pipeline.imagery import export_region_imagery
 from pipeline.ponds import DetectedPond, PondMeasurement, detect_ponds, measure_pond_pass
 from pipeline.stac import STACScene, search_scenes
 from pipeline.water import read_scene_bands
@@ -127,7 +128,15 @@ def run_pipeline_for_region(
     #    spikes and dips, ponds that were never really there or whose signal is not water level)
     print("\nStep 5: Applying quality rules...")
     raw_scenes = [{"date": s.date, "id": s.id, "status": "ok"} for s in scenes]
-    raw_ponds = [dict(p.to_dict(), history=pond_histories[p.id]) for p in detected_ponds]
+    raw_ponds = [
+        dict(
+            p.to_dict(),
+            history=pond_histories[p.id],
+            footprint_mask=p.footprint_mask,
+            water_component_mask=p.water_component_mask,
+        )
+        for p in detected_ponds
+    ]
     scene_records, cleaned_ponds, excluded_ponds, quality = apply_quality_rules(
         raw_scenes, raw_ponds, precip_by_date, reference_date)
     print(f"  Suspect passes: {quality['suspectScenes'] or 'none'}; "
@@ -135,6 +144,16 @@ def run_pipeline_for_region(
           f"ponds kept {quality['pondsKept']}, excluded {quality['pondsExcluded']}")
     for e in excluded_ponds:
         print(f"  - excluded {e['id']} ({e['refAreaHa']} ha): {e['reason']}")
+
+    # 5b. Export imagery (outlines.geojson, index.json, thumbnail JPEGs)
+    print("\nStep 5b: Exporting region imagery assets...")
+    export_region_imagery(
+        region_id=region_id,
+        scenes=scenes,
+        ponds=cleaned_ponds,
+        ref_bands=ref_bands,
+        bbox=bbox,
+    )
 
     # 6. Export measurements JSON
     print(f"\nStep 6: Exporting measurements JSON to {output_path}...")
