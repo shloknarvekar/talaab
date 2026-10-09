@@ -51,7 +51,8 @@ def best_items_by_date(bbox, start: str, end: str, max_cloud: float) -> list[dic
             continue
         cand = {"date": item.datetime.date().isoformat(), "id": item.id, "coverage": round(_overlap(item.bbox, bbox), 3),
                 "cloud": float(item.properties.get("eo:cloud_cover", 100)), "epsg": item.properties.get("proj:epsg"),
-                "green": assets["green"].href, "nir": assets["nir"].href, "scl": assets["scl"].href}
+                "green": assets["green"].href, "nir": assets["nir"].href, "scl": assets["scl"].href,
+                "visual": assets["visual"].href if "visual" in assets else None}
         cur = best.get(cand["date"])
         if cur is None or (cand["coverage"], -cand["cloud"]) > (cur["coverage"], -cur["cloud"]):
             best[cand["date"]] = cand
@@ -82,7 +83,20 @@ def read_masks(item: dict, bounds, shape, ndwi_threshold: float = DEFAULT_NDWI_T
     return water, invalid
 
 
-def process_cell(cell: dict, start: str, end: str, reference_date: str, max_cloud: float = 20.0) -> dict:
+import logging
+
+
+def process_cell(
+    cell: dict,
+    start: str,
+    end: str,
+    reference_date: str,
+    max_cloud: float = 20.0,
+    region_id: str | None = None,
+    bucket: str | None = None,
+    s3_client=None,
+    output_dir=None,
+) -> dict:
     items = best_items_by_date(cell["bbox"], start, end, max_cloud)
     items = [i for i in items if i["coverage"] > 0.5]
     out = {"cell": cell["id"], "referenceDate": None, "scenes": [], "ponds": [], "itemsConsidered": len(items)}
@@ -117,4 +131,26 @@ def process_cell(cell: dict, start: str, end: str, reference_date: str, max_clou
             histories[p.id].append(measure_pond_pass(p, water_i, invalid_i, i["date"]).to_dict())
         out["scenes"].append({"date": i["date"], "id": i["id"], "coverage": i["coverage"]})
     out["ponds"] = [dict(p.to_dict(), id=f"{cell['id']}-{p.id}", history=histories[p.id]) for p in ponds]
+
+    if region_id and (bucket or output_dir):
+        try:
+            for p in ponds:
+                p.history = histories[p.id]
+
+            from pipeline.imagery import export_cell_imagery
+
+            export_cell_imagery(
+                region_id=region_id,
+                cell_id=cell["id"],
+                items=items,
+                ponds=ponds,
+                affine=affine,
+                crs=crs,
+                bucket=bucket,
+                s3_client=s3_client,
+                output_dir=output_dir,
+            )
+        except Exception as e:
+            logging.getLogger(__name__).warning("Failed cell imagery export for %s: %s", cell["id"], e)
+
     return out
