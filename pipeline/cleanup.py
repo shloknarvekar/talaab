@@ -18,6 +18,7 @@ from typing import Dict, List, Tuple
 
 SUSPECT_JUMP = 0.40          # region total differs >40% from its neighbours
 NEIGHBOURS = 2               # passes on each side used for the neighbour median
+MIN_PAIRED_PONDS = 3         # a pass and a neighbour must share this many valid ponds to be compared
 MIN_DIP_HA = 0.3             # a dip/recovery must be at least this big to count (tiny-pond noise)
 PRESENCE_WINDOW_DAYS = 15    # look this far around the reference date to confirm a pond exists
 PRESENCE_SHARE = 0.5         # ...and require water >= 50% of reference area on half those passes
@@ -38,10 +39,16 @@ def detect_suspect_scenes(
     jump_threshold: float = SUSPECT_JUMP,
     rain_threshold_mm: float = 5.0,
     neighbours: int = NEIGHBOURS,
+    areas_by_date: Dict[str, Dict[str, float]] | None = None,
 ) -> List[str]:
     """Scene dates whose total valid water area is an outlier against neighbouring passes.
 
-    Reference = median total of up to `neighbours` non-suspect passes on each side. Suspect if:
+    Reference = up to `neighbours` non-suspect passes on each side. With `areas_by_date`
+    ({date: {pond id: area of each VALID reading}}) a pass is compared with each neighbour over the
+    ponds valid on BOTH (like for like) and the change is the median of those paired changes; pairs
+    sharing fewer than MIN_PAIRED_PONDS ponds are skipped. Without it, the change is the pass total
+    against the median of the neighbours' totals. Pairing matters at district scale: a partly cloudy
+    pass measures fewer ponds, so its plain total drops although no water was lost. Suspect if:
       - total is > jump_threshold ABOVE the reference, rain since the previous pass is < 5 mm and
         rain data exists (without rain data, e.g. live post-monsoon, a rise cannot be judged), or
       - total is > jump_threshold BELOW the reference with passes on BOTH sides (a dip that
@@ -55,13 +62,29 @@ def detect_suspect_scenes(
         worst, worst_change = None, 0.0
         clean = [d for d in scene_dates if d not in suspect]
         for i, d in enumerate(clean):
-            before = [total_area_by_date.get(x, 0.0) for x in clean[max(0, i - neighbours):i]]
-            after = [total_area_by_date.get(x, 0.0) for x in clean[i + 1:i + 1 + neighbours]]
-            ref_vals = [v for v in before + after if v > 0]
-            if not ref_vals:
-                continue
-            ref = median(ref_vals)
-            change = (total_area_by_date.get(d, 0.0) - ref) / ref
+            if areas_by_date is not None:
+                here = areas_by_date.get(d, {})
+
+                def paired(n: str) -> float | None:
+                    common = here.keys() & areas_by_date.get(n, {}).keys()
+                    ref_sum = sum(areas_by_date[n][k] for k in common)
+                    if len(common) < MIN_PAIRED_PONDS or ref_sum <= 0:
+                        return None
+                    return (sum(here[k] for k in common) - ref_sum) / ref_sum
+
+                before = [c for c in map(paired, clean[max(0, i - neighbours):i]) if c is not None]
+                after = [c for c in map(paired, clean[i + 1:i + 1 + neighbours]) if c is not None]
+                if not before and not after:
+                    continue
+                change = median(before + after)
+            else:
+                before = [total_area_by_date.get(x, 0.0) for x in clean[max(0, i - neighbours):i]]
+                after = [total_area_by_date.get(x, 0.0) for x in clean[i + 1:i + 1 + neighbours]]
+                ref_vals = [v for v in before + after if v > 0]
+                if not ref_vals:
+                    continue
+                ref = median(ref_vals)
+                change = (total_area_by_date.get(d, 0.0) - ref) / ref
             if change > jump_threshold:
                 if not before or not precip_by_date:
                     continue
@@ -186,7 +209,12 @@ def apply_quality_rules(
     dates = [s["date"] for s in scenes]
     totals = {d: sum(h["areaHa"] for p in ponds for h in p["history"] if h["date"] == d and h.get("valid"))
               for d in dates}
-    suspect = detect_suspect_scenes(dates, totals, precip_by_date)
+    areas = {d: {} for d in dates}
+    for p in ponds:
+        for h in p["history"]:
+            if h.get("valid") and h["date"] in areas:
+                areas[h["date"]][p["id"]] = h["areaHa"]
+    suspect = detect_suspect_scenes(dates, totals, precip_by_date, areas_by_date=areas)
     scenes_out = [dict(s, status="suspect" if s["date"] in suspect else "ok") for s in scenes]
 
     kept, excluded = [], []

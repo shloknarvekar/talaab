@@ -42,6 +42,52 @@ def test_end_of_series_fall_and_unjudgeable_rise_are_not_suspect():
     assert detect_suspect_scenes(list(rise), rise, {}) == []
 
 
+def _areas(dates, ponds_by_date):
+    """{date: {pond: area}} -> (areas_by_date, plain totals) for the same readings."""
+    areas = {d: dict(ponds_by_date.get(d, {})) for d in dates}
+    return areas, {d: sum(v.values()) for d, v in areas.items()}
+
+
+def test_partly_cloudy_pass_is_not_suspect_when_compared_like_for_like():
+    # 10 ponds of 10 ha, slowly shrinking. On 01-11 clouds hide 7 of them: the plain total falls 70%,
+    # but the 3 ponds that WERE measured lost nothing unusual. That pass must stay usable.
+    dates = ["2024-01-01", "2024-01-06", "2024-01-11", "2024-01-16", "2024-01-21"]
+    full = {d: {f"P{k}": 10.0 - i * 0.2 for k in range(10)} for i, d in enumerate(dates)}
+    full["2024-01-11"] = {k: v for k, v in full["2024-01-11"].items() if k in ("P0", "P1", "P2")}
+    areas, totals = _areas(dates, full)
+    assert detect_suspect_scenes(dates, totals, DRY) == ["2024-01-11"]          # old rule: a false alarm
+    assert detect_suspect_scenes(dates, totals, DRY, areas_by_date=areas) == []  # paired: correct
+
+
+def test_paired_rule_still_catches_a_broken_pass():
+    # every pond reads ~15% of its area on 01-06 (bad pass), back to normal on 01-11
+    dates = ["2024-01-01", "2024-01-06", "2024-01-11", "2024-01-16", "2024-01-21"]
+    ponds = {d: {f"P{k}": 10.0 for k in range(6)} for d in dates}
+    ponds["2024-01-06"] = {f"P{k}": 1.5 for k in range(6)}
+    areas, totals = _areas(dates, ponds)
+    assert detect_suspect_scenes(dates, totals, DRY, areas_by_date=areas) == ["2024-01-06"]
+
+
+def test_pairs_with_too_few_shared_ponds_are_not_judged():
+    dates = ["2024-01-01", "2024-01-06", "2024-01-11"]
+    ponds = {"2024-01-01": {"A": 10.0, "B": 10.0, "C": 10.0}, "2024-01-06": {"A": 1.0, "Z": 1.0},
+             "2024-01-11": {"A": 10.0, "B": 10.0, "C": 10.0}}
+    areas, totals = _areas(dates, ponds)
+    assert detect_suspect_scenes(dates, totals, DRY, areas_by_date=areas) == []  # only 1 pond in common
+
+
+def test_quality_rules_compare_passes_like_for_like():
+    # apply_quality_rules passes per-pond readings, so a partly cloudy pass keeps its good readings
+    dates = ["2024-01-01", "2024-01-06", "2024-01-11", "2024-01-16", "2024-01-21"]
+    ponds = [{"id": f"P{k:03d}", "lat": 18.4, "lon": 76.5 + k / 100, "refAreaHa": 10.0,
+              "history": [{"date": d, "areaHa": 10.0 - i * 0.2, "valid": not (d == "2024-01-11" and k >= 3)}
+                          for i, d in enumerate(dates)]} for k in range(10)]
+    scenes = [{"date": d, "id": d, "status": "ok"} for d in dates]
+    out_scenes, kept, _, report = apply_quality_rules(scenes, ponds, DRY, "2024-01-01")
+    assert report["suspectScenes"] == [] and all(s["status"] == "ok" for s in out_scenes)
+    assert sum(h["valid"] for p in kept for h in p["history"] if h["date"] == "2024-01-11") == 3
+
+
 def test_rain_explains_a_rise():
     dates = ["2024-06-01", "2024-06-06", "2024-06-11"]
     totals = {"2024-06-01": 100.0, "2024-06-06": 170.0, "2024-06-11": 175.0}
