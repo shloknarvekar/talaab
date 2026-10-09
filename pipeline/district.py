@@ -96,3 +96,23 @@ def in_core(core: List[float], lon: float, lat: float) -> bool:
     """Half-open, so a centroid exactly on a shared edge belongs to exactly one cell."""
     w, s, e, n = core
     return w <= lon < e and s <= lat < n
+
+
+def merge_cells(cells: List[dict], geometry: dict) -> tuple:
+    """Cell outputs -> (district scenes, district ponds).
+
+    Keeps ponds whose centre is inside the district. Every district pass gets one scene, and every
+    pond gets one history entry per pass: a pass a cell did not see counts as invalid (not observed),
+    never as 0 ha of water.
+    """
+    scenes_by_date: dict = {}
+    ponds: List[dict] = []
+    for c in cells:
+        for s in c["scenes"]:
+            scenes_by_date.setdefault(s["date"], {"date": s["date"], "id": s["id"], "status": "ok"})
+        ponds += [dict(p) for p in c["ponds"] if contains(geometry, p["lon"], p["lat"])]
+    for p in ponds:
+        have = {h["date"] for h in p["history"]}
+        p["history"] = sorted(p["history"] + [{"date": d, "areaHa": 0.0, "valid": False} for d in scenes_by_date if d not in have],
+                              key=lambda h: h["date"])
+    return [scenes_by_date[d] for d in sorted(scenes_by_date)], ponds

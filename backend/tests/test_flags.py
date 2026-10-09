@@ -72,6 +72,22 @@ def test_stable_tanks_do_not_drag_the_baseline_down():
     assert out["P003"]["shrinkVsNeighbours"] == pytest.approx(1.0)
 
 
+def test_baseline_uses_neighbours_within_25_km():
+    # Cluster A near Latur shrinks 0.5%/day; cluster B ~60 km away shrinks 2%/day (different
+    # soils/use). A region-wide median would flag A's fast pond against B; locally it is judged
+    # only against A, and B's ponds are normal for B.
+    def at(pid, slope, area, lat, lon):
+        return {**pond(pid, slope, area), "lat": lat, "lon": lon}
+
+    ponds = [at("A1", -0.50, 100.0, 18.40, 76.55), at("A2", -0.20, 40.0, 18.41, 76.56),
+             at("A3", -0.10, 20.0, 18.42, 76.54), at("A4", -0.45, 30.0, 18.39, 76.57),
+             at("B1", -2.00, 100.0, 18.40, 77.12), at("B2", -0.80, 40.0, 18.41, 77.13),
+             at("B3", -0.40, 20.0, 18.42, 77.11)]
+    out = faster_than_sun(ponds)
+    assert out["A4"]["shrinkVsNeighbours"] == pytest.approx(3.0) and out["A4"]["flag"] == FLAG
+    assert all(out[b]["shrinkVsNeighbours"] == pytest.approx(1.0) and out[b]["flag"] is None for b in ("B1", "B2", "B3"))
+
+
 def test_too_few_shrinking_peers_means_no_flag():
     ponds = [pond("P001", -0.5, 10.0), pond("P002", -0.05, 10.0), pond("P003", 0.0, 10.0, "ok")]
     assert all(v == {"shrinkVsNeighbours": None, "flag": None} for v in faster_than_sun(ponds).values())

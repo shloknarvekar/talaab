@@ -12,11 +12,14 @@ flowchart LR
     OSM["OpenStreetMap<br/>village names"]
   end
 
-  subgraph Laptop["Satellite pipeline (pipeline/)"]
+  subgraph Laptop["Satellite pipeline on a laptop (pipeline/): one 0.15° box"]
     P["Find ponds (NDWI)<br/>measure water area per pass<br/>clean cloudy passes"]
   end
 
   subgraph AWS["AWS (us-west-2)"]
+    SFN["Step Functions: talaab-district<br/>Map over 42 grid cells, 8 in parallel"]
+    CELL["Lambda: pipeline-cell ×42<br/>best tile per date · fixed 10 m grid<br/>ponds owned by the cell core"]
+    MRG["Lambda: pipeline-merge<br/>district boundary · quality rules<br/>weather"]
     S3[("S3 data bucket<br/>measurements · snapshots<br/>plans · backtest")]
     SCH["EventBridge Scheduler<br/>every 5 days"]
     RC["Lambda: recompute<br/>countdowns · flags · status"]
@@ -30,6 +33,13 @@ flowchart LR
   end
 
   S2 --> P --> |measurements.json| S3
+  SFN --> CELL
+  S2 --> |in-region reads| CELL
+  CELL --> |cells/*.json| S3
+  SFN --> MRG
+  OM --> MRG
+  MRG --> |measurements.json| S3
+  MRG -. starts .-> RC
   SCH --> RC
   S3 --> RC
   OM --> RC
@@ -47,7 +57,14 @@ flowchart LR
 
 ## Flow, step by step
 
-1. **Measure (pipeline).** On a laptop, the pipeline reads Sentinel-2 windows straight from AWS
+1. **Measure (pipeline).** A whole district runs on AWS: `backend/scripts/run_district.py` starts the
+   Step Functions state machine `talaab-district`, which runs one `pipeline-cell` Lambda per 0.15° grid
+   cell (42 cells for Latur, 8 at a time, each retried twice). Each cell picks, for every date, the
+   Sentinel-2 tile that covers it best, reads it onto one fixed 10 m grid, and keeps only the ponds whose
+   centre is in its core (cells overlap by ~1.6 km, so edge ponds are seen whole and counted once).
+   `pipeline-merge` keeps ponds inside the OSM district boundary, applies the quality rules and adds
+   weather; Latur district (435 ponds) takes 161 s and costs $0 inside the free tier. The single
+   validated box can also be run on a laptop: the pipeline reads Sentinel-2 windows straight from AWS
    Open Data. It finds ponds on the reference pass with NDWI, measures each pond's water area on
    every clear pass and marks cloudy or noisy passes invalid. The output is `measurements.json`
    ([contract](measurements-contract.md)).
@@ -78,7 +95,7 @@ flowchart LR
 | Ranges, never one date | A dry-by date is a forecast; the range is honest about uncertainty |
 | Snapshot per as-of date | Backtests and replays can't see the future, by construction |
 | Template plan first, AI plan async | Instant answer, 30 s API limit respected, demo works without AI |
-| Satellite step on a laptop | No Docker or container build needed; AWS still re-runs every 5 days |
+| District pipeline on Lambda + Step Functions | Reads imagery next to the data (26–50 s per cell vs 447 s on a laptop), scales by adding cells, no servers or Docker (layer built with `uv`) |
 | Serverless, on-demand only | Costs pennies, nothing bills while idle |
 
 ## Cost guards

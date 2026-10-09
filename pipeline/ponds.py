@@ -144,7 +144,7 @@ def detect_ponds(
         x_center = float(np.mean(x_indices))
 
         # Convert pixel coordinates to UTM x, y
-        x_utm, y_utm = transform_affine * (x_center + 0.5, y_center + 0.5)
+        x_utm, y_utm = transform_affine @ (x_center + 0.5, y_center + 0.5)
 
         # Convert UTM coordinates to WGS84 lat, lon
         lons, lats = transform(crs, "EPSG:4326", [x_utm], [y_utm])

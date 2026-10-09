@@ -14,7 +14,7 @@ import boto3
 os.environ.setdefault("TALAAB_CACHE_DIR", "/tmp/talaab-cache")  # Lambda code folder is read-only
 
 from pipeline.cleanup import apply_quality_rules
-from pipeline.district import contains, load_boundary
+from pipeline.district import load_boundary, merge_cells
 from pipeline.evaporation import fetch_climatology_2019_2023, fetch_daily_weather
 
 
@@ -27,16 +27,7 @@ def lambda_handler(event, context):
             for o in page.get("Contents", [])]
     cells = [json.loads(s3.get_object(Bucket=bucket, Key=k)["Body"].read()) for k in keys]
 
-    scenes_by_date, ponds = {}, []
-    for c in cells:
-        for s in c["scenes"]:
-            scenes_by_date.setdefault(s["date"], {"date": s["date"], "id": s["id"], "status": "ok"})
-        ponds += [p for p in c["ponds"] if contains(boundary["geometry"], p["lon"], p["lat"])]
-    scenes = [scenes_by_date[d] for d in sorted(scenes_by_date)]
-    for p in ponds:  # every pond gets an entry for every district pass (missing = not observed)
-        have = {h["date"] for h in p["history"]}
-        p["history"] = sorted(p["history"] + [{"date": d, "areaHa": 0.0, "valid": False} for d in scenes_by_date if d not in have],
-                              key=lambda h: h["date"])
+    scenes, ponds = merge_cells(cells, boundary["geometry"])
 
     w, s, e, n = boundary["bbox"]
     lat, lon = (s + n) / 2, (w + e) / 2

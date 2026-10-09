@@ -43,6 +43,7 @@ def main() -> None:
     s, b, dt = call("GET", f"{api}/regions")
     regions = b.get("regions", []) if s == 200 else []
     check("GET /regions", s == 200 and regions, f"{[r['id'] for r in regions]}")
+    check("whole district listed", any(r["id"] == "latur-district-2024" for r in regions))
 
     for r in regions:
         rid, last = r["id"], r["last"]

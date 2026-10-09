@@ -2,13 +2,14 @@
 
 METHOD (see CLAUDE.md):
 - Relative shrink rate r = -slope / A_ref per day (A_ref = pond's max/reference area).
-- Compare each pond to the median r of the region's SHRINKING (non-dry, r > 0) ponds over the same
-  window; with fewer than 3 such peers there is no baseline and no flag.
+- Compare each pond to the median r of the SHRINKING (non-dry, r > 0) ponds within 25 km over the
+  same window; with fewer than 3 such peers there is no baseline and no flag.
 - Flag if ratio >= 2 and A_ref >= 2 ha.
 - Report the region's ET0 total for that window as "the sun's share".
 """
 from __future__ import annotations
 
+import math
 from datetime import date
 from statistics import median
 
@@ -16,6 +17,14 @@ FLAG = "faster-than-sun"
 RATIO_THRESHOLD = 2.0
 MIN_AREA_HA = 2.0
 MIN_PEERS = 3  # need at least 3 shrinking ponds to say what 'normal under this sun' is
+NEIGHBOUR_KM = 25.0  # peers for the baseline; the validated 0.15 deg box (~23 km across) fits inside
+
+
+def _km(a: dict, b: dict) -> float:
+    """Equirectangular distance in km (accurate to well under 1% at district scale)."""
+    dlat = math.radians(b["lat"] - a["lat"])
+    dlon = math.radians(b["lon"] - a["lon"]) * math.cos(math.radians((a["lat"] + b["lat"]) / 2))
+    return 6371.0 * math.hypot(dlat, dlon)
 
 
 def relative_shrink_rate(slope_ha_per_day: float, a_ref_ha: float) -> float:
@@ -32,7 +41,7 @@ def faster_than_sun(
 ) -> dict[str, dict]:
     """Compare every pond's shrink rate to its neighbours under the same sun.
 
-    ponds: [{"id", "slopeHaPerDay" (None if not fitted), "maxAreaHa", "status"}],
+    ponds: [{"id", "slopeHaPerDay" (None if not fitted), "maxAreaHa", "status", optional "lat"/"lon"}],
     all fitted over the same window (output of countdown()).
     Returns {id: {"shrinkVsNeighbours": float|None, "flag": "faster-than-sun"|None}}.
     """
@@ -45,12 +54,19 @@ def faster_than_sun(
     # Baseline = median rate of ponds that are actually shrinking (not dry, r > 0). Including
     # stable tanks drags the median toward zero late in the season, and then every normally
     # shrinking pond looks "13x faster" (seen on the real 2024 data). Too few peers: no flags.
-    baseline_rates = [rates[p["id"]] for p in ponds if p["id"] in rates and p.get("status") != "dry" and rates[p["id"]] > 0]
-    baseline = median(baseline_rates) if len(baseline_rates) >= MIN_PEERS else None
+    peers = [p for p in ponds if p["id"] in rates and p.get("status") != "dry" and rates[p["id"]] > 0]
+    local = all(p.get("lat") is not None and p.get("lon") is not None for p in ponds)
+
+    def baseline_for(p: dict) -> float | None:
+        # "Neighbours" = shrinking ponds within NEIGHBOUR_KM (same sun, same soils). Without
+        # coordinates, or in a box smaller than that, this is the region-wide median.
+        near = [rates[q["id"]] for q in peers if not local or _km(p, q) <= NEIGHBOUR_KM]
+        return median(near) if len(near) >= MIN_PEERS else None
 
     out: dict[str, dict] = {}
     for p in ponds:
         r = rates.get(p["id"])
+        baseline = baseline_for(p) if r is not None and p.get("status") != "dry" else None
         if r is None or baseline is None or baseline <= 0 or p.get("status") == "dry":
             out[p["id"]] = {"shrinkVsNeighbours": None, "flag": None}
             continue

@@ -65,7 +65,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 ## How the numbers are made (summary)
 
 - **Countdown:** linear fit of valid areas in the 45 days up to `asOf` (needs ≥ 3 points). Days left = (area now − 5% of max) ÷ shrink rate, with the rate scaled by expected ET0 for the next 30 days ÷ ET0 during the fit window. The range comes from the slope ± its standard error, widened to at least ±20%. Code: `backend/logic/countdown.py`.
-- **Faster than the sun:** r = −slope ÷ max area. A pond's ratio is r ÷ the median r of all non-dry ponds in the region. Code: `backend/logic/flags.py`.
+- **Faster than the sun:** r = −slope ÷ max area. A pond's ratio is r ÷ the median r of the shrinking (non-dry, r > 0) ponds within 25 km (at least 3, else no ratio). Code: `backend/logic/flags.py`.
 
 ## API
 

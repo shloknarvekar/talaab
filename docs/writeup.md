@@ -111,8 +111,8 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Forecasting (Python, deterministic):** a robust Theil–Sen trend over the last 45 days (at least
   3 clear passes spanning 15 days); days to reach 5% of the pond's maximum area, scaled by expected
   vs recent evaporation; range from the slope's standard error (at least ±20%). The "faster than
-  the sun" flag compares each pond's relative shrink rate with the median of the ponds that are
-  actually shrinking.
+  the sun" flag compares each pond's relative shrink rate with the median of the ponds within
+  25 km that are actually shrinking.
 - **Plans:** a deterministic English/Marathi plan, plus the AI version, cached so each date and
   language is paid for once.
 - **Web:** Vite + React + Leaflet + Recharts; the browser does no maths and only shows what the API says.

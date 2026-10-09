@@ -54,7 +54,8 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
         rows.append((p, hist, c))
 
     flags = faster_than_sun(
-        [{"id": p["id"], "slopeHaPerDay": c["slopeHaPerDay"], "maxAreaHa": c["maxAreaHa"], "status": c["status"]} for p, _, c in rows]
+        [{"id": p["id"], "slopeHaPerDay": c["slopeHaPerDay"], "maxAreaHa": c["maxAreaHa"], "status": c["status"],
+          "lat": p.get("lat"), "lon": p.get("lon")} for p, _, c in rows]
     )
 
     ponds = []
