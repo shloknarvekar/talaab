@@ -42,6 +42,13 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - Talukas: recompute tags every pond with `taluka`/`talukaMr` (OSM admin_level 6, `backend/jobs/places/latur-talukas.json`,
   fetched once by `backend/scripts/fetch_talukas.py`); snapshots carry a `talukas` summary (`backend/logic/talukas.py`);
   plans open with a by-taluka table and group long low-priority lists per taluka; alert emails name the taluka.
+- Marathwada: all 8 drought districts are live regions `<slug>-district-2026` (latur, beed, dharashiv, nanded, parbhani,
+  hingoli, jalna, sambhajinagar); Step Functions `talaab-marathwada` runs `talaab-district` for each in turn (schedule
+  `talaab-live-marathwada`, 06:00 IST on the 1st/6th/11th...); districts run 6 cells at a time so the API keeps a Lambda
+  (account limit 10). Boundaries: `backend/scripts/fetch_districts.py`; names: fetch_places.py / fetch_talukas.py.
+- District imagery (Nikhil): made on AWS by cell + merge Lambdas, served by `GET /imagery/{region}/...` (thumbnails as
+  signed S3 links); `docs/imagery-contract.md`. Web basemap: Amazon Location (key `talaab-web-maps`, injected at build
+  by deploy_web.py; locked to our site). Ops: X-Ray tracing + 6 CloudWatch alarms -> SNS `talaab-ops`. API gzips JSON.
 - Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
   Plan / Accuracy. No countdown maths in the browser.
 

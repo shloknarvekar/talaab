@@ -212,7 +212,7 @@ Resources:
       FunctionName: !Sub "${AWS::StackName}-recompute"
       CodeUri: ./
       Handler: jobs.recompute.lambda_handler
-      Timeout: 120
+      Timeout: 300  # 12 regions incl. 8 live districts (~45 s today); billed only for time used
       MemorySize: 512
       Environment:
         Variables:

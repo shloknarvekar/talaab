@@ -25,7 +25,7 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
 
 The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" date uses only the data available up to that date.
 
-**Whole district, on AWS.** All of Latur district (7,157 km², **435 ponds**) runs on AWS Step Functions + Lambda in **161 seconds for $0**, inside the free tier. On those 435 ponds, 71% of critical calls came true and the median warning was 25 days. **And live:** every 5 days EventBridge Scheduler re-runs the whole district for the 2026 season (60 s, 383 ponds, $0) and emails the district officer about ponds that newly need action. Projection to Maharashtra and India, with an honest list of what would change: [`docs/scale-projection.md`](docs/scale-projection.md).
+**Whole district, on AWS.** All of Latur district (7,157 km², **435 ponds**) runs on AWS Step Functions + Lambda in **161 seconds for $0**, inside the free tier. On those 435 ponds, 70% of critical calls came true and the median warning was 25 days. **And live, for all of Marathwada:** every 5 days EventBridge Scheduler re-runs all 8 drought districts of Marathwada (64,915 km², 403 grid cells, **2,712 ponds** in 76 talukas, with a satellite thumbnail for every reading) in 17 minutes for $0, and emails the district officer about ponds that newly need action. Projection to Maharashtra and India, with an honest list of what would change: [`docs/scale-projection.md`](docs/scale-projection.md).
 
 ## Honest by design
 
@@ -45,13 +45,15 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 |---|---|
 | **S3** | Pipeline measurements, per-date snapshots, cached plans, backtest |
 | **Lambda** (×7) | `pipeline-grid` + `pipeline-cell` + `pipeline-merge` (satellite pipeline), `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
-| **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 6 in parallel) → merge; started every 5 days for the live district |
-| **API Gateway** (HTTP API) | Public API, throttled |
-| **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure the live district from satellite, and recompute every region |
+| **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 6 in parallel) → merge; `talaab-marathwada` runs it for all 8 districts every 5 days |
+| **API Gateway** (HTTP API) | Public API, throttled, gzip; also serves district imagery (signed S3 links) |
+| **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure all of Marathwada from satellite, and recompute every region |
 | **DynamoDB** | Latest state of every pond |
 | **Amazon SNS** | Emails the district officer when a pond newly turns critical, dries up, or is flagged faster than the sun |
 | **Amazon Bedrock** | Claude writes the plan in English and Marathi (behind the number guard) |
-| **CloudWatch** | Logs plus the `talaab-ops` dashboard |
+| **CloudWatch** | Logs, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS `talaab-ops` |
+| **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
+| **Amazon Location Service** | The web map's dark basemap and satellite layer (key locked to our site) |
 | **Amplify Hosting** | The web map |
 | **AWS Open Data** | Sentinel-2 L2A imagery, read straight from S3 |
 

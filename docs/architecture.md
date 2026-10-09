@@ -17,7 +17,9 @@ flowchart LR
   end
 
   subgraph AWS["AWS (us-west-2)"]
-    SFN["Step Functions: talaab-district<br/>grid → Map over 42 cells (6 in parallel) → merge"]
+    SFNM["Step Functions: talaab-marathwada<br/>8 districts, one after another"]
+    SFN["Step Functions: talaab-district<br/>grid → Map over the cells (6 in parallel) → merge<br/>+ thumbnails and outlines"]
+    LOC["Amazon Location Service<br/>dark basemap + satellite"]
     CELL["Lambda: pipeline-cell ×42<br/>best tile per date · fixed 10 m grid<br/>ponds owned by the cell core"]
     MRG["Lambda: pipeline-merge<br/>district boundary · quality rules<br/>weather"]
     S3[("S3 data bucket<br/>measurements · snapshots<br/>plans · backtest")]
@@ -33,7 +35,8 @@ flowchart LR
   end
 
   S2 --> P --> |measurements.json| S3
-  SCH --> |live district, every 5 days| SFN
+  SCH --> |Marathwada, every 5 days| SFNM
+  SFNM --> SFN
   SFN --> CELL
   S2 --> |in-region reads| CELL
   CELL --> |cells/*.json| S3
@@ -48,7 +51,8 @@ flowchart LR
   RC --> |snapshot per as-of date| S3
   RC --> DDB
   RC --> |new critical / dry / flagged| SNS
-  AMP --> |"/regions /ponds /plan /backtest"| API
+  AMP --> |"/regions /ponds /plan /backtest /imagery"| API
+  AMP --> LOC
   API --> S3
   API -. async .-> PW
   PW --> BR

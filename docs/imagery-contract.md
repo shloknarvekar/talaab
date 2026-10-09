@@ -73,6 +73,10 @@ s3://<DataBucketName>/data/<region>/imagery/outlines.geojson
 s3://<DataBucketName>/data/<region>/imagery/<pondId>/<YYYY-MM-DD>.jpg
 ```
 
-`backend/scripts/deploy_web.py` copies everything under `data/<region>/imagery/` into the site at
-`/imagery/<region>/`, so the web app needs no change. Cell Lambdas name ponds `cXX-YY-P###`; only the merge
-step knows the final ids, so the merge writes these files (match ponds by their lat/lon before renumbering).
+The API serves them (`GET <API>/imagery/<region>/index.json`, `.../outlines.geojson`, and `.../<pondId>/<date>.jpg`
+as a 302 to a 1-hour signed S3 link), and the web app reads district regions from there (`imageryBase()` in
+`web/src/api.js`); nothing is bundled into the site. How it is made (Nikhil's `pipeline/imagery.py`): each cell
+Lambda writes `data/<region>/imagery-cells/<cell>/...` with cell pond ids (`cXX-YY-P###`); the merge, which alone
+knows the final ids, matches ponds by location (1:1, within 100 m, ambiguous matches rejected) and copies the
+thumbnails of valid passes to the layout above, 16 at a time. On Lambda the JPEGs are encoded with GDAL (no Pillow,
+to keep the layer under 250 MB).

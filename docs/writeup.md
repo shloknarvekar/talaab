@@ -52,10 +52,11 @@ actually happened.
   without it). On 435 ponds the rules had never seen, 70% of critical calls came true, 60% of ponds
   about to dry were caught in time, and the median warning was 25 days (197 ponds warned in advance).
   See `docs/scale-projection.md`.
-- **And it runs live.** Every 5 days EventBridge Scheduler starts the same state machine for the
-  2026 season: the whole district is re-measured from the newest Sentinel-2 passes in about 60 s, and
-  new critical, dry or flagged ponds are emailed. On 9 Oct 2026 it measured 374 ponds;
-  164 are still honestly "too early to forecast" this soon after the monsoon.
+- **And it runs live, for all of Marathwada.** Every 5 days EventBridge Scheduler re-measures all 8
+  drought districts of Marathwada (64,915 km², 403 grid cells) from the newest Sentinel-2 passes in
+  17 minutes for $0: **2,712 ponds** in 76 talukas, each with a satellite thumbnail for every reading.
+  New critical, dry or flagged ponds are emailed. Right after the monsoon many are still honestly
+  "too early to forecast".
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P003 and P007
   had turned critical. P007 was dry on the 30 April pass and P003 on the 5 May pass, giving 25 and
   30 days to arrange tankers. Over the whole season Talaab would have sent **9 emails** and never
@@ -97,14 +98,16 @@ one SAM template, with **no hourly cost while idle**.
 |---|---|
 | **AWS Open Data** (Sentinel-2 L2A COGs on S3) | The satellite imagery: windows read directly over HTTPS, no downloads |
 | **AWS Lambda** (7 functions) | `pipeline-grid` (lists the district's grid cells), `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
-| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 6 in parallel, with retries), then merges. Latur district takes 161 s. |
-| **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`; throttled, CORS limited to our site |
-| **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures the live district from Sentinel-2 (Step Functions) and recomputes every region |
+| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 6 in parallel, with retries), then merges. Latur district takes 161 s; `talaab-marathwada` runs it for all 8 districts in turn. |
+| **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`, `/imagery`; gzip, throttled, CORS limited to our site |
+| **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures all 8 Marathwada districts from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
 | **Amazon DynamoDB** | Latest state of every pond |
 | **Amazon SNS** | Email alerts to the district officer (only new changes) |
 | **Amazon Bedrock + Strands Agents** | Claude writes the plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS approves our new account's model quota.* |
-| **Amazon CloudWatch** | One log line per action, plus the `talaab-ops` dashboard |
+| **Amazon CloudWatch** | One log line per action, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS |
+| **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
+| **Amazon Location Service** | The web map's dark basemap and satellite layer (API key locked to our site) |
 | **AWS Amplify Hosting** | The web map |
 
 Data flow: Step Functions → one `pipeline-cell` Lambda per cell (reads Sentinel-2 in-region) → `pipeline-merge` → `measurements.json` → S3 → recompute Lambda (every 5 days or on upload) → a

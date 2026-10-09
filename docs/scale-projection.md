@@ -1,7 +1,8 @@
 # From one district to Maharashtra and India: measured run and projection
 
 **Measured:** we ran all of Latur district (7,226 km² from the OSM boundary; the official figure is 7,157 km²) on AWS for the 2024 season.
-**Projected:** Maharashtra and India, scaled linearly from that run. Everything below the "Projection" heading is an estimate.
+**Measured too:** all 8 districts of Marathwada (64,915 km², 2,712 ponds), live on AWS every 5 days (section below).
+**Projected:** Maharashtra and India, scaled linearly from those runs. Everything below the "Projection" heading is an estimate.
 
 ## What ran (measured, 9 Oct 2026)
 
@@ -46,6 +47,29 @@ Same honest backtest as the validated 0.15° box (`docs/backtest-latur-district-
 
 259 of the 435 ponds dried during the 2024 season. The method was tuned on a 13-pond box and held up, slightly better, on 435 ponds it had never seen.
 
+## Marathwada: all 8 drought districts, live (measured, 10 Oct 2026)
+
+`talaab-marathwada` (Step Functions) runs the district workflow for each district in turn, every 5 days, for the
+2026 season since 1 Sep (6 cells at a time, so the website's API always keeps a Lambda; the account allows 10).
+Each run also cuts a true-colour thumbnail per pond per valid pass and the pond outlines, served by the API.
+
+| District | Area km² | Cells | Ponds | Passes | Lambda GB-s |
+|---|---|---|---|---|---|
+| Latur | 7,226 | 42 | 361 | 7 | 1,191 |
+| Beed | 10,639 | 63 | 264 | 15 | 1,359 |
+| Dharashiv | 7,600 | 50 | 348 | 12 | 1,380 |
+| Nanded | 10,545 | 70 | 516 | 12 | 2,376 |
+| Parbhani | 6,142 | 36 | 152 | 9 | 846 |
+| Hingoli | 4,910 | 33 | 183 | 8 | 875 |
+| Jalna | 7,682 | 47 | 238 | 13 | 1,569 |
+| Chhatrapati Sambhajinagar | 10,171 | 62 | 650 | 13 | 1,702 |
+| **Marathwada** | **64,915** | **403** | **2,712** | | **11,298** |
+
+One full run: **17 min** wall clock (1,024 s), **11,298 GB-s = $0.15** without the free tier (**$0** inside it: six
+runs a month are ~68,000 of the 400,000 free GB-s). Without thumbnails the same run took 9 min and 7,049 GB-s.
+Every pond is tagged with its taluka (all **76** Marathwada talukas from OpenStreetMap; their areas match each
+district's to 0.1%) and its nearest village (17,000+ OSM places).
+
 ## Projection (estimates, linear in area)
 
 Basis: 0.307 GB-s per km² per season, 85 GB-s per satellite pass for the district, 26 s per cell on average, and 0.06 ponds per km² (Latur's density).
@@ -66,11 +90,11 @@ Basis: 0.307 GB-s per km² per season, 85 GB-s per satellite pass for the distri
 ## What would have to change (honest list)
 
 1. **Concurrency quota.** This new account allows 10 concurrent Lambdas. India-scale needs the standard 1,000 (a quota request), plus a Step Functions *Distributed* Map (up to 10,000 parallel children) instead of the inline Map.
-2. **Weather per district.** The merge currently uses one Open-Meteo point (the district centre) for ET0 and rain. A state run needs a point per district, or per cell. Open-Meteo's free tier is for non-commercial use and has daily limits, so a national run would need their paid API or ERA5 from AWS Open Data.
+2. **Weather per district: done for Marathwada** (each district uses its own centre). A state run could go per cell. Open-Meteo's free tier is for non-commercial use and has daily limits, so a national run would need their paid API or ERA5 from AWS Open Data.
 3. **Reference date.** We pick the wettest early pass (16 Jan for Latur). Other regions have different monsoons and dry seasons, so the reference date must be chosen per district.
 4. **Faster-than-sun baseline: done.** Each pond is compared with the shrinking ponds within 25 km, not the whole region, so the baseline stays local at any scale. Results on the validated box are unchanged, because the box is smaller than 25 km.
-5. **Village names.** One OSM Overpass request covered Latur (2,107 places). A state needs a pre-extracted OSM file (for example the Geofabrik India extract) rather than the public Overpass API.
-6. **API and web payload.** `GET /ponds` returns every pond in a region (435 here). A state needs per-district queries or map tiles. The DynamoDB table is already keyed `regionId / pondId`, so a district-per-region layout scales naturally.
+5. **Village and taluka names: done for Marathwada** (8 Overpass requests, 17,000+ places, 76 talukas). The public Overpass API was often overloaded while we did it; a state or national run should use a pre-extracted OSM file (for example the Geofabrik India extract).
+6. **API and web payload: district per region, done.** Each district is its own region (largest: 650 ponds), and the API gzips responses (a district snapshot drops from 771 KB to 62 KB). A state view would add a summary endpoint or map tiles; DynamoDB is already keyed `regionId / pondId`.
 7. **Cloud.** Kharif-season monitoring (Jun–Sep) sees few clear passes. Sentinel-1 radar would be the next data source. It is also free on AWS Open Data.
 
 None of these changes the method. They are engineering and quota work.
