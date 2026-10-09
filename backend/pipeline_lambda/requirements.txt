@@ -2,4 +2,3 @@ numpy>=1.26,<3
 scipy>=1.11
 rasterio>=1.4
 pystac-client>=0.8
-pillow>=10

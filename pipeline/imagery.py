@@ -13,6 +13,7 @@ import json
 import logging
 import math
 import shutil
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -22,7 +23,6 @@ from rasterio.features import shapes
 from rasterio.transform import Affine
 from rasterio.warp import transform, transform_bounds
 from rasterio.windows import Window, from_bounds
-from PIL import Image
 
 from pipeline.stac import STACScene
 
@@ -30,6 +30,46 @@ logger = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_IMAGERY_DIR = REPO_ROOT / "web" / "public" / "imagery"
+
+
+THUMB_PX = 256
+JPEG_QUALITY = 80
+
+
+def thumbnail_jpeg(rgb: np.ndarray) -> bytes:
+    """(H, W, 3) uint8 true-colour crop -> 256x256 JPEG bytes (Lanczos, quality 80).
+
+    Uses Pillow when it is installed (laptops). On AWS Lambda the GDAL that rasterio ships does the
+    same job, so Pillow (~25 MB) stays out of the Lambda layer, which must fit in 250 MB.
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+    if Image is not None:
+        buf = io.BytesIO()
+        Image.fromarray(rgb, mode="RGB").resize((THUMB_PX, THUMB_PX), Image.Resampling.LANCZOS).save(
+            buf, format="JPEG", quality=JPEG_QUALITY)
+        return buf.getvalue()
+
+    import warnings
+
+    from rasterio.enums import Resampling
+    from rasterio.errors import NotGeoreferencedWarning
+    from rasterio.io import MemoryFile
+
+    h, w, _ = rgb.shape
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", NotGeoreferencedWarning)
+        with MemoryFile() as mem:
+            with mem.open(driver="GTiff", width=w, height=h, count=3, dtype="uint8") as dst:
+                dst.write(np.ascontiguousarray(np.transpose(rgb, (2, 0, 1)), dtype=np.uint8))
+            with mem.open() as src:
+                small = src.read(out_shape=(3, THUMB_PX, THUMB_PX), resampling=Resampling.lanczos)
+        with MemoryFile() as out:
+            with out.open(driver="JPEG", width=THUMB_PX, height=THUMB_PX, count=3, dtype="uint8", QUALITY=JPEG_QUALITY) as dst:
+                dst.write(small)
+            return out.read()
 
 
 def rdp_simplify(points: list[list[float]], epsilon: float = 0.00008) -> list[list[float]]:
@@ -292,10 +332,8 @@ def export_region_imagery(
                     if arr.shape[0] < 3 or arr.shape[1] == 0 or arr.shape[2] == 0:
                         continue
                     rgb = np.transpose(arr[:3, :, :], (1, 2, 0))
-                    img = Image.fromarray(rgb, mode="RGB")
-                    resized = img.resize((256, 256), Image.Resampling.LANCZOS)
                     jpg_path = output_dir / pid / f"{scene.date}.jpg"
-                    resized.save(jpg_path, format="JPEG", quality=80)
+                    jpg_path.write_bytes(thumbnail_jpeg(rgb))
                     pond_dates[pid].append(scene.date)
         except Exception as e:
             logger.warning("Failed to generate thumbnails for scene %s (%s): %s", scene.date, scene.id, e)
@@ -564,11 +602,7 @@ def export_cell_imagery(
                     if arr.shape[0] < 3 or arr.shape[1] == 0 or arr.shape[2] == 0:
                         continue
                     rgb = np.transpose(arr[:3, :, :], (1, 2, 0))
-                    img = Image.fromarray(rgb, mode="RGB")
-                    resized = img.resize((256, 256), Image.Resampling.LANCZOS)
-                    buf = io.BytesIO()
-                    resized.save(buf, format="JPEG", quality=80)
-                    jpg_bytes = buf.getvalue()
+                    jpg_bytes = thumbnail_jpeg(rgb)
 
                     written_local = False
                     written_s3 = False
@@ -653,6 +687,9 @@ def promote_district_imagery(
     district_features = []
     district_index_ponds = {}
 
+    copy_pool = ThreadPoolExecutor(max_workers=16) if (bucket and s3_client) else None
+    pending_s3: list = []  # (final_id, date, src_key, dst_key, future)
+
     for cell_id, pond_id_map in cell_map.items():
         outlines_doc = None
         index_doc = None
@@ -713,17 +750,11 @@ def promote_district_imagery(
                     copied_s3 = False
 
                     if bucket and s3_client:
+                        # Copied in parallel (thousands per district); the date is added once the copy succeeds.
                         src_key = f"data/{region_id}/imagery-cells/{cell_id}/{cell_pond_id}/{d}.jpg"
                         dst_key = f"data/{region_id}/imagery/{final_id}/{d}.jpg"
-                        try:
-                            s3_client.copy_object(
-                                Bucket=bucket,
-                                CopySource={"Bucket": bucket, "Key": src_key},
-                                Key=dst_key,
-                            )
-                            copied_s3 = True
-                        except Exception as e:
-                            logger.warning("Failed to copy S3 thumbnail %s -> %s: %s", src_key, dst_key, e)
+                        pending_s3.append((final_id, d, src_key, dst_key, copy_pool.submit(
+                            s3_client.copy_object, Bucket=bucket, CopySource={"Bucket": bucket, "Key": src_key}, Key=dst_key)))
 
                     if output_dir:
                         src_file = output_dir / "imagery-cells" / cell_id / cell_pond_id / f"{d}.jpg"
@@ -743,6 +774,20 @@ def promote_district_imagery(
                     "dates": promoted_dates,
                     "bbox": p_info.get("bbox", [0.0, 0.0, 0.0, 0.0]),
                 }
+
+    if copy_pool is not None:  # collect the parallel S3 copies: a date is listed only if its thumbnail exists
+        for final_id, d, src_key, dst_key, future in pending_s3:
+            try:
+                future.result()
+            except Exception as e:
+                logger.warning("Failed to copy S3 thumbnail %s -> %s: %s", src_key, dst_key, e)
+                continue
+            dates = district_index_ponds.setdefault(final_id, {"dates": [], "bbox": [0.0, 0.0, 0.0, 0.0]})["dates"]
+            if d not in dates:
+                dates.append(d)
+        copy_pool.shutdown()
+        for info in district_index_ponds.values():
+            info["dates"].sort()
 
     district_outlines = {
         "type": "FeatureCollection",

@@ -342,7 +342,7 @@ Resources:
       FunctionName: !Sub "${AWS::StackName}-pipeline-merge"
       CodeUri: ../.build/pipeline-fn
       Handler: merge_handler.lambda_handler
-      Timeout: 300
+      Timeout: 900  # also promotes district imagery (thousands of S3 copies)
       MemorySize: 1024
       Layers: [!Ref PipelineLayer]
       Environment:
