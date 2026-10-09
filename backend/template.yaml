@@ -644,6 +644,20 @@ Resources:
       TreatMissingData: notBreaching
       AlarmActions: [!Ref OpsTopic]
 
+  # ---- Amazon Location Service basemaps for the web map (dark vector style + satellite raster). The key is public
+  # in the browser, so it only works from our site and localhost, only for map tiles, and expires after judging.
+  # Cost: $0.04 per 1,000 tiles (a judge's session is a few hundred tiles).
+  MapsApiKey:
+    Type: AWS::Location::APIKey
+    Properties:
+      KeyName: !Sub "${AWS::StackName}-web-maps"
+      Description: Talaab web map basemaps (dark style, satellite)
+      ExpireTime: "2026-11-30T00:00:00Z"
+      Restrictions:
+        AllowActions: ["geo-maps:GetTile", "geo-maps:GetStaticMap"]
+        AllowResources: [!Sub "arn:aws:geo-maps:${AWS::Region}::provider/default"]
+        AllowReferers: ["https://main.duvnkrxj02sz1.amplifyapp.com/*", "http://localhost:5173/*"]
+
   HelloFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -691,6 +705,9 @@ Outputs:
   OpsTopicArn:
     Description: SNS topic for technical alarms (failed runs, Lambda errors, API 5xx)
     Value: !Ref OpsTopic
+  MapsApiKeyName:
+    Description: Amazon Location API key for the web basemaps (read the value with aws location describe-key)
+    Value: !Ref MapsApiKey
   MarathwadaStateMachineArn:
     Description: Runs the district workflow for every Marathwada district in turn (scripts/run_district.py --marathwada)
     Value: !Ref MarathwadaStateMachine
