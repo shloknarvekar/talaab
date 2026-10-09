@@ -15,8 +15,9 @@ function Stat({ label, value, tone }) {
 }
 
 function regionLabel(region) {
-  if (region.mode === 'live') return 'Latur today';
-  return region.id.includes('district') ? 'Whole district 2024' : 'Latur 2024';
+  const district = region.id.includes('district');
+  if (region.mode === 'live') return district ? 'Whole district today' : 'Latur today';
+  return district ? 'Whole district 2024' : 'Latur 2024';
 }
 
 export default function App() {
@@ -31,13 +32,14 @@ export default function App() {
   const [error, setError] = useState('');
   const requestId = useRef(0);
 
-  // 1. Regions: open on the live region, latest snapshot.
+  // 1. Regions: open on the live whole district (else any live region), latest snapshot.
   useEffect(() => {
     fetchRegions()
       .then((list) => {
         if (!list.length) throw new Error('No published regions yet.');
         setRegions(list);
-        const first = list.find((r) => r.mode === 'live') ?? list[0];
+        const live = list.filter((r) => r.mode === 'live');
+        const first = live.find((r) => r.id.includes('district')) ?? live[0] ?? list[0];
         setRegionId(first.id);
         setDateIndex(first.dates.length - 1);
       })
