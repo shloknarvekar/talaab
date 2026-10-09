@@ -6,7 +6,7 @@ import MapView from './components/MapView';
 import PondList from './components/PondList';
 import TalaabPortfolio from './components/ui/TalaabPortfolio';
 import TalaabLandingPage from './components/ui/TalaabLandingPage';
-import { fetchAlerts, fetchBacktest, fetchPonds, fetchRegions, requestPlan } from './api';
+import { fetchAlerts, fetchBacktest, fetchPonds, fetchRegions, imageryBase, requestPlan } from './api';
 import { STATUS_KEYS, addDays, formatDate, formatRange, pct, placeLabel, sortPonds, statusMeta } from './utils';
 
 const REPO = 'https://github.com/shloknarvekar/talaab';
@@ -112,12 +112,12 @@ export default function App() {
     (async () => {
       for (const key of [...new Set(candidates)]) {
         try {
-          const indexResponse = await fetch(`/imagery/${encodeURIComponent(key)}/index.json`);
+          const indexResponse = await fetch(`${imageryBase(key)}/${encodeURIComponent(key)}/index.json`);
           if (!indexResponse.ok) continue;
           const index = await indexResponse.json();
           let geojson = null;
           try {
-            const outlineResponse = await fetch(`/imagery/${encodeURIComponent(key)}/outlines.geojson`);
+            const outlineResponse = await fetch(`${imageryBase(key)}/${encodeURIComponent(key)}/outlines.geojson`);
             if (outlineResponse.ok) geojson = await outlineResponse.json();
           } catch { /* thumbnails can exist before outlines arrive */ }
           if (active) {
@@ -523,7 +523,7 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
             const history = historyByDate.get(date);
             const suspect = sceneByDate.get(date)?.status === 'suspect';
             const invalid = history?.valid === false || suspect;
-            const src = `/imagery/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(pond.id)}/${date}.jpg`;
+            const src = `${imageryBase(imageryRegion)}/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(pond.id)}/${date}.jpg`;
             return <button key={date} className={`imagery-thumb ${invalid ? 'invalid-pass' : ''}`} onClick={() => setExpandedPass({ date, src, invalid })} aria-label={`View satellite pass ${date}${invalid ? ', marked invalid or suspect' : ''}`}>
               <img src={src} loading="lazy" alt={`Sentinel-2 view of ${pond.id} on ${date}`} />
               <span>{formatDate(date, { day: '2-digit', month: 'short' })}</span><small>{invalid ? 'Not used' : 'Pass'}</small>

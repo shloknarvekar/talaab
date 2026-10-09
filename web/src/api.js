@@ -2,6 +2,15 @@
 const DEFAULT_API = 'https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com';
 export const API_BASE = (import.meta.env.VITE_TALAAB_API_URL || DEFAULT_API).replace(/\/$/, '');
 
+/**
+ * Where a region's imagery lives (docs/imagery-contract.md layout: index.json, outlines.geojson, <pond>/<date>.jpg).
+ * District regions are imaged on AWS and served by the API (thumbnails redirect to signed S3 links); the small Latur
+ * box's imagery is committed with the site.
+ */
+export function imageryBase(regionId) {
+  return regionId?.includes('district') ? `${API_BASE}/imagery` : '/imagery';
+}
+
 const PLAN_POLL_MS = 5000;
 const PLAN_POLL_LIMIT_MS = 120000;
 

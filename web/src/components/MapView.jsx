@@ -54,10 +54,40 @@ export default function MapView({
     };
   }, []);
 
-  // Dark Matter is used when a CARTO key is configured; otherwise keep the map usable
-  // with OpenStreetMap tiles. Satellite imagery is an explicit, reversible layer switch.
+  // Basemaps. With an Amazon Location key (set at build time by backend/scripts/deploy_web.py; it only works
+  // from our site and localhost) the map uses AWS: the Monochrome Dark vector style (MapLibre, loaded on demand)
+  // and AWS satellite tiles. Without one: CARTO Dark Matter if configured, else OpenStreetMap, and Esri satellite.
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) return undefined;
+    const awsKey = import.meta.env.VITE_AWS_MAPS_KEY?.trim();
+    if (awsKey) {
+      const aws = 'https://maps.geo.us-west-2.amazonaws.com/v2';
+      const attribution = '&copy; <a href="https://docs.aws.amazon.com/location/latest/developerguide/data-attribution.html">AWS</a>, '
+        + '<a href="https://legal.here.com/en-gb/terms/general-content-supplier-terms-and-notices">HERE</a>';
+      let cancelled = false;
+      const show = (layer) => {
+        if (cancelled || !mapRef.current) return;
+        layersRef.current.tiles?.remove();
+        layersRef.current.tiles = layer.addTo(mapRef.current);
+      };
+      if (satellite) {
+        show(L.tileLayer(`${aws}/tiles/raster.satellite/{z}/{x}/{y}?key=${encodeURIComponent(awsKey)}`, { maxZoom: 18, attribution }));
+      } else {
+        Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
+          .then(([maplibre]) => {
+            maplibre.setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');  // copied there by vite.config.js
+            return import('@maplibre/maplibre-gl-leaflet');
+          })
+          .then(() => show(L.maplibreGL({
+            style: `${aws}/styles/Monochrome/descriptor?key=${encodeURIComponent(awsKey)}&color-scheme=Dark`,
+            attribution,
+          })))
+          .catch(() => show(L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19, subdomains: 'abc', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+          })));
+      }
+      return () => { cancelled = true; };
+    }
     const cartoKey = import.meta.env.VITE_CARTO_API_KEY?.trim();
     const darkTiles = cartoKey
       ? L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=${encodeURIComponent(cartoKey)}`, {
@@ -77,6 +107,7 @@ export default function MapView({
       : darkTiles;
     layersRef.current.tiles?.remove();
     layersRef.current.tiles = tile.addTo(mapRef.current);
+    return undefined;
   }, [satellite]);
 
   useEffect(() => {
