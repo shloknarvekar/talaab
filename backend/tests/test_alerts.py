@@ -39,6 +39,16 @@ def test_only_new_transitions_alert():
     assert [(a["id"], a["reason"]) for a in new_alerts(state2, third)] == [("P001", "dry")]
 
 
+def test_district_email_lists_the_most_urgent_20():
+    ponds = [pond(f"P{i:03d}", 18.0 + i / 100, "dry") for i in range(1, 4)] + \
+            [pond(f"P{i:03d}", 18.0 + i / 100, "critical") for i in range(4, 31)]
+    alerts = new_alerts({}, snap(*ponds))
+    subject, body = format_alert("Latur district (live, 2026)", "2026-10-09", alerts, "x")
+    assert subject.startswith("Talaab: 30 ponds need action")  # the subject counts everything
+    assert "P001" in body and "P020" in body and "P021" not in body  # dry first, then critical, by id
+    assert "...and 10 more alerts (10 more ponds): see the map." in body
+
+
 def test_state_is_keyed_by_location_not_id():
     before = snap(pond("P001", 18.36, "critical"))
     renumbered = snap(pond("P004", 18.36, "critical"))  # same pond, new id after re-cleaning

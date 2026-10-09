@@ -15,6 +15,7 @@ REASONS = {
     "flag": "is shrinking FASTER THAN THE SUN: inspect for unauthorised pumping",
 }
 ORDER = {"dry": 0, "critical": 1, "flag": 2}
+MAX_LISTED = 20  # a district can produce hundreds on its first run; the email lists the most urgent
 
 
 def pond_key(p: dict) -> str:
@@ -68,7 +69,7 @@ def format_alert(region_name: str, as_of: str, alerts: list[dict], site_url: str
     n = len({a["id"] for a in alerts})
     subject = f"Talaab: {n} {'ponds need' if n != 1 else 'pond needs'} action in {region_name}"[:100]
     lines = [f"Talaab update for {region_name}, as of {_d(as_of)}.", ""]
-    for a in alerts:
+    for a in alerts[:MAX_LISTED]:  # most urgent first (new_alerts order)
         where = f" ({a['place']})" if a["place"] else ""
         lines.append(f"- {a['id']}{where} {REASONS[a['reason']]}.")
         if a["reason"] == "critical" and a.get("dryBy"):
@@ -78,6 +79,9 @@ def format_alert(region_name: str, as_of: str, alerts: list[dict], site_url: str
             lines.append(f"    Shrinking {a['ratio']}x faster than nearby ponds under the same sun. This suggests pumping; it is not proof.")
         if a["reason"] == "dry":
             lines.append(f"    {a['areaNowHa']} ha left of {a['maxAreaHa']} ha (below 5%).")
+    if len(alerts) > MAX_LISTED:
+        more = len({a["id"] for a in alerts[MAX_LISTED:]} - {a["id"] for a in alerts[:MAX_LISTED]})
+        lines.append(f"- ...and {len(alerts) - MAX_LISTED} more alerts ({more} more ponds): see the map.")
     lines += ["", f"Map and full plan: {site_url}",
               "Forecasts are ranges from Sentinel-2 satellite measurements and Open-Meteo heat forecasts; verify on the ground.",
               "You receive this because you subscribed to Talaab alerts (Amazon SNS)."]
