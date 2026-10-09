@@ -97,7 +97,7 @@ one SAM template, with **no hourly cost while idle**.
 |---|---|
 | **AWS Open Data** (Sentinel-2 L2A COGs on S3) | The satellite imagery: windows read directly over HTTPS, no downloads |
 | **AWS Lambda** (7 functions) | `pipeline-grid` (lists the district's grid cells), `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
-| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 8 in parallel, with retries), then merges. Latur district takes 161 s. |
+| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 6 in parallel, with retries), then merges. Latur district takes 161 s. |
 | **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`; throttled, CORS limited to our site |
 | **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures the live district from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |

@@ -139,6 +139,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /alerts
             Method: GET
+        Imagery:  # district outlines/index (JSON) and thumbnails (302 to a signed S3 link)
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /imagery/{proxy+}
+            Method: GET
 
   ApiLogGroup:
     Type: AWS::Logs::LogGroup
@@ -380,7 +386,7 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-pipeline-grid"
       RetentionInDays: 14
 
-  # Grid -> Map over every cell (8 at a time, under the account's 10-Lambda limit) -> merge.
+  # Grid -> Map over every cell (6 at a time, under the account's 10-Lambda limit) -> merge.
   DistrictStateMachine:
     Type: AWS::Serverless::StateMachine
     Properties:
@@ -411,7 +417,9 @@ Resources:
           ProcessCells:
             Type: Map
             ItemsPath: "$.grid.cells"
-            MaxConcurrency: 8
+            # 6 cells at a time: the account allows 10 concurrent Lambdas, and the website's API, the merge and
+            # recompute must still get one during a scheduled run (at 8 the API was throttled -> HTTP 503).
+            MaxConcurrency: 6
             ItemSelector:
               cell.$: "$$.Map.Item.Value"
               region.$: "$.region"

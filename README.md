@@ -45,7 +45,7 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 |---|---|
 | **S3** | Pipeline measurements, per-date snapshots, cached plans, backtest |
 | **Lambda** (×7) | `pipeline-grid` + `pipeline-cell` + `pipeline-merge` (satellite pipeline), `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
-| **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 8 in parallel) → merge; started every 5 days for the live district |
+| **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 6 in parallel) → merge; started every 5 days for the live district |
 | **API Gateway** (HTTP API) | Public API, throttled |
 | **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure the live district from satellite, and recompute every region |
 | **DynamoDB** | Latest state of every pond |

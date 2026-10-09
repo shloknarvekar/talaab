@@ -17,7 +17,7 @@ flowchart LR
   end
 
   subgraph AWS["AWS (us-west-2)"]
-    SFN["Step Functions: talaab-district<br/>grid → Map over 42 cells (8 in parallel) → merge"]
+    SFN["Step Functions: talaab-district<br/>grid → Map over 42 cells (6 in parallel) → merge"]
     CELL["Lambda: pipeline-cell ×42<br/>best tile per date · fixed 10 m grid<br/>ponds owned by the cell core"]
     MRG["Lambda: pipeline-merge<br/>district boundary · quality rules<br/>weather"]
     S3[("S3 data bucket<br/>measurements · snapshots<br/>plans · backtest")]
@@ -60,7 +60,7 @@ flowchart LR
 
 1. **Measure (pipeline).** A whole district runs on AWS: `backend/scripts/run_district.py` starts the
    Step Functions state machine `talaab-district`, which runs one `pipeline-cell` Lambda per 0.15° grid
-   cell (42 cells for Latur, 8 at a time, each retried twice). Each cell picks, for every date, the
+   cell (42 cells for Latur, 6 at a time, each retried twice). Each cell picks, for every date, the
    Sentinel-2 tile that covers it best, reads it onto one fixed 10 m grid, and keeps only the ponds whose
    centre is in its core (cells overlap by ~1.6 km, so edge ponds are seen whole and counted once).
    `pipeline-merge` keeps ponds inside the OSM district boundary, applies the quality rules and adds
