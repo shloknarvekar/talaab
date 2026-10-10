@@ -145,6 +145,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /division
             Method: GET
+        DivisionOutlines:  # district outlines (GeoJSON) for the division map
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /division/outlines
+            Method: GET
         Imagery:  # district outlines/index (JSON) and thumbnails (302 to a signed S3 link)
           Type: HttpApi
           Properties:

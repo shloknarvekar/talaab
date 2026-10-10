@@ -41,7 +41,8 @@ def main() -> None:
     check("GET /hello", s == 200 and b.get("service") == "talaab", f"{dt:.2f}s")
 
     s, b, dt = call("GET", f"{api}/regions")
-    regions = b.get("regions", []) if s == 200 else []
+    regions_doc = b if s == 200 else {}
+    regions = regions_doc.get("regions", [])
     check("GET /regions", s == 200 and regions, f"{[r['id'] for r in regions]}")
     check("whole district listed", any(r["id"] == "latur-district-2024" for r in regions))
 
@@ -79,6 +80,16 @@ def main() -> None:
     rows = div.get("districts", []) if s == 200 else []
     check("GET /division", s == 200 and len(rows) == len(members) and div["totals"]["ponds"] == sum(r["ponds"] for r in rows)
           and div.get("talukas") is not None, f"{len(rows)} districts, {div.get('totals', {}).get('ponds')} ponds, {dt:.2f}s")
+    ch = div.get("change") or {}
+    check("division change since last run", s == 200 and (not ch or ch["since"] < div["asOf"]),
+          f"since {ch['since']}: dry {ch['dry']:+d}, critical {ch['critical']:+d}" if ch else "no earlier run yet")
+    check("division allTalukas", s == 200 and sum(t["ponds"] for t in div.get("allTalukas", [])) == div["totals"]["ponds"],
+          f"{len(div.get('allTalukas', []))} talukas")
+    s, geo, dt = call("GET", f"{api}/division/outlines")
+    check("GET /division/outlines", s == 200 and {f["properties"]["region"] for f in geo.get("features", [])} == {r["id"] for r in members},
+          f"{len(geo.get('features', []))} districts, {dt:.2f}s")
+    divs = {d["id"]: d for d in regions_doc.get("divisions", [])}
+    check("GET /regions lists the division", "marathwada-2026" in divs and divs["marathwada-2026"]["last"] == div.get("asOf"))
     for lang in ("en", "mr"):
         s, plan, dt = call("POST", f"{api}/plan", {"region": "marathwada-2026", "language": lang})
         check(f"POST /plan marathwada {lang}", s == 200 and plan.get("markdown") and plan.get("status") == "template", f"{dt:.2f}s")

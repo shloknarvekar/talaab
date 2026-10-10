@@ -116,7 +116,27 @@ def test_division_summary_and_plan(data_dir):
     assert call("GET /division", {"asOf": "2026-10-01"})[0] == 404
     assert call("GET /division", {"division": "vidarbha-2026"})[0] == 404
 
+    regions = call("GET /regions")[1]
+    assert regions["divisions"][0]["id"] == "marathwada-2026" and regions["divisions"][0]["dates"] == ["2026-10-05", "2026-10-10"]
+    assert "latur-district-2026" in regions["divisions"][0]["members"] and regions["divisions"][0]["last"] == "2026-10-10"
+
     status, plan = call("POST /plan", body={"region": "marathwada-2026", "language": "mr"})
     assert status == 200 and plan["status"] == "template" and "जिल्हानिहाय स्थिती" in plan["markdown"]
     status, plan = call("POST /plan", body={"region": "marathwada-2026", "asOf": "2026-10-07", "language": "en"})
     assert status == 200 and plan["asOf"] == "2026-10-05" and "## By district" in plan["markdown"]
+
+
+def test_division_outlines_cover_every_member_district():
+    from jobs.regions import division_members
+    status, geo = call("GET /division/outlines")
+    assert status == 200 and geo["type"] == "FeatureCollection" and "OpenStreetMap" in geo["credit"]
+    assert sorted(f["properties"]["region"] for f in geo["features"]) == sorted(division_members("marathwada-2026"))
+    for f in geo["features"]:
+        assert f["geometry"]["type"] in ("Polygon", "MultiPolygon") and f["properties"]["nameMr"]
+        rings = f["geometry"]["coordinates"] if f["geometry"]["type"] == "Polygon" else [r for p in f["geometry"]["coordinates"] for r in p]
+        assert all(r[0] == r[-1] and len(r) >= 4 for r in rings)
+        assert all(72 < x < 81 and 15 < y < 22 for r in rings for x, y in r)  # inside Maharashtra
+    r = handler.lambda_handler({"routeKey": "GET /division/outlines", "queryStringParameters": None}, None)
+    assert r["headers"]["cache-control"] == "public, max-age=86400"
+    assert call("GET /division/outlines", {"division": "vidarbha-2026"})[0] == 404
+    assert call("GET /division/outlines", {"division": "../x"})[0] == 404

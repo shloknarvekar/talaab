@@ -19,7 +19,7 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
 3. **Two checks per pond:**
    - **Countdown:** a dry-by date *range* (earliest, likely, latest) from the shrink trend, adjusted for expected heat.
    - **Faster than the sun:** a pond shrinking much faster than its neighbours under the same sun is flagged for inspection (likely pumping).
-4. **By taluka, and for the whole division.** Drought is declared per taluka, so every pond is placed in its taluka (all 76 in Marathwada, from OpenStreetMap boundaries). The Divisional Commissioner gets one view of all 8 districts (`GET /division`): which districts and talukas need tankers first, the most urgent ponds and which to inspect, plus a division plan in English and Marathi.
+4. **By taluka, and for the whole division.** Drought is declared per taluka, so every pond is placed in its taluka (all 76 in Marathwada, from OpenStreetMap boundaries). The Divisional Commissioner gets one view of all 8 districts (`GET /division`): which districts and talukas need tankers first, the most urgent ponds and which to inspect, what changed since the last run, plus a division plan in English and Marathi.
 5. **AI plan.** Amazon Bedrock (Strands Agents) drafts the district's quarterly scarcity plan in English and Marathi, using only our numbers.
 6. **Automatic.** The analysis re-runs every 5 days on AWS.
 

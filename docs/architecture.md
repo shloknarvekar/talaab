@@ -84,7 +84,8 @@ flowchart LR
      `talaab-marathwada` run (and the scheduled recompute) sends ONE email for the whole division, and every
      district's alert history records what was sent;
    - writes the division summary (`GET /division`): every district, the talukas needing action first, the most
-     urgent ponds and the inspection list.
+     urgent ponds, the inspection list, and what changed since the run before (each district vs its snapshot
+     ~5 days earlier). District outlines for the division map come from `GET /division/outlines`.
 4. **Serve.** The API Lambda serves regions, snapshots, single ponds, plans and the backtest. A
    date between passes resolves to the latest snapshot on or before it, so a replay never shows
    the future.

@@ -20,7 +20,7 @@ from jobs.places import name_ponds, places_for_region
 from jobs.talukas import tag_ponds, talukas_for_region
 from jobs.regions import DISTRICT_MR, DIVISIONS, REGIONS, district_name, division_members
 from jobs.weather import merge_observed, recent_and_forecast
-from logic.division import summarise_division
+from logic.division import CHANGE_DAYS, summarise_division
 from logic.snapshot import build_snapshot
 
 MIN_HISTORY_DAYS = 20  # first snapshot needs a few passes to fit a trend
@@ -101,17 +101,28 @@ def queue_alerts(region: str, cfg: dict, snap: dict) -> int:
 
 
 def write_division(division_id: str) -> dict | None:
-    """Division summary from each member's latest published snapshot -> {division}/division.json (+ a dated copy)."""
-    members = []
+    """Division summary from each member's latest published snapshot -> {division}/division.json (+ a dated copy).
+
+    "What changed" compares each district with its latest snapshot on or before CHANGE_DAYS earlier (one run ago)."""
+    members, dates = [], {}
     for region in division_members(division_id):
         index = store.read_json(f"{region}/index.json", fresh=True) or {}
-        snap = store.read_json(f"{region}/asof/{index['asOf'][-1]}.json", fresh=True) if index.get("asOf") else None
+        dates[region] = sorted(index.get("asOf", []))
+        snap = store.read_json(f"{region}/asof/{dates[region][-1]}.json", fresh=True) if dates[region] else None
         if snap:
             members.append((region, district_name(region), snap))
     if not members:
         return None
+    since = (date.fromisoformat(max(s["asOf"] for _, _, s in members)) - timedelta(days=CHANGE_DAYS)).isoformat()
+    previous = {}
+    for region, _, _ in members:
+        earlier = [d for d in dates[region] if d <= since]
+        snap = store.read_json(f"{region}/asof/{earlier[-1]}.json") if earlier else None
+        if snap:
+            previous[region] = snap
     cfg = DIVISIONS[division_id]
-    doc = summarise_division({"id": division_id, "name": cfg["name"], "nameMr": cfg.get("nameMr"), "live": True}, members, DISTRICT_MR)
+    doc = summarise_division({"id": division_id, "name": cfg["name"], "nameMr": cfg.get("nameMr"), "live": True}, members,
+                             DISTRICT_MR, previous, since)
     store.write_json(f"{division_id}/division.json", doc)
     store.write_json(f"{division_id}/division/{doc['asOf']}.json", doc)
     return doc

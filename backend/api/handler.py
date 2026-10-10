@@ -6,6 +6,9 @@ GET  /ponds/{id}?region=...&asOf=...            -> one pond
 POST /plan {region, asOf, language: en|mr}      -> {markdown, pondIds, source, status}
 GET  /backtest?region=latur-2024                -> how well past predictions matched reality
 GET  /alerts?region=latur-2024                  -> alert timeline (replay: simulated; live: sent)
+GET  /division?division=marathwada-2026&asOf=... -> summary of every district of the division
+GET  /division/outlines?division=...            -> district outlines (GeoJSON) for the division map
+GET  /imagery/{region}/...                      -> district satellite imagery (index, outlines, thumbnails)
 
 asOf picks the latest published snapshot on or before that date, so a replay never
 shows data from after the date the user chose.
@@ -17,16 +20,20 @@ import gzip
 import json
 import os
 import re
+from functools import lru_cache
+from pathlib import Path
 
 from api import store
 from api.plans import get_plan
-from jobs.regions import DIVISIONS, REGIONS
+from jobs.regions import DIVISIONS, REGIONS, division_members
 from logic.plan import build_division_plan
 
 DEFAULT_REGION = os.environ.get("DEFAULT_REGION", "latur-2024")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 REGION_RE = re.compile(r"^[a-z0-9-]{1,40}$")
 POND_RE = re.compile(r"^P\d{3,4}$")
+DEFAULT_DIVISION = "marathwada-2026"
+OUTLINES_DIR = Path(__file__).resolve().parents[1] / "jobs" / "places"  # scripts/build_division_outlines.py
 
 
 class HttpError(Exception):
@@ -60,7 +67,8 @@ def _load(region: str, as_of: str | None) -> dict:
 
 
 def get_regions() -> dict:
-    """Regions that have published snapshots, with the exact dates the map slider can use."""
+    """Regions that have published snapshots, with the exact dates the map slider can use, and the divisions
+    that have a summary (members = their district regions, dates = the dated summaries)."""
     out = []
     for region_id, cfg in REGIONS.items():
         index = store.read_json(f"{region_id}/index.json")
@@ -70,7 +78,24 @@ def get_regions() -> dict:
         out.append({"id": region_id, "name": cfg["name"], "mode": cfg["mode"], "bbox": cfg["bbox"],
                     "synthetic": region_id.endswith("-synthetic"),
                     "first": dates[0], "last": dates[-1], "dates": dates})
-    return {"regions": out}
+    divisions = []
+    for division_id, cfg in DIVISIONS.items():
+        dates = _division_dates(division_id)
+        if dates:
+            divisions.append({"id": division_id, "name": cfg["name"], "nameMr": cfg.get("nameMr"),
+                              "members": division_members(division_id), "first": dates[0], "last": dates[-1], "dates": dates})
+    return {"regions": out, "divisions": divisions}
+
+
+def _division_dates(division: str) -> list[str]:
+    return sorted(k.rsplit("/", 1)[-1][:-5] for k in store.list_keys(f"{division}/division/") if k.endswith(".json"))
+
+
+def _division_id(query: dict) -> str:
+    division = query.get("division") or DEFAULT_DIVISION
+    if not REGION_RE.match(division) or division not in DIVISIONS:
+        raise HttpError(404, f"unknown division {division!r}; known: {', '.join(DIVISIONS)}")
+    return division
 
 
 def get_ponds(query: dict) -> dict:
@@ -91,17 +116,29 @@ def get_pond(pond_id: str, query: dict) -> dict:
 
 def get_division(query: dict) -> dict:
     """The division summary (written by recompute): latest, or the latest on or before ?asOf (never the future)."""
-    division, as_of = _region_and_date(query.get("division") or "marathwada-2026", query.get("asOf"))
-    if division not in DIVISIONS:
-        raise HttpError(404, f"unknown division {division!r}; known: {', '.join(DIVISIONS)}")
+    division = _division_id(query)
+    _, as_of = _region_and_date(division, query.get("asOf"))
     if as_of is None:
         doc = store.read_json(f"{division}/division.json")
     else:
-        dates = sorted(k.rsplit("/", 1)[-1][:-5] for k in store.list_keys(f"{division}/division/") if k.endswith(".json"))
-        earlier = [d for d in dates if d <= as_of]
+        earlier = [d for d in _division_dates(division) if d <= as_of]
         doc = store.read_json(f"{division}/division/{earlier[-1]}.json") if earlier else None
     if doc is None:
         raise HttpError(404, f"no division summary for {division!r}" + (f" on or before {as_of}" if as_of else " yet"))
+    return doc
+
+
+@lru_cache(maxsize=4)
+def _outlines(division: str) -> dict | None:
+    path = OUTLINES_DIR / f"{division}-districts.geojson"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def get_division_outlines(query: dict) -> dict:
+    """District outlines for the division map (static, bundled; join to GET /division rows on properties.region)."""
+    doc = _outlines(_division_id(query))
+    if doc is None:
+        raise HttpError(404, "no outlines for this division yet")
     return doc
 
 
@@ -174,6 +211,10 @@ def _route(event):
             return _response(200, get_pond((event.get("pathParameters") or {}).get("id"), query))
         if route == "GET /division":
             return _response(200, get_division(query))
+        if route == "GET /division/outlines":
+            r = _response(200, get_division_outlines(query))
+            r["headers"]["cache-control"] = "public, max-age=86400"  # changes only when the boundaries are rebuilt
+            return r
         if route == "GET /imagery/{proxy+}":
             return get_imagery((event.get("pathParameters") or {}).get("proxy"))
         if route == "GET /alerts":

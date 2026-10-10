@@ -57,6 +57,7 @@ T = {
         "div_summary": "**Summary:** {n} ponds tracked in {d} districts: {dry} dry, {critical} critical, {watch} watch, {ok} ok, {unknown} not visible. {flagged} flagged for inspection.",
         "districts": "By district",
         "district_head": "| District | Ponds | Dry | Critical | Watch | Not visible | Flagged | Earliest likely dry date |",
+        "div_change": "**Change since {since}** (one run earlier, {d} of {n} districts compared): dry {dry}, critical {critical}, watch {watch}, flagged {flagged}, not visible {unknown}.",
         "div_talukas": "Talukas needing action first",
         "div_taluka_head": "| Taluka | District | Dry | Critical | Watch | Earliest likely dry date |",
         "urgent": "Most urgent ponds",
@@ -104,6 +105,7 @@ T = {
         "div_summary": "**सारांश:** {d} जिल्ह्यांतील एकूण {n} तलाव: {dry} कोरडे, {critical} गंभीर, {watch} लक्ष ठेवा, {ok} सुरक्षित, {unknown} दिसत नाहीत. {flagged} तलाव तपासणीसाठी.",
         "districts": "जिल्हानिहाय स्थिती",
         "district_head": "| जिल्हा | तलाव | कोरडे | गंभीर | लक्ष ठेवा | दिसत नाहीत | तपासणीसाठी | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
+        "div_change": "**{since} पासूनचा बदल** (एक फेरी आधी; {n} पैकी {d} जिल्ह्यांची तुलना): कोरडे {dry}, गंभीर {critical}, लक्ष ठेवा {watch}, तपासणीसाठी {flagged}, दिसत नाहीत {unknown}.",
         "div_talukas": "प्राधान्याने कारवाई आवश्यक असलेले तालुके",
         "div_taluka_head": "| तालुका | जिल्हा | कोरडे | गंभीर | लक्ष ठेवा | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
         "urgent": "सर्वात तातडीचे तलाव",
@@ -352,6 +354,10 @@ def build_division_plan(div: dict, language: str = "en") -> dict:
     tt = div["totals"]
     lines += ["", t["div_summary"].format(n=tt["ponds"], d=tt["districts"], dry=tt["dry"], critical=tt["critical"],
                                          watch=tt["watch"], ok=tt["ok"], unknown=tt["unknown"], flagged=tt["flagged"])]
+    ch = div.get("change")
+    if ch:
+        lines += ["", t["div_change"].format(since=_fmt_date(ch["since"], lang), d=ch["districts"], n=tt["districts"],
+                                             **{k: f"{ch[k]:+d}" for k in ("dry", "critical", "watch", "unknown", "flagged")})]
 
     lines += ["", f"## {t['districts']}", "", t["district_head"], "|---|---|---|---|---|---|---|---|"]
     for r in div["districts"]:

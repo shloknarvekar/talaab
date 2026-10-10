@@ -1,5 +1,5 @@
 """Division view: one summary across districts (logic/division.py) and the division plan (logic/plan.py)."""
-from logic.division import TOP_PONDS, summarise_division
+from logic.division import TOP_PONDS, TOP_TALUKAS, summarise_division
 from logic.plan import build_division_plan
 from logic.talukas import summarise as summarise_talukas
 
@@ -40,6 +40,32 @@ def test_totals_and_district_rows():
 def test_talukas_in_need_across_districts():
     names = [(t["name"], t["district"]) for t in doc()["talukas"]]
     assert names == [("Jafferabad", "Jalna"), ("Ashti", "Beed"), ("Ambad", "Jalna")]  # Kaij has nothing to act on
+
+
+def test_all_talukas_are_listed_for_the_district_drill_down():
+    d = doc()
+    assert [(t["name"], t["district"]) for t in d["allTalukas"]] == [("Jafferabad", "Jalna"), ("Ashti", "Beed"),
+                                                                     ("Ambad", "Jalna"), ("Kaij", "Beed")]
+    assert sum(t["ponds"] for t in d["allTalukas"]) == d["totals"]["ponds"] and len(d["talukas"]) <= TOP_TALUKAS
+    assert all(t["region"] for t in d["allTalukas"])
+
+
+def test_change_since_the_run_before():
+    before_jalna = snap("2026-10-05", [pond("P001", "watch", "Jafferabad", "2026-11-01", 27), pond("P002", "critical", "Jafferabad", "2026-10-09", 4),
+                                       pond("P003", "watch", "Ambad", "2026-11-30", 56), pond("P004", "ok", "Ambad")])
+    d = summarise_division(DIVISION, [("beed-district-2026", "Beed", BEED), ("jalna-district-2026", "Jalna", JALNA)],
+                           previous={"jalna-district-2026": before_jalna}, since="2026-10-05")
+    jalna, beed = d["districts"]
+    # Jalna: P002 critical -> dry, P001 watch -> critical, P003 newly flagged
+    assert jalna["change"] == {"since": "2026-10-05", "dry": 1, "critical": 0, "watch": -1, "unknown": 0, "flagged": 1}
+    assert "change" not in beed  # no earlier snapshot: not compared, and the totals say only 1 district was
+    assert d["change"] == {"since": "2026-10-05", "districts": 1, "dry": 1, "critical": 0, "watch": -1, "unknown": 0, "flagged": 1}
+    assert doc()["change"] is None  # nothing to compare with
+    same_day = summarise_division(DIVISION, [("jalna-district-2026", "Jalna", JALNA)], previous={"jalna-district-2026": JALNA})
+    assert same_day["change"] is None  # a snapshot is never compared with itself
+    en = build_division_plan(d, "en")["markdown"]
+    assert "**Change since 5 Oct 2026** (one run earlier, 1 of 2 districts compared): dry +1, critical +0, watch -1, flagged +1, not visible +0." in en
+    assert "पासूनचा बदल" in build_division_plan(d, "mr")["markdown"] and "Change since" not in build_division_plan(doc(), "en")["markdown"]
 
 
 def test_urgent_ponds_and_inspection_list():

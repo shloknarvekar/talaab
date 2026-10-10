@@ -76,7 +76,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 ## API
 
-- `GET /regions` returns `{ "regions": [{ "id", "name", "mode": "replay" | "live", "bbox", "synthetic", "first", "last", "dates": ["YYYY-MM-DD", ...] }] }`: only regions with published snapshots; `dates` are the exact values the date slider should offer.
+- `GET /regions` returns `{ "regions": [{ "id", "name", "mode": "replay" | "live", "bbox", "synthetic", "first", "last", "dates": ["YYYY-MM-DD", ...] }], "divisions": [{ "id", "name", "nameMr", "members": [region ids], "first", "last", "dates" }] }`: only regions with published snapshots; `dates` are the exact values the date slider should offer. `divisions` lists divisions that have a summary (`dates` = dated summaries for `GET /division?asOf=`).
 - `GET /ponds?region=latur-2024&asOf=YYYY-MM-DD` returns the whole document above.
 - `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape).
 - `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns
@@ -92,10 +92,23 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 - `GET /division?division=marathwada-2026&asOf=YYYY-MM-DD` (both optional) returns the Divisional Commissioner's summary of
   every live district: `{ "division": {"id", "name", "nameMr", "live"}, "asOf", "totals": {"districts", "ponds", "dry",
   "critical", "watch", "ok", "unknown", "flagged", "talukas"}, "districts": [{"region", "name", "nameMr", "asOf", "ponds",
-  "dry", "critical", "watch", "ok", "unknown", "flagged", "talukas", "earliestLikelyDry"}], "talukas": [up to 10, same counts +
-  "district", "region"], "urgentPonds": [up to 15 pond rows + "region", "district"], "inspect": [up to 10 flagged pond rows] }`.
-  Districts and talukas are most-in-need first (dry + critical, then watch, then earliest likely dry date). `asOf` returns
-  the latest summary on or before that date. Written by recompute after the districts are recomputed.
+  "dry", "critical", "watch", "ok", "unknown", "flagged", "talukas", "earliestLikelyDry", "change"?}], "change": {...} | null,
+  "talukas": [up to 10 talukas with dry/critical/watch ponds, same counts + "district", "region"], "allTalukas": [every taluka
+  of every district, same shape], "urgentPonds": [up to 15 pond rows + "region", "district"], "inspect": [up to 10 flagged
+  pond rows] }`. Districts and talukas are most-in-need first (dry + critical, then watch, then earliest likely dry date).
+  `asOf` returns the latest summary on or before that date. Written by recompute after the districts are recomputed.
+  - **What changed since the run before:** each district is compared with its latest snapshot on or before `asOf` − 5 days.
+    District `change` = `{"since": that snapshot's date, "dry", "critical", "watch", "unknown", "flagged"}` (differences of
+    counts, e.g. `critical: 14` = 14 more critical ponds; negative = fewer). Top-level `change` = the sum over compared
+    districts, `{"since": asOf − 5 days, "districts": how many were compared, ...}`; `null` (and no district `change`) when there
+    is no earlier snapshot. A big drop in `unknown` means ponds became forecastable, which is often why critical/watch rise:
+    show the two together.
+  - Pond rows (`urgentPonds`, `inspect`): `{region, district, districtMr, id, place, taluka, talukaMr, status, areaNowHa,
+    maxAreaHa, dryBy, daysLeft, flag, shrinkVsNeighbours, lat, lon}`. Open the pond with `GET /ponds/{id}?region={region}`.
+- `GET /division/outlines?division=marathwada-2026` returns the district outlines for a division map: a GeoJSON
+  FeatureCollection with `properties: {region, name, nameMr}` (join to `GET /division` `districts[].region`) and `credit`
+  (show "© OpenStreetMap contributors"). Simplified to ~300 m, ~15 KB gzipped, cached for a day. Static (rebuilt with
+  `backend/scripts/build_division_outlines.py`).
 - `POST /plan` with `"region": "marathwada-2026"` returns the division plan (same response shape, `status: "template"`, `pondIds: []`).
 - `GET /imagery/{region}/index.json`, `.../outlines.geojson`, `.../{pondId}/{YYYY-MM-DD}.jpg`: district imagery (`docs/imagery-contract.md`).
 

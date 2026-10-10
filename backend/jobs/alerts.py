@@ -116,8 +116,12 @@ def format_digest(division_name: str, as_of: str, division: dict, alerts: list[d
         new_by_region[a["region"]] = new_by_region.get(a["region"], 0) + 1
     t = division["totals"]
     lines = [f"Talaab update for {division_name}, as of {_d(as_of)}.",
-             f"{t['ponds']} ponds in {t['districts']} districts: {t['dry']} dry, {t['critical']} critical, {t['watch']} watch.", "",
-             "By district, most in need first:"]
+             f"{t['ponds']} ponds in {t['districts']} districts: {t['dry']} dry, {t['critical']} critical, {t['watch']} watch."]
+    ch = division.get("change")
+    if ch:
+        lines.append(f"Since {_d(ch['since'])}: dry {ch['dry']:+d}, critical {ch['critical']:+d}, watch {ch['watch']:+d}, "
+                     f"flagged {ch['flagged']:+d}, not visible {ch['unknown']:+d}.")
+    lines += ["", "By district, most in need first:"]
     for r in division["districts"]:
         new = new_by_region.get(r["region"], 0)
         lines.append(f"- {r['name']}: {r['dry']} dry, {r['critical']} critical, {r['watch']} watch"

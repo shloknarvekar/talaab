@@ -174,6 +174,15 @@ def test_division_districts_queue_and_the_division_gets_one_digest(data_dir):
     assert sent == [] and a["alertsQueued"] > 0 and b["alertsQueued"] > 0 and a["alertsSent"] == b["alertsSent"] == 0
     doc = recompute.write_division("marathwada-2026")
     assert {r["region"] for r in doc["districts"]} == {"latur-district-2026", "beed-district-2026"}
+    # what changed: each district vs its latest snapshot on or before 5 days earlier (one run ago), from the stored snapshots
+    since = (date.fromisoformat(doc["asOf"]) - timedelta(days=5)).isoformat()
+    assert doc["change"]["since"] == since and doc["change"]["districts"] == 2
+    for row in doc["districts"]:
+        dates = json.loads((data_dir / row["region"] / "index.json").read_text(encoding="utf-8"))["asOf"]
+        then_date = max(d for d in dates if d <= since)
+        then = json.loads((data_dir / row["region"] / "asof" / f"{then_date}.json").read_text(encoding="utf-8"))
+        assert row["change"]["since"] == then_date
+        assert row["change"]["critical"] == row["critical"] - sum(p["status"] == "critical" for p in then["ponds"])
 
     n = recompute.send_digest("marathwada-2026", publish=lambda s, body: sent.append((s, body)) or True)
     assert n == a["alertsQueued"] + b["alertsQueued"] and len(sent) == 1      # ONE email for both districts
@@ -215,3 +224,7 @@ def test_digest_text_uses_only_division_numbers_and_caps_the_list():
     assert "- Jalna: 1 dry, 20 critical, 25 watch (25 new alerts)" in body and "- Beed: 0 dry, 10 critical, 15 watch (1 new alert)" in body
     assert "- Jafferabad (Jalna): 1 dry, 6 critical, 13 watch" in body
     assert body.count("turned CRITICAL") == MAX_LISTED and "...and 6 more alerts (6 more ponds): see the map." in body
+    assert "Since" not in body.split("By district")[0]  # no earlier run to compare with: no change line
+    division["change"] = {"since": "2026-10-05", "districts": 2, "dry": 1, "critical": 4, "watch": -3, "unknown": -9, "flagged": 0}
+    body = format_digest("Marathwada (live, 2026)", "2026-10-10", division, alerts, "x")[1]
+    assert "Since 5 Oct 2026: dry +1, critical +4, watch -3, flagged +0, not visible -9." in body
