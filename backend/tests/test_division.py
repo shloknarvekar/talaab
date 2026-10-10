@@ -64,7 +64,7 @@ def test_change_since_the_run_before():
     same_day = summarise_division(DIVISION, [("jalna-district-2026", "Jalna", JALNA)], previous={"jalna-district-2026": JALNA})
     assert same_day["change"] is None  # a snapshot is never compared with itself
     en = build_division_plan(d, "en")["markdown"]
-    assert "**Change since 5 Oct 2026** (one run earlier, 1 of 2 districts compared): dry +1, critical +0, watch -1, flagged +1, not visible +0." in en
+    assert "**Change since 5 Oct 2026** (one run earlier, 1 of 2 districts compared): dry +1, critical +0, watch -1, flagged +1." in en
     assert "पासूनचा बदल" in build_division_plan(d, "mr")["markdown"] and "Change since" not in build_division_plan(doc(), "en")["markdown"]
 
 

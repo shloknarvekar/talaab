@@ -227,4 +227,14 @@ def test_digest_text_uses_only_division_numbers_and_caps_the_list():
     assert "Since" not in body.split("By district")[0]  # no earlier run to compare with: no change line
     division["change"] = {"since": "2026-10-05", "districts": 2, "dry": 1, "critical": 4, "watch": -3, "unknown": -9, "flagged": 0}
     body = format_digest("Marathwada (live, 2026)", "2026-10-10", division, alerts, "x")[1]
-    assert "Since 5 Oct 2026: dry +1, critical +4, watch -3, flagged +0, not visible -9." in body
+    assert "Since 5 Oct 2026: dry +1, critical +4, watch -3, flagged +0, and 9 ponds hidden until now became forecastable." in body
+
+
+def test_low_confidence_critical_alerts_say_so():
+    from jobs.alerts import _alert_lines
+    a = {"id": "P142", "place": "near Wadi", "taluka": "Jalna", "reason": "critical", "areaNowHa": 0.33, "maxAreaHa": 2.07,
+         "dryBy": {"earliest": "2026-10-11", "likely": "2026-10-12", "latest": "2026-10-13"}, "ratio": None}
+    assert "Low confidence" not in "\n".join(_alert_lines(a))
+    assert "Low confidence: confirm on the next satellite pass" in "\n".join(_alert_lines({**a, "confidence": "low"}))
+    snap = {"asOf": "2026-10-10", "ponds": [dict(pond("P1", 18.1, "critical"), confidence="low")]}
+    assert new_alerts({}, snap)[0]["confidence"] == "low"

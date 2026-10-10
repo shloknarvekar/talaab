@@ -74,6 +74,7 @@ def test_write_plan_rejects_twice():
 
 
 def test_tools_only_expose_the_requested_snapshot():
+    pytest.importorskip("strands")  # the Bedrock agent's SDK (backend/agent/requirements.txt)
     get_ponds, get_pond = plan_agent.make_tools(MOCK)
     full = get_ponds(region="latur-2024", as_of="2024-03-26")
     assert len(full["ponds"]) == 4 and "history" not in full["ponds"][0]

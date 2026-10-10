@@ -62,7 +62,9 @@ T = {
         "div_summary": "**Summary:** {n} ponds tracked in {d} districts: {dry} dry, {critical} critical, {watch} watch, {ok} ok, {unknown} not visible. {flagged} flagged for inspection.",
         "districts": "By district",
         "district_head": "| District | Ponds | Dry | Critical | Watch | Not visible | Flagged | Earliest likely dry date |",
-        "div_change": "**Change since {since}** (one run earlier, {d} of {n} districts compared): dry {dry}, critical {critical}, watch {watch}, flagged {flagged}, not visible {unknown}.",
+        "div_change": "**Change since {since}** (one run earlier, {d} of {n} districts compared): dry {dry}, critical {critical}, watch {watch}, flagged {flagged}{hidden}.",
+        "div_hidden_less": ", and {n} ponds hidden until now became forecastable",
+        "div_hidden_more": ", and {n} more are hidden by cloud",
         "div_talukas": "Talukas needing action first",
         "div_taluka_head": "| Taluka | District | Dry | Critical | Watch | Earliest likely dry date |",
         "urgent": "Most urgent ponds",
@@ -113,7 +115,9 @@ T = {
         "div_summary": "**सारांश:** {d} जिल्ह्यांतील एकूण {n} तलाव: {dry} कोरडे, {critical} गंभीर, {watch} लक्ष ठेवा, {ok} सुरक्षित, {unknown} दिसत नाहीत. {flagged} तलाव तपासणीसाठी.",
         "districts": "जिल्हानिहाय स्थिती",
         "district_head": "| जिल्हा | तलाव | कोरडे | गंभीर | लक्ष ठेवा | दिसत नाहीत | तपासणीसाठी | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
-        "div_change": "**{since} पासूनचा बदल** (एक फेरी आधी; {n} पैकी {d} जिल्ह्यांची तुलना): कोरडे {dry}, गंभीर {critical}, लक्ष ठेवा {watch}, तपासणीसाठी {flagged}, दिसत नाहीत {unknown}.",
+        "div_change": "**{since} पासूनचा बदल** (एक फेरी आधी; {n} पैकी {d} जिल्ह्यांची तुलना): कोरडे {dry}, गंभीर {critical}, लक्ष ठेवा {watch}, तपासणीसाठी {flagged}{hidden}.",
+        "div_hidden_less": "; आतापर्यंत न दिसलेले {n} तलाव आता अंदाजासाठी उपलब्ध",
+        "div_hidden_more": "; आणखी {n} तलाव ढगांमुळे दिसत नाहीत",
         "div_talukas": "प्राधान्याने कारवाई आवश्यक असलेले तालुके",
         "div_taluka_head": "| तालुका | जिल्हा | कोरडे | गंभीर | लक्ष ठेवा | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
         "urgent": "सर्वात तातडीचे तलाव",
@@ -174,6 +178,22 @@ def _taluka(p: dict, t: dict) -> str:
     return (p.get("talukaMr") if t["near"] != "near" else None) or p.get("taluka") or ""
 
 
+# Region names in Marathi plans: district names from OSM name:mr, the rest word for word
+_MR_NAMES = {"Chhatrapati Sambhajinagar": "छत्रपती संभाजीनगर", "Latur": "लातूर", "Beed": "बीड", "Dharashiv": "धाराशिव",
+             "Nanded": "नांदेड", "Parbhani": "परभणी", "Hingoli": "हिंगोली", "Jalna": "जालना"}
+_MR_WORDS = [(" district", " जिल्हा"), ("live, 2026", "थेट, 2026"), ("2024 replay, SYNTHETIC data", "2024 पुनरावलोकन, कृत्रिम माहिती"),
+             ("2024 replay", "2024 चे पुनरावलोकन"), ("2023 replay", "2023 चे पुनरावलोकन")]
+
+
+def region_name(name: str, lang: str) -> str:
+    """'Latur district (live, 2026)' -> 'लातूर जिल्हा (थेट, 2026)' in Marathi plans."""
+    if lang != "mr":
+        return name
+    for en, mr in list(_MR_NAMES.items()) + _MR_WORDS:
+        name = name.replace(en, mr)
+    return name
+
+
 def _confidence_note(p: dict, t: dict) -> str:
     """Countdowns that rest on 3 passes or on one big drop were right far less often in the backtests
     (logic/countdown.py confidence): say so next to the line."""
@@ -219,7 +239,7 @@ def build_plan(doc: dict, language: str = "en") -> dict:
             lines.append(empty or t["none"])
 
     # Header
-    lines.append(f"# {t['title'].format(region=doc['region']['name'])}")
+    lines.append(f"# {t['title'].format(region=region_name(doc['region']['name'], lang))}")
     lines.append("")
     asof_txt = _fmt_date(doc["asOf"], lang)
     lines.append(t["asof"].format(asof=asof_txt, n_ok=sum(s.get("status") == "ok" for s in scenes),
@@ -376,7 +396,9 @@ def build_division_plan(div: dict, language: str = "en") -> dict:
     ch = div.get("change")
     if ch:
         lines += ["", t["div_change"].format(since=_fmt_date(ch["since"], lang), d=ch["districts"], n=tt["districts"],
-                                             **{k: f"{ch[k]:+d}" for k in ("dry", "critical", "watch", "unknown", "flagged")})]
+                                             hidden=(t["div_hidden_less"].format(n=-ch["unknown"]) if ch["unknown"] < 0 else
+                                                     t["div_hidden_more"].format(n=ch["unknown"]) if ch["unknown"] > 0 else ""),
+                                             **{k: f"{ch[k]:+d}" for k in ("dry", "critical", "watch", "flagged")})]
 
     lines += ["", f"## {t['districts']}", "", t["district_head"], "|---|---|---|---|---|---|---|---|"]
     for r in div["districts"]:

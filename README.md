@@ -112,9 +112,12 @@ python backend/scripts/smoke_test.py   # checks every endpoint
 ## Setup
 
 ```bash
-# backend tests (pure Python, no AWS needed)
-pip install -r backend/requirements-dev.txt
+# backend tests (no AWS needed; the same install as CI)
+pip install -r backend/requirements-dev.txt -r backend/scripts/requirements.txt -r backend/agent/requirements.txt
 cd backend && python -m pytest
+
+# satellite pipeline tests
+pip install -r pipeline/requirements.txt && python -m pytest pipeline/tests
 
 # deploy (needs AWS CLI + SAM CLI + credentials)
 cd backend && sam build && sam deploy

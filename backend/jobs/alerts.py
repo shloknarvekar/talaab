@@ -56,7 +56,8 @@ def new_alerts(prev_state: dict, snap: dict) -> list[dict]:
             out.append({"id": p["id"], "key": pond_key(p), "place": p.get("place") or "", "taluka": p.get("taluka") or "",
                         "reason": r, "status": p["status"],
                         "areaNowHa": p.get("areaNowHa"), "maxAreaHa": p.get("maxAreaHa"),
-                        "dryBy": p.get("dryBy"), "ratio": p.get("shrinkVsNeighbours")})
+                        "dryBy": p.get("dryBy"), "ratio": p.get("shrinkVsNeighbours"),
+                        **({"confidence": p["confidence"]} if p.get("confidence") else {})})
     return sorted(out, key=lambda a: (ORDER[a["reason"]], a["id"]))
 
 
@@ -85,7 +86,8 @@ def _alert_lines(a: dict, district: str | None = None) -> list[str]:
     out = [f"- {a['id']}{where} {REASONS[a['reason']]}."]
     if a["reason"] == "critical" and a.get("dryBy"):
         out.append(f"    Likely dry {_d(a['dryBy']['likely'])} (range {_d(a['dryBy']['earliest'])} to {_d(a['dryBy']['latest'])}); "
-                   f"{a['areaNowHa']} ha of {a['maxAreaHa']} ha left.")
+                   f"{a['areaNowHa']} ha of {a['maxAreaHa']} ha left."
+                   + (" Low confidence: confirm on the next satellite pass before acting." if a.get("confidence") == "low" else ""))
     if a["reason"] == "flag" and a.get("ratio"):
         out.append(f"    Shrinking {a['ratio']}x faster than nearby ponds under the same sun. This suggests pumping; it is not proof.")
     if a["reason"] == "dry":
@@ -119,8 +121,10 @@ def format_digest(division_name: str, as_of: str, division: dict, alerts: list[d
              f"{t['ponds']} ponds in {t['districts']} districts: {t['dry']} dry, {t['critical']} critical, {t['watch']} watch."]
     ch = division.get("change")
     if ch:
+        hidden = (f", and {-ch['unknown']} ponds hidden until now became forecastable" if ch["unknown"] < 0 else
+                  f", and {ch['unknown']} more are hidden by cloud" if ch["unknown"] > 0 else "")
         lines.append(f"Since {_d(ch['since'])}: dry {ch['dry']:+d}, critical {ch['critical']:+d}, watch {ch['watch']:+d}, "
-                     f"flagged {ch['flagged']:+d}, not visible {ch['unknown']:+d}.")
+                     f"flagged {ch['flagged']:+d}{hidden}.")
     lines += ["", "By district, most in need first:"]
     for r in division["districts"]:
         new = new_by_region.get(r["region"], 0)

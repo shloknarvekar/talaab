@@ -84,3 +84,12 @@ def test_dates_after_this_seasons_june_go_to_monsoon_not_a_new_period():
     md = build_plan(doc, "en")["markdown"]
     assert "2025" not in md.split("## Expected to last until the monsoon")[0]
     assert f"**{p['id']}**" in md.split("## Expected to last until the monsoon")[1]
+
+
+def test_marathi_plans_name_the_region_in_marathi():
+    import re
+    from jobs.regions import REGIONS
+    from logic.plan import region_name
+    assert region_name("Latur district (live, 2026)", "mr") == "लातूर जिल्हा (थेट, 2026)"
+    assert region_name("Latur district (live, 2026)", "en") == "Latur district (live, 2026)"
+    assert all(not re.search(r"[A-Za-z]", region_name(r["name"], "mr")) for r in REGIONS.values())
