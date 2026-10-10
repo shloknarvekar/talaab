@@ -86,7 +86,7 @@ a { color: #5eead4; }
 .timelapse-thumb-preview { width: 72px; height: 72px; flex: 0 0 72px; border-radius: 8px; object-fit: cover; border: 1px solid #335948; background: #0a1410; }
 .timelapse-feature-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .timelapse-feature-title { margin: 0; font: 700 13px/1.25 'Instrument Sans', sans-serif; color: #f1f8f3; letter-spacing: -.02em; }
-.timelapse-feature-desc { margin: 0; font-size: 10.5px; line-height: 1.4; color: #9cb1a5; }
+.timelapse-feature-desc { margin: 0; font-size: 12px; line-height: 1.4; color: #9cb1a5; }
 .timelapse-feature-btn { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid #3d7a60; background: #194634; color: #d8fae7; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .15s ease, border-color .15s ease; text-align: center; }
 .timelapse-feature-btn:hover { background: #225a43; border-color: #52a180; }
 .status-summary { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 9px; padding: 10px 16px; border-bottom: 1px solid #263830; }
