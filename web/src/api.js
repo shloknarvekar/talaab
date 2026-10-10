@@ -2,11 +2,7 @@
 const DEFAULT_API = 'https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com';
 export const API_BASE = (import.meta.env.VITE_TALAAB_API_URL || DEFAULT_API).replace(/\/$/, '');
 
-/**
- * Where a region's imagery lives (docs/imagery-contract.md layout: index.json, outlines.geojson, <pond>/<date>.jpg).
- * District regions are imaged on AWS and served by the API (thumbnails redirect to signed S3 links); the small Latur
- * box's imagery is committed with the site.
- */
+/** District imagery is served through the API; the small Latur box uses committed public assets. */
 export function imageryBase(regionId) {
   return regionId?.includes('district') ? `${API_BASE}/imagery` : '/imagery';
 }
@@ -26,10 +22,13 @@ async function getJson(path, options) {
   return body;
 }
 
-/** Regions with published snapshots. Synthetic test data is intentionally hidden. */
+/** Published regions and division summaries advertised by GET /regions. */
 export async function fetchRegions() {
-  const { regions, divisions = [] } = await getJson('/regions');
-  return { regions: regions.filter((region) => !region.synthetic), divisions };
+  const payload = await getJson('/regions');
+  return {
+    regions: (payload?.regions ?? []).filter((region) => !region.synthetic),
+    divisions: payload?.divisions ?? [],
+  };
 }
 
 export function fetchPonds(regionId, asOf) {
@@ -43,34 +42,34 @@ const ALERT_TEXT = {
 };
 
 /**
- * Alert timeline, one item per pond alert. GET /alerts returns events (one email each):
- * {simulated, events: [{asOf, subject, alerts: [{id, reason, place, areaNowHa, maxAreaHa, dryBy, ratio}]}]}.
- * Replay regions are simulated (what Talaab would have emailed); live regions list emails actually sent.
- * Regions without a published timeline return 404; that is not fatal.
+ * GET /alerts returns email events; flatten them to an item per pond alert.
+ * Replay timelines are simulated. Missing timelines are not fatal.
  */
-// Marathwada division: one summary of every live district (GET /division) and district outlines for its map.
-export function fetchDivision(divisionId) {
-  return getJson(`/division?division=${encodeURIComponent(divisionId)}`);
-}
-
-export function fetchDivisionOutlines(divisionId) {
-  return getJson(`/division/outlines?division=${encodeURIComponent(divisionId)}`);
-}
-
 export async function fetchAlerts(regionId) {
   try {
     const payload = await getJson(`/alerts?region=${encodeURIComponent(regionId)}`);
-    return (payload?.events ?? []).flatMap((event) => (event.alerts ?? []).map((a) => ({
+    return (payload?.events ?? []).flatMap((event) => (event.alerts ?? []).map((alert) => ({
       date: event.asOf,
-      pondId: a.id,
-      type: a.reason,
-      place: a.place,
-      message: (ALERT_TEXT[a.reason] ?? (() => 'Pond risk changed'))(a),
+      pondId: alert.id,
+      type: alert.reason,
+      place: alert.place,
+      message: (ALERT_TEXT[alert.reason] ?? (() => 'Pond risk changed'))(alert),
     })));
   } catch (error) {
     if (error.status === 404) return [];
     throw error;
   }
+}
+
+/** Division-level summary and district boundaries come directly from the API. */
+export function fetchDivision(divisionId = 'marathwada-2026', asOf) {
+  const query = new URLSearchParams({ division: divisionId });
+  if (asOf) query.set('asOf', asOf);
+  return getJson(`/division?${query.toString()}`);
+}
+
+export function fetchDivisionOutlines(divisionId = 'marathwada-2026') {
+  return getJson(`/division/outlines?division=${encodeURIComponent(divisionId)}`);
 }
 
 /** Backtest report for a region, or null when none has been published. */

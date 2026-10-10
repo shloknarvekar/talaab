@@ -1,0 +1,144 @@
+.hover-reveal-section {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 22px;
+  color: #17231d;
+  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.hover-reveal-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+.hover-reveal-heading h3 { margin: 0; color: #17231d; font: 400 clamp(20px, 2vw, 27px)/1.1 'Instrument Serif', Georgia, serif; }
+.hover-reveal-eyebrow { color: #637469; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.hover-reveal-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; list-style: none; padding: 0; margin: 0; }
+.hover-reveal-item { min-width: 0; transition: transform .35s ease, opacity .35s ease, filter .35s ease; }
+.hover-reveal-card {
+  position: relative; display: flex; width: 100%; min-height: 172px; padding: 0; overflow: hidden; isolation: isolate;
+  border: 1px solid rgba(255,255,255,.86); border-radius: 16px; background: #2a4436; color: #fff; text-align: left;
+  box-shadow: 0 4px 16px rgba(24,30,45,.08); cursor: pointer;
+  transition: transform .35s ease, border-color .25s ease, box-shadow .35s ease, filter .35s ease;
+}
+.hover-reveal-card-image { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.2,.7,.2,1); }
+.hover-reveal-card-shade { position: absolute; z-index: 0; inset: 0; background: linear-gradient(180deg, rgba(7,18,12,.05) 4%, rgba(7,18,12,.38) 46%, rgba(7,18,12,.9) 100%); transition: background .3s ease; }
+.hover-reveal-card-copy { position: relative; z-index: 1; display: flex; width: 100%; min-height: inherit; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 15px; }
+.hover-reveal-card-subtitle { display: block; margin-bottom: 7px; color: rgba(255,255,255,.82); font-size: 9px; font-weight: 800; line-height: 1.35; letter-spacing: .13em; text-transform: uppercase; }
+.hover-reveal-card-copy > strong { display: block; color: #fff; font: 600 clamp(16px, 1.5vw, 21px)/1.05 'Instrument Sans', sans-serif; letter-spacing: -.025em; }
+.hover-reveal-card-description { display: block; max-height: 0; margin-top: 0; overflow: hidden; color: rgba(255,255,255,.9); font-size: 11px; line-height: 1.45; opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease, max-height .3s ease, margin .3s ease; }
+.hover-reveal-card-action { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; color: #f2f6ea; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+.hover-reveal-card-action svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s ease; }
+.hover-reveal-card:hover, .hover-reveal-card:focus-visible, .hover-reveal-card.is-selected { transform: translateY(-3px) scale(1.015); border-color: #fff; box-shadow: 0 10px 28px rgba(21,44,31,.18); outline: none; }
+.hover-reveal-card:hover .hover-reveal-card-image, .hover-reveal-card:focus-visible .hover-reveal-card-image, .hover-reveal-card.is-selected .hover-reveal-card-image { transform: scale(1.08); }
+.hover-reveal-card:hover .hover-reveal-card-description, .hover-reveal-card:focus-visible .hover-reveal-card-description, .hover-reveal-card.is-selected .hover-reveal-card-description { max-height: 68px; margin-top: 7px; opacity: 1; transform: translateY(0); }
+.hover-reveal-card:hover .hover-reveal-card-action svg, .hover-reveal-card:focus-visible .hover-reveal-card-action svg { transform: translateX(3px); }
+.hover-reveal-card:focus-visible { outline: 3px solid #3c7d50; outline-offset: 3px; }
+.hover-reveal-card:disabled { cursor: not-allowed; opacity: .48; filter: grayscale(.35); transform: none; }
+.hover-reveal-grid:hover .hover-reveal-item:not(:has(.hover-reveal-card:hover)) { opacity: .66; filter: saturate(.8); transform: scale(.985); }
+.hover-reveal-grid:focus-within .hover-reveal-item:not(:has(.hover-reveal-card:focus-visible)) { opacity: .76; }
+.hover-reveal-detail { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-top: 9px; padding: 14px 16px; border: 1px solid rgba(70,100,77,.18); border-radius: 13px; background: rgba(255,255,255,.77); box-shadow: inset 0 1px 0 rgba(255,255,255,.8); animation: hover-reveal-enter .2s ease both; }
+.hover-reveal-detail > div { min-width: 0; }
+.hover-reveal-detail > div > span { display: block; color: #68796d; font-size: 9px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.hover-reveal-detail > div > strong { display: block; margin-top: 4px; color: #17231d; font: 600 16px/1.2 'Instrument Sans', sans-serif; }
+.hover-reveal-detail p { margin: 5px 0 0; color: #536257; font-size: 12px; line-height: 1.55; }
+.hover-reveal-close { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(80,105,87,.22); border-radius: 50%; background: #fff; color: #34483a; font-size: 20px; line-height: 1; cursor: pointer; }
+.hover-reveal-close:focus-visible { outline: 2px solid #3c7d50; outline-offset: 2px; }
+.hover-reveal-section--compact .hover-reveal-card { min-height: 126px; border-radius: 13px; }
+.hover-reveal-section--compact .hover-reveal-card-copy { padding: 13px; }
+.hover-reveal-section--compact .hover-reveal-card-copy > strong { font-size: clamp(14px, 1.3vw, 18px); }
+.hover-reveal-section--compact .hover-reveal-card-action { margin-top: 7px; }
+.hover-reveal-section--micro { margin: 0; }
+.hover-reveal-section--micro .hover-reveal-heading { margin: 0 0 6px; }
+.hover-reveal-section--micro .hover-reveal-heading h3 { font: 700 10px/1.2 'Instrument Sans', sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #566b5d; }
+.hover-reveal-section--micro .hover-reveal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.hover-reveal-section--micro .hover-reveal-card { min-height: 78px; border-radius: 9px; }
+.hover-reveal-section--micro .hover-reveal-card-copy { padding: 7px; }
+.hover-reveal-section--micro .hover-reveal-card-subtitle { margin-bottom: 4px; font-size: 7px; letter-spacing: .08em; }
+.hover-reveal-section--micro .hover-reveal-card-copy > strong { font-size: 11px; line-height: 1.1; }
+.hover-reveal-section--micro .hover-reveal-card-description { display: none; }
+.hover-reveal-section--micro .hover-reveal-card-action { margin-top: 5px; font-size: 8px; }
+.hover-reveal-section--micro .hover-reveal-card-action svg { width: 10px; height: 10px; }
+.hover-reveal-section--micro .hover-reveal-detail { margin-top: 5px; padding: 8px 9px; border-radius: 9px; }
+.hover-reveal-section--micro .hover-reveal-detail > div > strong { font-size: 12px; }
+.hover-reveal-section--micro .hover-reveal-detail p { font-size: 10px; }
+.hover-reveal-section--micro .hover-reveal-close { flex-basis: 24px; width: 24px; height: 24px; }
+@keyframes hover-reveal-enter { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 900px) {
+  .hover-reveal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hover-reveal-card { min-height: 150px; }
+}
+@media (max-width: 760px) {
+  .hover-reveal-section { margin-bottom: 17px; }
+  .hover-reveal-section--compact .hover-reveal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hover-reveal-section--compact .hover-reveal-card { min-height: 130px; }
+  .hover-reveal-section--micro .hover-reveal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hover-reveal-section--micro .hover-reveal-card { min-height: 76px; }
+  .hover-reveal-card-copy { padding: 12px; }
+  .hover-reveal-card-copy > strong { font-size: 16px; }
+}
+@media (max-width: 430px) {
+  .hover-reveal-section--regular .hover-reveal-grid { grid-template-columns: 1fr; }
+  .hover-reveal-section--regular .hover-reveal-card { min-height: 140px; }
+  .hover-reveal-section--micro .hover-reveal-card-copy { padding: 6px; }
+  .hover-reveal-section--micro .hover-reveal-card-copy > strong { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-reveal-section *, .hover-reveal-section *::before, .hover-reveal-section *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Richer Motion-style card treatment: staggered entrances, a soft orbit, and a quick glassy sweep. */
+@keyframes hover-reveal-rise { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes hover-reveal-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes hover-reveal-shine { 0% { transform: translateX(-150%) skewX(-18deg); opacity: 0; } 22% { opacity: .65; } 70%, 100% { transform: translateX(150%) skewX(-18deg); opacity: 0; } }
+.hover-reveal-item { animation: hover-reveal-rise .58s cubic-bezier(.2,.75,.25,1) both; animation-delay: calc(min(var(--card-index, 0), 8) * 75ms); }
+.hover-reveal-card { transform-style: preserve-3d; backface-visibility: hidden; }
+.hover-reveal-card::after { position: absolute; z-index: 2; top: -18%; bottom: -18%; left: -30%; width: 27%; content: ""; pointer-events: none; opacity: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent); transform: translateX(-150%) skewX(-18deg); }
+.hover-reveal-card:hover::after, .hover-reveal-card:focus-visible::after, .hover-reveal-card.is-selected::after { animation: hover-reveal-shine .82s ease both; }
+.hover-reveal-card-topline { position: absolute; z-index: 1; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; }
+.hover-reveal-card-number { display: inline-grid; min-width: 28px; height: 24px; place-items: center; padding: 0 7px; border: 1px solid rgba(255,255,255,.38); border-radius: 999px; background: rgba(9,24,15,.25); color: rgba(255,255,255,.95); font: 800 9px/1 'Instrument Sans', sans-serif; letter-spacing: .12em; backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,255,255,.13); }
+.hover-reveal-card-orbit { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid rgba(255,255,255,.42); border-radius: 50%; background: rgba(9,24,15,.24); color: rgba(255,255,255,.95); backdrop-filter: blur(8px); transition: transform .35s ease, background .35s ease; }
+.hover-reveal-card-orbit svg { width: 20px; height: 20px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; }
+.hover-reveal-card:hover .hover-reveal-card-orbit, .hover-reveal-card:focus-visible .hover-reveal-card-orbit, .hover-reveal-card.is-selected .hover-reveal-card-orbit { transform: rotate(35deg) scale(1.08); background: rgba(255,255,255,.2); }
+.hover-reveal-card:hover .hover-reveal-card-number, .hover-reveal-card.is-selected .hover-reveal-card-number { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.75); }
+.hover-reveal-card-copy { padding-top: 53px; }
+.hover-reveal-card-copy > strong { text-wrap: balance; text-shadow: 0 2px 16px rgba(0,0,0,.2); }
+.hover-reveal-card-description { max-width: 30em; }
+.hover-reveal-card.is-selected { outline: 2px solid rgba(255,255,255,.9); outline-offset: -5px; }
+.hover-reveal-card.is-selected .hover-reveal-card-action { color: #fff; }
+.hover-reveal-card.is-selected .hover-reveal-card-action svg { transform: rotate(90deg); }
+.hover-reveal-detail { transform-origin: top center; }
+.hover-reveal-detail > div > strong { letter-spacing: -.02em; }
+.hover-reveal-close { transition: transform .2s ease, background .2s ease, color .2s ease; }
+.hover-reveal-close:hover { transform: rotate(90deg); background: #345a3d; color: #fff; }
+.hover-reveal-section--regular .hover-reveal-item:nth-child(2) { transform: translateY(6px); }
+.hover-reveal-section--regular .hover-reveal-item:nth-child(2) .hover-reveal-card { border-bottom-left-radius: 28px; }
+.hover-reveal-section--regular .hover-reveal-item:nth-child(3) .hover-reveal-card { border-top-right-radius: 28px; }
+.hover-reveal-section--regular .hover-reveal-item:nth-child(4) { transform: translateY(4px); }
+.hover-reveal-section--regular .hover-reveal-card { min-height: 220px; }
+.hover-reveal-section--compact .hover-reveal-card-copy { padding-top: 48px; }
+.hover-reveal-section--compact .hover-reveal-card { min-height: 154px; }
+.hover-reveal-section--compact .hover-reveal-card-topline { top: 9px; left: 9px; right: 9px; }
+.hover-reveal-section--compact .hover-reveal-card-orbit { width: 26px; height: 26px; }
+.hover-reveal-section--compact .hover-reveal-card-orbit svg { width: 17px; height: 17px; }
+.hover-reveal-section--compact .hover-reveal-card-number { height: 21px; min-width: 25px; font-size: 8px; }
+.hover-reveal-section--micro .hover-reveal-card-topline { top: 5px; left: 5px; right: 5px; }
+.hover-reveal-section--micro .hover-reveal-card-copy { padding-top: 29px; }
+.hover-reveal-section--micro .hover-reveal-card-number { min-width: 18px; height: 16px; padding: 0 4px; font-size: 6px; }
+.hover-reveal-section--micro .hover-reveal-card-orbit { width: 19px; height: 19px; }
+.hover-reveal-section--micro .hover-reveal-card-orbit svg { width: 13px; height: 13px; }
+.hover-reveal-section--micro .hover-reveal-item { animation-duration: .42s; }
+@media (max-width: 760px) {
+  .hover-reveal-section--regular .hover-reveal-item:nth-child(2), .hover-reveal-section--regular .hover-reveal-item:nth-child(4) { transform: none; }
+  .hover-reveal-section--regular .hover-reveal-card { min-height: 174px; }
+  .hover-reveal-section--compact .hover-reveal-card { min-height: 150px; }
+}
+@media (max-width: 430px) {
+  .hover-reveal-section--regular .hover-reveal-card { min-height: 160px; }
+  .hover-reveal-section--compact .hover-reveal-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .hover-reveal-section--compact .hover-reveal-card { min-height: 142px; }
+  .hover-reveal-section--compact .hover-reveal-card-copy { padding: 42px 10px 11px; }
+  .hover-reveal-section--compact .hover-reveal-card-copy > strong { font-size: 14px; }
+  .hover-reveal-section--compact .hover-reveal-card-description { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-reveal-item { animation: none !important; }
+  .hover-reveal-card::after { display: none !important; }
+  .hover-reveal-card-orbit, .hover-reveal-close { transition: none !important; }
+}

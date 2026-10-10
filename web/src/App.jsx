@@ -3,6 +3,7 @@ import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Too
 import MapView from './components/MapView';
 import PondList from './components/PondList';
 import TalaabLandingPage from './components/ui/TalaabLandingPage';
+import HoverRevealCards from './components/ui/HoverRevealCards';
 import DivisionOverview from './components/DivisionOverview';
 
 // Tabs opened less often load on demand: the plan needs the Markdown renderer, About the portfolio artwork.
@@ -73,8 +74,9 @@ export default function App() {
   const requestId = useRef(0);
   const pendingPondRef = useRef(null);
   const sheetTouchStart = useRef(null);
+  const [dataRetryVersion, setDataRetryVersion] = useState(0);
 
-  // Warm the 1 MB map engine while the visitor reads the landing page, so opening the map doesn't stall on it.
+  // Warm the map engine while the visitor reads the landing page, so opening the map doesn't stall on it.
   useEffect(() => {
     if (!import.meta.env.VITE_AWS_MAPS_KEY) return undefined;
     const warm = () => { import('maplibre-gl').then(() => import('@maplibre/maplibre-gl-leaflet')).catch(() => {}); };
@@ -82,25 +84,41 @@ export default function App() {
     return () => ('cancelIdleCallback' in window ? window.cancelIdleCallback(id) : window.clearTimeout(id));
   }, []);
 
-  // On narrow screens the region chips scroll sideways: keep the selected one in view.
-  useEffect(() => {
-    document.querySelector('.region-switch button.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [regionId]);
-
-  useEffect(() => {
-    fetchRegions()
-      .then(({ regions: list, divisions: divisionList = [] }) => {
-        if (!list.length) throw new Error('No published regions yet.');
-        setRegions(list);
-        setDivisions(divisionList);
-        const live = list.filter((r) => r.mode === 'live');
-        const first = live.find((r) => r.id.includes('district')) ?? live[0] ?? list[0];
-        setRegionId(first.id);
-        setDateIndex(first.dates.length - 1);
-        setVisibleStatuses(defaultStatuses(first.mode));
-      })
-      .catch((err) => { setError(`Could not reach the Talaab API: ${err.message}`); setLoading(false); });
+  // Retryable region initialization is shared by first load and error recovery.
+  const loadRegions = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { regions: list, divisions: divisionList = [] } = await fetchRegions();
+      if (!list.length) throw new Error('No published regions yet.');
+      setRegions(list);
+      setDivisions(divisionList);
+      const live = list.filter((r) => r.mode === 'live');
+      const first = live.find((r) => r.id.includes('district')) ?? live[0] ?? list[0];
+      setRegionId(first.id);
+      setDateIndex(first.dates.length - 1);
+      setVisibleStatuses(defaultStatuses(first.mode));
+    } catch (err) {
+      setError(`Could not reach the Talaab API: ${err.message}`);
+      setLoading(false);
+    }
   }, []);
+
+  const retryInitialLoad = useCallback(() => {
+    if (!regions.length || !regionId) {
+      loadRegions();
+      return;
+    }
+    setError('');
+    setDataRetryVersion((version) => version + 1);
+  }, [loadRegions, regionId, regions.length]);
+
+  // On narrow screens the region bar becomes one native selector; desktop chips remain for keyboard and e2e selectors.
+  useEffect(() => {
+    document.querySelector('.region-switch button.active, .region-switch-mobile select')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [regionId, activeTab]);
+
+  useEffect(() => { loadRegions(); }, [loadRegions]);
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -177,7 +195,7 @@ export default function App() {
       })
       .catch((err) => id === requestId.current && setError(err.message))
       .finally(() => id === requestId.current && setLoading(false));
-  }, [regionId, asOf]);
+  }, [regionId, asOf, dataRetryVersion]);
 
   // A replay advances exactly one published API date per step. It never invents intermediate dates.
   useEffect(() => {
@@ -277,11 +295,12 @@ export default function App() {
   }
 
   if (!data) {
-    return <main className="loading-screen"><div className="loading-mark">तालाब</div><p>{error || 'Loading pond intelligence…'}</p></main>;
+    return <main className="loading-screen" aria-live="polite"><div className="loading-mark">तालाब</div><p>{error || 'Loading pond intelligence…'}</p>{error && <button type="button" className="retry-action" onClick={retryInitialLoad}>Retry connection</button>}</main>;
   }
 
   return (
     <main className="app-shell">
+      {activeTab === 'ponds' && <a className="skip-to-map" href="#pond-map-target">Skip to map</a>}
       <header className="topbar">
         <div className="app-primary-nav">
           <button
@@ -321,7 +340,7 @@ export default function App() {
             <div className="region-switch" role="group" aria-label="Choose region">
               {/* Grouped by what the viewer is looking at: today's live monitoring, then the 2024 backtest replay. */}
               <span className="region-group-label">Live</span>
-              {marathwadaDivision && <button type="button" data-region={marathwadaDivision.id} className={`division-launch-button ${activeTab === 'division' ? 'active' : ''}`} onClick={() => { setPlaying(false); setPlanScope(null); setActiveTab('division'); }} aria-pressed={activeTab === 'division'}>Marathwada · all {marathwadaDivision.members?.length ?? 8} districts</button>}
+              {marathwadaDivision && <button type="button" data-region={marathwadaDivision.id} className={`division-launch-button ${activeTab === 'division' ? 'active' : ''}`} onClick={() => { setPlaying(false); setPlanScope(null); setActiveTab('division'); }} aria-pressed={activeTab === 'division'}><svg className="division-launch-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 3.5 6 2l3.8 1.5L13.5 2v10.5L9.8 14 6 12.5l-3.5 1.5z"/><path d="M6 2v10.5M9.8 3.5V14"/></svg><span>Marathwada · all {marathwadaDivision.members?.length ?? 8} districts</span></button>}
               {regions.filter((r) => r.id === 'latur-district-2026').map((r) => (
                 <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={r.id === regionId && activeTab !== 'division' ? 'active' : ''} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>Latur district</button>
               ))}
@@ -343,6 +362,34 @@ export default function App() {
               {['latur-district-2024', 'latur-2024'].map((id) => regions.find((r) => r.id === id)).filter(Boolean).map((r) => (
                 <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`${r.id === 'latur-2024' ? 'region-minor ' : ''}${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>{r.id === 'latur-2024' ? 'Latur test box' : 'Latur district'}</button>
               ))}
+            </div>
+            <div className="region-switch-mobile">
+              <label className="visually-hidden" htmlFor="region-switch-mobile-select">Choose region</label>
+              <select
+                id="region-switch-mobile-select"
+                aria-label="Choose region or division"
+                value={activeTab === 'division' ? '__division__' : (regionId ?? '')}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  if (next === '__division__') {
+                    setPlaying(false);
+                    setPlanScope(null);
+                    setActiveTab('division');
+                    return;
+                  }
+                  if (!next) return;
+                  if (activeTab === 'division') setActiveTab('ponds');
+                  switchRegion(next);
+                }}
+              >
+                <optgroup label="Live">
+                  {marathwadaDivision && <option value="__division__" data-region={marathwadaDivision.id}>Marathwada · all {marathwadaDivision.members?.length ?? 8} districts</option>}
+                  {regions.filter((r) => r.mode === 'live').map((r) => <option key={r.id} value={r.id} data-region={r.id}>{regionLabel(r)}</option>)}
+                </optgroup>
+                <optgroup label="2024 replay">
+                  {regions.filter((r) => r.mode !== 'live').map((r) => <option key={r.id} value={r.id} data-region={r.id}>{regionLabel(r)}</option>)}
+                </optgroup>
+              </select>
             </div>
           </div>
 
@@ -370,7 +417,7 @@ export default function App() {
           ? <><b><span className="live-pulse" /> Live region</b> · Recomputed on AWS after new Sentinel-2 passes. Grey “Too early” ponds have fewer than three valid passes in the last 45 days, so Talaab will not guess a drying date.</>
           : <><b>2024 replay</b> · Each date shows only what Talaab could have known then. Ranges, not exact dates.</>}
       </div>}
-      {error && <div className="error-strip" role="status">{error}</div>}
+      {error && <div className="error-strip" role="status"><span>{error}</span>{data && <button type="button" className="error-retry" onClick={retryInitialLoad}>Retry</button>}</div>}
 
       {activeTab === 'division' && <DivisionOverview
         division={marathwadaDivision}
@@ -401,11 +448,34 @@ export default function App() {
             </div>
             <div className="sidebar-stack">
             <div className="story-block">
-              <span className="story-overline">{isLive ? 'THE DISTRICT TODAY' : 'THE 2024 SEASON · REPLAY'}</span>
               <h2>{headline}</h2>
               <p>{flaggedCount} pond{flaggedCount === 1 ? '' : 's'} shrinking faster than the local baseline. The flag suggests pumping; it is not proof.</p>
               <div className="sun-share-inline"><span>☀ SUN'S SHARE</span><strong>{data.sunShareMm ?? '—'} mm</strong><small>evaporation in the latest window</small></div>
             </div>
+            <HoverRevealCards
+              className="map-quick-actions"
+              density="micro"
+              heading="Quick map actions"
+              ariaLabel="Quick pond map actions"
+              items={[
+                { id: 'map-risk-first', title: 'Risk first', subtitle: 'DRY + CRITICAL', imageUrl: '/imagery/latur-2024/P003/2024-05-30.jpg', description: 'Show urgent ponds and open the first priority.', detail: 'The map is filtered to dry and critical ponds. Counts and forecast windows still come from the published API data.', actionLabel: 'Filter risk' },
+                { id: 'map-flagged', title: 'Inspect a flag', subtitle: 'FIELD VISIT', imageUrl: '/imagery/latur-2024/P003/2024-04-15.jpg', description: 'Open a pond flagged for faster-than-sun shrinkage.', detail: 'The flag suggests pumping but does not prove it. Use it as a reason to inspect the site, not as an accusation.', actionLabel: 'Find a flag' },
+                { id: 'map-satellite', title: 'Satellite layer', subtitle: 'MAP STYLE', imageUrl: '/imagery/latur-2024/P003/2024-03-06.jpg', description: 'Switch between the map and satellite basemap.', detail: 'Toggle the underlying basemap. Pond status filters and selection stay in place.', actionLabel: 'Toggle layer' },
+              ]}
+              onActivate={(item) => {
+                if (item.id === 'map-risk-first') {
+                  setVisibleStatuses(['dry', 'critical']);
+                  const priority = ponds.find((pond) => pond.status === 'dry') ?? [...ponds.filter((pond) => pond.status === 'critical')].sort((a, b) => (a.daysLeft?.likely ?? Infinity) - (b.daysLeft?.likely ?? Infinity))[0];
+                  if (priority) openPondFromList(priority.id);
+                } else if (item.id === 'map-flagged') {
+                  const flagged = ponds.find((pond) => pond.flag === 'faster-than-sun');
+                  if (flagged) openPondFromList(flagged.id);
+                  else setVisibleStatuses(STATUS_KEYS);
+                } else if (item.id === 'map-satellite') {
+                  setSatellite((value) => !value);
+                }
+              }}
+            />
             {(regionId === 'latur-2024' || regionId === REPLAY_REGION) && !isLive && (
               <div className="timelapse-feature-card" role="region" aria-label="Satellite time-lapse feature">
                 <div className="timelapse-feature-header">
@@ -420,7 +490,7 @@ export default function App() {
                   </div>
                 </div>
                 <button type="button" className="timelapse-feature-btn" onClick={() => openPondFromList('P003')}>
-                  ▶ Inspect P003 time-lapse
+                  <svg className="inline-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 3.5 12.5 8 5 12.5z" fill="currentColor" stroke="currentColor" strokeLinejoin="round"/></svg> Inspect P003 time-lapse
                 </button>
               </div>
             )}
@@ -455,7 +525,7 @@ export default function App() {
             </details>
           </aside>
 
-          <section className="map-panel">
+          <section className="map-panel" id="pond-map-target" tabIndex={-1} aria-label="Pond map">
             <div className="map-story-overlay">
               <span>{isLive ? 'LIVE MONITORING' : 'LONGLENS · 2024 REPLAY'}</span>
               <strong>{headline}</strong>
@@ -479,7 +549,7 @@ export default function App() {
                   <button type="button" className="legend-reset" onClick={() => setVisibleStatuses(STATUS_KEYS)}>All</button>
                 )}
               </div>
-              <button className={`sat-toggle ${satellite ? 'on' : ''}`} aria-pressed={satellite} onClick={() => setSatellite((value) => !value)}>Satellite {satellite ? 'on' : 'off'} <span aria-hidden="true">◉</span></button>
+              <button type="button" className={`sat-toggle ${satellite ? 'on' : ''}`} aria-pressed={satellite} onClick={() => setSatellite((value) => !value)}>Satellite {satellite ? 'on' : 'off'} <svg className="inline-icon layers-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m8 2 6 3.2-6 3.2L2 5.2 8 2Z"/><path d="m2 8.2 6 3.2 6-3.2M2 11.1 8 14l6-2.9"/></svg></button>
             </div>
             <MapView region={data.region} ponds={ponds} selectedId={selected?.id} onSelect={selectPondFromMap} satellite={satellite} outlines={outlines} visibleStatuses={visibleStatuses} focusRequest={focusRequest} />
             <div className="map-note">{outlines?.features?.length ? 'Pond outlines · click a shape to inspect it' : 'Pond locations · outlines appear when imagery files arrive'}</div>
@@ -526,7 +596,7 @@ function SeasonTimeline({ dates, dateIndex, onChange, playing, onTogglePlay, dis
   return (
     <section className="season-timeline" aria-label="Replay timeline">
       <button className={`play-button ${playing ? 'is-playing' : ''}`} onClick={onTogglePlay} disabled={disabled || dates.length < 2} aria-label={playing ? 'Pause season replay' : 'Play season replay'}>
-        <span>{playing ? 'Ⅱ' : '▶'}</span><b>{playing ? 'PAUSE' : 'PLAY'}</b>
+        <span className="timeline-play-icon" aria-hidden="true">{playing ? <svg className="inline-icon" viewBox="0 0 16 16" focusable="false"><path d="M5.5 3.5v9M10.5 3.5v9" strokeWidth="2"/></svg> : <svg className="inline-icon" viewBox="0 0 16 16" focusable="false"><path d="M5 3.5 12.5 8 5 12.5z" fill="currentColor" stroke="currentColor"/></svg>}</span><b>{playing ? 'PAUSE' : 'PLAY'}</b>
       </button>
       <div className="timeline-main">
         <div className="timeline-caption"><span>SEASON TIMELINE</span><strong>{currentDate ? formatDate(currentDate, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</strong><small>{isAtEnd ? 'Latest published pass' : 'Only observations available by this date'}</small></div>
@@ -643,7 +713,7 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
               className="pond-timelapse-gif"
             />
             <div className="timelapse-overlay-badge">
-              <span className="timelapse-play-pill">▶ Full resolution (512×512)</span>
+              <span className="timelapse-play-pill"><svg className="inline-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 3.5 12.5 8 5 12.5z" fill="currentColor" stroke="currentColor"/></svg> Full resolution (512×512)</span>
             </div>
           </div>
           <p className="timelapse-caption">
