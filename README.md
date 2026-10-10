@@ -8,6 +8,29 @@ Per-pond "dry-by" countdowns and pumping flags for drought districts, built from
 
 **Live site: https://main.duvnkrxj02sz1.amplifyapp.com** (AWS Amplify) · API: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
 
+![The 2024 Latur season replayed pass by pass: ponds turn from ok to watch to critical as the sun drinks them](docs/img/replay-2024.gif)
+
+*The 2024 drought season in Latur, replayed one satellite pass at a time. Each date uses only what was known on that day.*
+
+## Results at a glance
+
+| | Result | Where it comes from |
+|---|---|---|
+| **Live coverage** | All 8 drought districts of Marathwada: 64,915 km², **2,712 ponds** in 76 talukas, re-measured from satellite every 5 days in under 20 minutes | `talaab-marathwada` on AWS, [`docs/scale-projection.md`](docs/scale-projection.md) |
+| **Critical calls that came true** | **70%** on a whole district (Latur 2024, 435 ponds) · **66%** on a season we never tuned on (2023) | [`docs/backtest-latur-district-2024.md`](docs/backtest-latur-district-2024.md), [`docs/backtest-latur-2023.md`](docs/backtest-latur-2023.md) |
+| **Ponds that dried and were warned in time** | **60%** (2024 district) · **62%** (2023): about 4 in 10 are still missed | same backtests |
+| **Median warning** | **25 days** before a pond dried | same backtests |
+| **Dry date inside our range** | **40%** (2024 district) · **33%** (2023), median error of the likely date 9 days: the ranges are still too narrow for many ponds | same backtests |
+| **It says how sure it is** | High-confidence critical calls were right 73% of the time, low-confidence ones 57% (2024 district); lists lead with the trusted ones | [`docs/data-quality.md`](docs/data-quality.md) |
+| **Known weak spot** | Big tanks were predicted to dry too early 9 times in 2024 | [`docs/model-experiment.md`](docs/model-experiment.md) |
+| **AWS cost** | **$0** so far (free tier); a whole-Marathwada run is about $0.14 of Lambda without it | AWS Cost Explorer |
+
+| The live district map | The plan, with its AI briefing |
+|---|---|
+| ![Live map of Latur district: 361 ponds coloured by status, with one pond's countdown and water-area history](docs/img/map-live.jpg) | ![District action plan: an AI briefing checked against the data, then the plan by taluka and period](docs/img/plan.jpg) |
+| **Accuracy, scored against what happened** | **Landing page** |
+| ![Backtest page: how often past forecasts came true](docs/img/accuracy.jpg) | ![Talaab landing page](docs/img/landing.jpg) |
+
 ## The problem
 
 On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every district has to finalise a water-scarcity action plan by 15 Oct, split into Oct–Dec, Jan–Mar and Apr–Jun, and crack down on unauthorised water extraction. Villages depend on small ponds and tanks that shrink all through the dry season. In Latur between January and mid-June 2024, the sun could evaporate about **1 metre** of open water (Open-Meteo ET0 ≈ 974 mm), while only about **43 mm** of rain fell from January to May. Government maps track small ponds only seasonally, and nobody gives a district a countdown for each pond.
@@ -44,7 +67,7 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | AWS service | Role |
 |---|---|
 | **S3** | Pipeline measurements, per-date snapshots, cached plans, backtest |
-| **Lambda** (×7) | `pipeline-grid` + `pipeline-cell` + `pipeline-merge` (satellite pipeline), `api`, `recompute`, `plan-worker` (Strands Agents), `hello` |
+| **Lambda** (×8) | `pipeline-grid` + `pipeline-cell` + `pipeline-merge` (satellite pipeline), `api`, `recompute`, `plan-llm` (open-model AI briefing), `plan-worker` (Strands Agents, for Bedrock), `hello` |
 | **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 6 in parallel) → merge; `talaab-marathwada` runs it for all 8 districts every 5 days |
 | **API Gateway** (HTTP API) | Public API, throttled, gzip; also serves district imagery (signed S3 links) |
 | **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure all of Marathwada from satellite, and recompute every region |
@@ -134,7 +157,6 @@ cd backend && sam delete
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates, scripts, docs (pair-programmed with the team).
 - **Qwen3-1.7B** (Alibaba Qwen, Apache-2.0; GGUF by Unsloth) with **llama.cpp** / llama-cpp-python (MIT), running in AWS Lambda: in-product briefing writer.
 - **Amazon Bedrock** (Claude) via **Strands Agents SDK**: full plan writer, built and tested, waiting for Bedrock access.
-- _Add any others the team uses._
 
 ## License
 
