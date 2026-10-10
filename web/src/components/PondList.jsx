@@ -1,6 +1,6 @@
 import { formatRange, statusMeta } from '../utils';
 
-export default function PondList({ ponds, selectedId, onSelect }) {
+export default function PondList({ ponds, selectedId, onSelect, isLive, regionId }) {
   return (
     <div className="pond-list">
       {ponds.map((pond) => {
@@ -10,6 +10,7 @@ export default function PondList({ ponds, selectedId, onSelect }) {
           <button key={pond.id} className={`pond-card ${selectedId === pond.id ? 'selected' : ''}`} onClick={() => onSelect(pond.id)}>
             <div className="pond-card-top">
               <span className="pond-id">{pond.id}</span>
+              {pond.id === 'P003' && !isLive && (!regionId || regionId === 'latur-2024') && <span className="timelapse-pill">▶ Time-lapse</span>}
               <span className="status-pill" style={{ '--status-color': meta.color, '--status-soft': meta.soft }}>{meta.label}</span>
             </div>
             <div className="pond-place">{(pond.place || '').replace(' (mock)', '') || 'Unnamed location'}</div>
