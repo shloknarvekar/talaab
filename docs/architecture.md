@@ -51,6 +51,7 @@ flowchart LR
   OSM -.bundled once.-> RC
   RC --> |snapshot per as-of date| S3
   RC --> DDB
+  DDB --> |latest pond| API
   RC --> |new critical / dry / flagged| SNS
   AMP --> |"/regions /ponds /plan /backtest /imagery"| API
   AMP --> LOC
@@ -83,7 +84,8 @@ flowchart LR
    - names ponds after the nearest OSM village, in English and Marathi;
    - for the live region, adds observed and 16-day forecast heat from Open-Meteo;
    - builds one `ponds.json` snapshot for every pass date, using only data up to that date;
-   - writes the snapshots to S3 and each pond's latest state to DynamoDB;
+   - writes the snapshots to S3 and each pond's latest state to DynamoDB (the API answers
+     `GET /ponds/{id}` without a date from DynamoDB: one item read; dated views come from S3);
    - for live districts, queues new critical, dry or flagged ponds; the Digest step at the end of the
      `talaab-marathwada` run (and the scheduled recompute) sends ONE email for the whole division, and every
      district's alert history records what was sent;

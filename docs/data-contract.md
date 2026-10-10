@@ -79,7 +79,8 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 - `GET /regions` returns `{ "regions": [{ "id", "name", "mode": "replay" | "live", "bbox", "synthetic", "first", "last", "dates": ["YYYY-MM-DD", ...] }], "divisions": [{ "id", "name", "nameMr", "members": [region ids], "first", "last", "dates" }] }`: only regions with published snapshots; `dates` are the exact values the date slider should offer. `divisions` lists divisions that have a summary (`dates` = dated summaries for `GET /division?asOf=`).
 - `GET /ponds?region=latur-2024&asOf=YYYY-MM-DD` returns the whole document above.
-- `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape).
+- `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape), plus `asOf` and `region`.
+  Without `asOf` it is the pond's latest state, read from DynamoDB (same fields).
 - `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns
   `{ "markdown": "...", "pondIds": ["P003", ...], "source": "template" | "local-ai" | "bedrock", "status": "ready" | "generating" | "template", "asOf": "...", "language": "en" }`.
   The same works for `"region": "marathwada-2026"` (the division plan).

@@ -140,3 +140,21 @@ def test_division_outlines_cover_every_member_district():
     assert r["headers"]["cache-control"] == "public, max-age=86400"
     assert call("GET /division/outlines", {"division": "vidarbha-2026"})[0] == 404
     assert call("GET /division/outlines", {"division": "../x"})[0] == 404
+
+
+def test_latest_pond_comes_from_dynamodb_and_dated_views_from_s3(monkeypatch):
+    from decimal import Decimal
+    calls = []
+
+    def fake_latest(region, pond_id):
+        calls.append((region, pond_id))
+        return {"id": pond_id, "asOf": "2024-03-26", "status": "critical", "areaNowHa": 8.6} if pond_id == "P003" else None
+
+    monkeypatch.setattr(store, "get_latest_pond", fake_latest)
+    status, pond = call("GET /ponds/{id}", None, {"id": "P003"})
+    assert status == 200 and pond == {"id": "P003", "asOf": "2024-03-26", "status": "critical", "areaNowHa": 8.6, "region": "latur-2024"}
+    status, pond = call("GET /ponds/{id}", {"asOf": "2024-03-26"}, {"id": "P003"})  # a dated view: S3 snapshot
+    assert status == 200 and "history" in pond and len(calls) == 1
+    status, pond = call("GET /ponds/{id}", None, {"id": "P001"})                    # not in the table: S3 fallback
+    assert status == 200 and pond["id"] == "P001" and "history" in pond
+    assert store._plain({"a": Decimal("2"), "b": [Decimal("0.75")]}) == {"a": 2, "b": [0.75]}

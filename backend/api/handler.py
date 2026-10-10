@@ -107,6 +107,10 @@ def get_pond(pond_id: str, query: dict) -> dict:
     if not POND_RE.match(pond_id or ""):
         raise HttpError(400, "pond id must look like P001")
     region, as_of = _region_and_date(query.get("region"), query.get("asOf"))
+    if as_of is None:  # latest state: one DynamoDB item (recompute keeps it current); dated views use S3 snapshots
+        latest = store.get_latest_pond(region, pond_id)
+        if latest:
+            return {**latest, "region": region}
     doc = _load(region, as_of)
     for pond in doc["ponds"]:
         if pond["id"] == pond_id:

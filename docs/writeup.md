@@ -118,7 +118,7 @@ one SAM template, with **no hourly cost while idle**.
 | **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`, `/imagery`; gzip, throttled, CORS limited to our site |
 | **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures all 8 Marathwada districts from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
-| **Amazon DynamoDB** | Latest state of every pond |
+| **Amazon DynamoDB** | Latest state of every pond, kept current by each recompute; `GET /ponds/{id}` (latest) reads one item from it instead of a whole district file |
 | **Amazon SNS** | One digest email per run for the division (only new changes), plus ops alarms |
 | **AWS Lambda (AI briefing)** | `talaab-plan-llm` runs Qwen3-1.7B with llama.cpp on the Lambda CPU (3 GB, ~1.5 min per briefing), pre-writes briefings after each run, caches them in S3; one at a time so the API always has capacity |
 | **Amazon Bedrock + Strands Agents** | Claude writes the whole plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS enables Bedrock on our new account.* |

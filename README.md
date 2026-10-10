@@ -72,7 +72,7 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | **Step Functions** | `talaab-district`: grid → one Lambda per 0.15° cell (42 for Latur, 6 in parallel) → merge; `talaab-marathwada` runs it for all 8 districts every 5 days |
 | **API Gateway** (HTTP API) | Public API, throttled, gzip; also serves district imagery (signed S3 links) |
 | **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure all of Marathwada from satellite, and recompute every region |
-| **DynamoDB** | Latest state of every pond |
+| **DynamoDB** | Latest state of every pond, kept current by each recompute; `GET /ponds/{id}` (latest) reads one item from it instead of a whole district file |
 | **Amazon SNS** | One digest email per run for the division (new critical, dry or flagged ponds), plus ops alarms |
 | **AWS Lambda (AI)** | `talaab-plan-llm`: Qwen3-1.7B with llama.cpp on the Lambda CPU writes the checked briefing; briefings are pre-written after each run and cached in S3 |
 | **Amazon Bedrock** | Built and tested (Claude via Strands Agents writes the whole plan); waiting for AWS to enable Bedrock on our new account |

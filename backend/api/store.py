@@ -28,6 +28,44 @@ def _s3_client():
     return _s3
 
 
+_table = None
+
+
+def _plain(value):
+    """DynamoDB returns numbers as Decimal: back to int/float for JSON."""
+    from decimal import Decimal
+
+    if isinstance(value, Decimal):
+        return int(value) if value == value.to_integral_value() else float(value)
+    if isinstance(value, list):
+        return [_plain(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _plain(v) for k, v in value.items()}
+    return value
+
+
+def get_latest_pond(region: str, pond_id: str) -> dict | None:
+    """One pond's latest state from the DynamoDB Ponds table (pk regionId, sk pondId), written by recompute
+    after every run: a single-item read instead of loading the whole district snapshot from S3.
+    None when no table is configured (local runs, tests) or the pond isn't there."""
+    global _table
+    table_name = os.environ.get("PONDS_TABLE")
+    if not table_name or os.environ.get("DATA_DIR"):
+        return None
+    if _table is None:
+        import boto3
+
+        _table = boto3.resource("dynamodb").Table(table_name)
+    item = _table.get_item(Key={"regionId": region, "pondId": pond_id}).get("Item")
+    if not item:
+        return None
+    item = _plain(item)
+    item["id"] = item.pop("pondId")
+    item.pop("regionId", None)
+    item.pop("updatedAt", None)
+    return item
+
+
 def read_json(key: str, fresh: bool = False) -> dict | None:
     """Return the parsed document at key, or None if it does not exist. fresh=True skips the cache."""
     hit = _cache.get(key)
