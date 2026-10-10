@@ -47,8 +47,9 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 
 ## Don't say
 
-- That the AI plan is written by Bedrock today. It is built and tested, but AWS hasn't enabled Bedrock on
-  our new account yet; the plan shown is the deterministic one (the tab says so).
+- That the AI plan is written by Bedrock today. The **briefing** at the top of the English plan is written by an open model
+  (Qwen3-1.7B) running inside our own AWS Lambda, and checked sentence by sentence; the rest of the plan is built
+  directly from the numbers. Bedrock is built and tested, waiting for AWS to enable it on our new account.
 - That the schedule ran by itself, **unless** you record after **Sun 11 Oct, 06:00 IST** (the first automatic run).
   Scheduler-started runs have random execution names; ours start with `marathwada-` or `<district>-`. Before then,
   say "runs every five days", which is true.

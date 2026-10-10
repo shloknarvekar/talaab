@@ -80,9 +80,14 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 - `GET /ponds?region=latur-2024&asOf=YYYY-MM-DD` returns the whole document above.
 - `GET /ponds/{id}?region=...&asOf=...` returns one element of `ponds` (same shape).
 - `POST /plan` with body `{ "region": "latur-2024", "asOf": "YYYY-MM-DD", "language": "en" | "mr" }` returns
-  `{ "markdown": "...", "pondIds": ["P003", ...], "source": "template" | "bedrock", "status": "ready" | "generating" | "template", "asOf": "...", "language": "en" }`.
+  `{ "markdown": "...", "pondIds": ["P003", ...], "source": "template" | "local-ai" | "bedrock", "status": "ready" | "generating" | "template", "asOf": "...", "language": "en" }`.
+  The same works for `"region": "marathwada-2026"` (the division plan).
   - `status: "generating"`: you got the instant template plan; the AI plan is being written. Ask again (same body) every ~5 s until `status` is `ready` (give up after ~2 min).
-  - `status: "ready"`: `source` is `bedrock`; the AI plan passed the number guard (every number in it exists in the data).
+  - `status: "ready"`: the AI version. `source: "local-ai"` (what runs today): the template plan with a `## Briefing` section under
+    the title, written by an open model (Qwen3-1.7B) in our Lambda, each sentence checked against the data; `briefing` holds just
+    those bullets and `model` names the model. English only (Marathi stays `template`). `source: "bedrock"`: whole plan by Claude on
+    Bedrock, behind the number guard (switched on once AWS enables Bedrock).
+  - `aiNote`: the AI writer is busy with another plan (one runs at a time); the template is shown, ask again later.
   - `status: "template"`: AI is switched off or failed recently (`aiError` says why); show the template plan.
 
 - `GET /backtest?region=latur-2024` returns the backtest report (`summary.rangeHitRate`, `medianLeadDays`, `criticalPrecision`, `criticalRecall`, per-pond `actualDry` / `firstCritical` / `leadDays`, and `variants.noHeatAdjustment`). `synthetic: true` means the numbers only test the code.

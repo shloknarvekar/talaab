@@ -147,9 +147,9 @@ def post_plan(body: dict) -> dict:
     language = body.get("language", "en")
     if language not in ("en", "mr"):
         raise HttpError(400, "language must be 'en' or 'mr'")
-    if region in DIVISIONS:  # the Divisional Commissioner's overview (deterministic, from the division summary)
+    if region in DIVISIONS:  # the Divisional Commissioner's overview, from the division summary
         div = get_division({"division": region, "asOf": as_of})
-        return {**build_division_plan(div, language), "status": "template"}
+        return get_plan(div, language, template=build_division_plan(div, language), region=region)
     doc = _load(region, as_of)
     return get_plan(doc, language)
 

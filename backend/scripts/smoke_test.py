@@ -92,7 +92,8 @@ def main() -> None:
     check("GET /regions lists the division", "marathwada-2026" in divs and divs["marathwada-2026"]["last"] == div.get("asOf"))
     for lang in ("en", "mr"):
         s, plan, dt = call("POST", f"{api}/plan", {"region": "marathwada-2026", "language": lang})
-        check(f"POST /plan marathwada {lang}", s == 200 and plan.get("markdown") and plan.get("status") == "template", f"{dt:.2f}s")
+        check(f"POST /plan marathwada {lang}", s == 200 and plan.get("markdown") and plan.get("status") in ("ready", "generating", "template"),
+              f"status={plan.get('status')} source={plan.get('source')} {dt:.2f}s")
 
     s, _, _ = call("GET", f"{api}/ponds?asOf=not-a-date")
     check("bad asOf -> 400", s == 400)

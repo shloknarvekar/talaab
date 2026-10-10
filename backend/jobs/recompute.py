@@ -232,6 +232,26 @@ def recompute_region(region: str, today: date, fetch_weather: Callable = recent_
     }
 
 
+def warm_briefings(divisions: list[dict], results: list[dict], invoke: Callable[[dict], None] | None = None) -> int:
+    """With the local AI writer (PLAN_AI=local), pre-write the English briefing for the newest division summary and
+    each live district's newest snapshot in ONE background worker, so nobody waits for them. Returns the job count."""
+    if os.environ.get("PLAN_AI") != "local" or not os.environ.get("PLAN_WORKER"):
+        return 0
+    jobs = [{"region": d["division"], "asOf": d["asOf"]} for d in divisions if d.get("asOf")]
+    jobs += [{"region": r["region"], "asOf": r["latestAsOf"]} for r in results
+             if r.get("latestAsOf") and REGIONS.get(r["region"], {}).get("mode") == "live" and REGIONS[r["region"]].get("alerts", True)]
+    if jobs:
+        if invoke is None:
+            import boto3
+
+            def invoke(payload):
+                boto3.client("lambda").invoke(FunctionName=os.environ["PLAN_WORKER"], InvocationType="Event",
+                                              Payload=json.dumps(payload).encode())
+        invoke({"jobs": jobs})
+        print(json.dumps({"msg": "briefings queued", "jobs": len(jobs)}))
+    return len(jobs)
+
+
 def lambda_handler(event, context):
     event = event or {}
     today = date.fromisoformat(event["today"]) if event.get("today") else datetime.now(IST).date()
@@ -263,5 +283,7 @@ def lambda_handler(event, context):
             divisions.append({"division": division_id, "error": f"{type(e).__name__}: {e}"[:300]})
         print(json.dumps({"msg": "division", **divisions[-1]}))
     summary = {"today": today.isoformat(), "seconds": round(time.time() - started, 1), "results": results, "divisions": divisions}
+    if digest:
+        summary["briefingJobs"] = warm_briefings(divisions, results)
     print(json.dumps({"msg": "recompute done", "seconds": summary["seconds"]}))
     return summary

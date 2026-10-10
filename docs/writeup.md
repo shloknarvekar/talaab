@@ -82,9 +82,15 @@ We treated honesty as a feature, because district officials will only use a tool
 - **Every reading has its satellite image.** Click a pond and the app shows the Sentinel-2 thumbnail
   behind each measurement, with cloudy or suspect passes marked "not used", so an officer can check
   a forecast with their own eyes instead of trusting a number.
-- **The AI can't invent numbers.** The plan writer (Claude on Amazon Bedrock, via Strands Agents)
-  sees our data only through two tools locked to one date, and a **number guard** rejects any draft
-  containing a number that isn't in the data. Without it, Talaab still produces a deterministic plan.
+- **AI that runs in our own Lambda, and can't invent numbers.** Bedrock is still locked on our new
+  account, so the briefing at the top of each plan is written by an open model (Qwen3-1.7B, Apache-2.0)
+  running with llama.cpp inside AWS Lambda: no outside AI service. A 1.7B model mixes facts if you give
+  it everything, so it writes **one sentence per small group of facts**, and each sentence is checked:
+  every number, date, pond id and place name must be in that group, the most urgent taluka must come
+  first, and pumping may only be *suggested*. A failed sentence is re-written or left out. On the live
+  districts this rejected real mistakes (a taluka misspelt, critical ponds called dry, the wrong taluka
+  first) before anyone saw them. The full Claude-on-Bedrock writer (Strands Agents, number guard) is
+  built and switches on when AWS enables Bedrock.
 - **Known limits, stated plainly.** Big tanks are often predicted to dry too early (9 times in 2024).
   Passes are about 5 days apart, so a dry date is known only to within a window. The heat
   adjustment helped clearly in 2024 (median error 18.5 vs 31 days) but made no difference in 2023.
@@ -105,7 +111,8 @@ one SAM template, with **no hourly cost while idle**.
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
 | **Amazon DynamoDB** | Latest state of every pond |
 | **Amazon SNS** | One digest email per run for the division (only new changes), plus ops alarms |
-| **Amazon Bedrock + Strands Agents** | Claude writes the plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS approves our new account's model quota.* |
+| **AWS Lambda (AI briefing)** | `talaab-plan-llm` runs Qwen3-1.7B with llama.cpp on the Lambda CPU (3 GB, ~1.5 min per briefing), pre-writes briefings after each run, caches them in S3; one at a time so the API always has capacity |
+| **Amazon Bedrock + Strands Agents** | Claude writes the whole plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS enables Bedrock on our new account.* |
 | **Amazon CloudWatch** | One log line per action, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS |
 | **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
 | **Amazon Location Service** | The web map's dark basemap and satellite layer (API key locked to our site) |
@@ -127,13 +134,16 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Plans:** a deterministic English/Marathi plan, plus the AI version, cached so each date and
   language is paid for once.
 - **Web:** Vite + React + Leaflet + Recharts; the browser does no maths and only shows what the API says.
-- **Quality:** 80 backend tests and 23 pipeline tests, a live smoke test of every endpoint, honest
+- **Quality:** 121 backend tests and 23 pipeline tests, a live smoke test of every endpoint, honest
   backtests, and an ablation script that reproduces every before/after number.
 
 ## Challenges we hit
 
-- **A brand-new AWS account had Bedrock quotas of 0.** We built the AI path end to end anyway (and
-  tested it up to the Bedrock call), made the plan work without AI, and opened a support case.
+- **A brand-new AWS account can't use Bedrock at all** (every model, Amazon's own Nova included:
+  "Operation not allowed"), and caps Lambda at 3 GB. We built the Bedrock path anyway, opened support
+  cases, and meanwhile run an open model inside Lambda: 4-bit Qwen3-1.7B, copied from S3 to /tmp on a
+  cold start. The prebuilt ARM build of llama.cpp was 4x slower than x86 (no AVX2-class kernels), so
+  that one function runs on x86.
 - **Real satellite data is messy.** Our first honest backtest was weak; the fix was understanding
   the data, not tuning the model.
 - **No Docker on the laptop.** We packaged the Strands Agents Lambda layer for Linux ARM from Windows
@@ -175,4 +185,4 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates and scripts, data-quality analysis, integration, documentation.
 - **[Nikhil: confirm which AI assistant(s) you used for the pipeline.]**
 - **[Ranit: confirm which AI assistant(s) you used for the web app.]**
-- **In the product:** Claude on **Amazon Bedrock** via the **Strands Agents SDK** writes the plans (behind the number guard).
+- **In the product:** **Qwen3-1.7B** (open model, Apache-2.0) with **llama.cpp**, running in AWS Lambda, writes the checked plan briefings. Claude on **Amazon Bedrock** via the **Strands Agents SDK** is built as the full plan writer, waiting for Bedrock access.

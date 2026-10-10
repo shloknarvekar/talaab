@@ -7,13 +7,18 @@ Description: >
 Parameters:
   PlanAI:
     Type: String
-    AllowedValues: ["on", "off"]
+    AllowedValues: ["on", "off", "local"]
     Default: "off"
-    Description: Generate plans with Bedrock (on) or serve only the deterministic template (off).
+    Description: >
+      Plan writer: Bedrock (on), an open model in our own Lambda writing a checked English briefing (local),
+      or only the deterministic template (off).
   PlanModelId:
     Type: String
     Default: us.anthropic.claude-opus-5-5
     Description: Bedrock inference profile used by the plan agent.
+
+Conditions:
+  LocalAI: !Equals [!Ref PlanAI, "local"]
 
 Globals:
   Function:
@@ -92,7 +97,7 @@ Resources:
           PONDS_TABLE: !Ref PondsTable
           DEFAULT_REGION: latur-2024
           PLAN_AI: !Ref PlanAI
-          PLAN_WORKER: !Ref PlanWorkerFunction
+          PLAN_WORKER: !If [LocalAI, !Ref PlanLlmFunction, !Ref PlanWorkerFunction]
       Policies:
         - S3CrudPolicy:  # reads snapshots, writes plan status markers
             BucketName: !Ref DataBucket
@@ -100,6 +105,8 @@ Resources:
             TableName: !Ref PondsTable
         - LambdaInvokePolicy:
             FunctionName: !Ref PlanWorkerFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PlanLlmFunction
       LoggingConfig:
         LogGroup: !Ref ApiLogGroup
       Events:
@@ -206,6 +213,50 @@ Resources:
       LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-plan-worker"
       RetentionInDays: 14
 
+  LlmLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: llama.cpp for Python (built by backend/scripts/build_layer.py --name llm-layer)
+      ContentUri: ../.build/llm-layer.zip
+      CompatibleRuntimes: [python3.12]
+      CompatibleArchitectures: [x86_64]
+
+  # Local AI writer (PlanAI=local): Qwen3-1.7B (Apache-2.0) with llama.cpp on the Lambda CPU writes a checked
+  # briefing on top of the template plan. No Bedrock. 3008 MB is this account's Lambda maximum (~2 vCPU); the
+  # 1.1 GB model file is copied from S3 to /tmp on a cold start. Billed only while writing (~1-2 min a briefing).
+  PlanLlmFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-plan-llm"
+      CodeUri: ./
+      Handler: agent.llm_worker.lambda_handler
+      Architectures: [x86_64]  # llama.cpp's prebuilt x86 wheel uses AVX2; its arm64 wheel is generic and ~4x slower
+      Timeout: 900
+      MemorySize: 3008
+      EphemeralStorage:
+        Size: 2048
+      Layers: [!Ref LlmLayer]
+      Environment:
+        Variables:
+          DATA_BUCKET: !Ref DataBucket
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
+      Policies:
+        - S3CrudPolicy:  # reads snapshots and models/, writes plans
+            BucketName: !Ref DataBucket
+        - Statement:
+            - Effect: Allow  # hands its remaining pre-write jobs to a fresh invocation before the 15-min limit
+              Action: lambda:InvokeFunction
+              Resource: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-plan-llm"
+      LoggingConfig:
+        LogGroup: !Ref PlanLlmLogGroup
+
+  PlanLlmLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${AWS::StackName}-plan-llm"
+      RetentionInDays: 14
+
   # Critical-pond alerts. Subscribers are added outside the template (emails stay out of the public repo):
   #   aws sns subscribe --topic-arn <AlertTopicArn> --protocol email --notification-endpoint you@example.org
   AlertTopic:
@@ -232,6 +283,8 @@ Resources:
           PONDS_TABLE: !Ref PondsTable
           ALERT_TOPIC_ARN: !Ref AlertTopic
           SITE_URL: https://main.duvnkrxj02sz1.amplifyapp.com
+          PLAN_AI: !Ref PlanAI
+          PLAN_WORKER: !Ref PlanLlmFunction  # pre-writes briefings after a full run (PlanAI=local only)
       EventInvokeConfig:
         MaximumRetryAttempts: 1
       Policies:
@@ -241,6 +294,8 @@ Resources:
             TableName: !Ref PondsTable
         - SNSPublishMessagePolicy:
             TopicName: !GetAtt AlertTopic.TopicName
+        - LambdaInvokePolicy:
+            FunctionName: !Ref PlanLlmFunction
       LoggingConfig:
         LogGroup: !Ref RecomputeLogGroup
       Events:

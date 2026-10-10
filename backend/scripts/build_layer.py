@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 LAYERS = {  # name -> (requirements file, wheel platform; Lambda python3.12 = Amazon Linux 2023, glibc 2.34)
     "strands-layer": (ROOT / "backend" / "agent" / "requirements.txt", "aarch64-manylinux2014"),
     "pipeline-layer": (ROOT / "backend" / "pipeline_lambda" / "requirements.txt", "aarch64-manylinux_2_28"),  # rasterio ships 2_28 wheels
+    "llm-layer": (ROOT / "backend" / "agent" / "llm-requirements.txt", "x86_64-manylinux2014"),  # llama.cpp: the x86 wheel has AVX2, the arm one is generic (4x slower)
 }
 SKIP_DIRS = {"__pycache__", "tests"}
 # Lambda allows 250 MiB unzipped for function + layers. The pipeline only uses scipy.ndimage (and the
@@ -29,6 +30,8 @@ PRUNE = {
     "pipeline-layer": [f"scipy/{x}" for x in ("optimize", "stats", "sparse", "spatial", "io", "signal", "interpolate",
                                               "fft", "integrate", "cluster", "fftpack", "odr", "constants", "differentiate")]
                       + ["numpy/_core/include", "numpy/_pyinstaller"],  # keep numpy.typing/f2py: scipy.ndimage loads them
+    # llama_cpp loads its libraries from llama_cpp/lib; the wheel's top-level copies, headers and CLI are unused
+    "llm-layer": ["lib64", "lib", "include", "bin", "numpy/_core/include", "numpy/_pyinstaller"],
 }
 # Shared libraries a wheel expects from the OS but the Lambda python3.12 image lacks. rasterio's libgdal
 # links the system libexpat.so.1; we take it from conda-forge (pinned + sha256-checked) into the layer's

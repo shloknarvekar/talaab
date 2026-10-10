@@ -24,7 +24,10 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - Live API: https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com — `GET /regions`, `GET /ponds`,
   `GET /ponds/{id}`, `POST /plan` (poll while `status` is `generating`), `GET /backtest`. Details in
   `docs/data-contract.md`.
-- Bedrock is wired but OFF until AWS lifts a new-account quota; `/plan` serves the deterministic EN/MR plan.
+- Bedrock is wired but blocked (new-account verification). AI today = `PlanAI=local`: Lambda `talaab-plan-llm` (x86_64, 3008 MB,
+  llama.cpp layer `build_layer.py --name llm-layer`, model `s3://.../models/Qwen3-1.7B-Q4_K_M.gguf`) writes a checked English
+  briefing on top of the template plan (`agent/briefing.py`: one sentence per fact group, strict checks); one worker at a time
+  (S3 lock `_ai/llm-lock.json`); recompute pre-writes briefings after each full run. Marathi stays the template.
 - Status values include `unknown` (too few clear passes). Stable ponds (incl. shrink within noise) have
   `dryBy: null`.
 - Data quality (see `docs/data-quality.md`): suspect passes are judged both ways and their readings are not used;

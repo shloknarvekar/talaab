@@ -27,8 +27,9 @@ flowchart LR
     RC["Lambda: recompute<br/>countdowns · flags · status"]
     DDB[("DynamoDB<br/>Ponds table")]
     API["API Gateway HTTP API<br/>+ Lambda: api"]
+    LLM["Lambda: plan-llm<br/>Qwen3-1.7B · llama.cpp"]
     PW["Lambda: plan worker<br/>Strands Agents"]
-    BR["Amazon Bedrock<br/>Claude"]
+    BR["Amazon Bedrock<br/>Claude (when enabled)"]
     CW["CloudWatch<br/>logs + dashboard"]
     SNS["Amazon SNS<br/>email alerts"]
     AMP["Amplify Hosting<br/>web map"]
@@ -54,10 +55,13 @@ flowchart LR
   AMP --> |"/regions /ponds /plan /backtest /imagery"| API
   AMP --> LOC
   API --> S3
+  API -. async .-> LLM
+  RC -. pre-write briefings .-> LLM
+  LLM --> |cached plan| S3
   API -. async .-> PW
   PW --> BR
   PW --> |cached plan| S3
-  RC & API & PW --> CW
+  RC & API & PW & LLM --> CW
 ```
 
 ## Flow, step by step
@@ -89,11 +93,14 @@ flowchart LR
 4. **Serve.** The API Lambda serves regions, snapshots, single ponds, plans and the backtest. A
    date between passes resolves to the latest snapshot on or before it, so a replay never shows
    the future.
-5. **Plan.** `POST /plan` answers instantly with a deterministic English/Marathi plan. When AI is
-   on, it also starts the plan worker asynchronously, because API Gateway allows only 30 s. The
-   worker runs a Strands agent on Bedrock whose tools are locked to that one snapshot. The draft
-   must pass the **number guard** (every number must exist in our data; one retry). It is then
-   cached in S3, so each date and language is paid for once.
+5. **Plan.** `POST /plan` answers instantly with a deterministic English/Marathi plan and, for the AI
+   version, starts a worker asynchronously (API Gateway allows only 30 s); the result is cached in S3, so
+   each date and language is written once. Today (`PlanAI=local`) the worker is `talaab-plan-llm`: an open
+   model (Qwen3-1.7B, 4-bit) with llama.cpp on the Lambda CPU writes a briefing one sentence per small group
+   of facts, and `agent/briefing.py` checks each sentence (numbers, dates, pond ids, place names, order,
+   hedged pumping) before it is used. Only one runs at a time (S3 lock), and recompute pre-writes the
+   division's and each live district's briefing after every full run. With Bedrock (`PlanAI=on`) the worker
+   runs a Strands agent whose tools are locked to one snapshot, behind the **number guard**.
 6. **Observe.** Every Lambda logs one JSON line per action to CloudWatch, and the
    `talaab-ops` dashboard shows traffic, errors, durations and the latest recompute runs.
 

@@ -1,0 +1,3 @@
+# Local AI briefing (agent/llm_worker.py): llama.cpp for Python, prebuilt CPU wheels (manylinux aarch64 for Lambda)
+--extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+llama-cpp-python==0.3.36

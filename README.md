@@ -20,7 +20,7 @@ On 25 Sep 2026 Maharashtra declared drought in 265 of its 358 talukas. Every dis
    - **Countdown:** a dry-by date *range* (earliest, likely, latest) from the shrink trend, adjusted for expected heat.
    - **Faster than the sun:** a pond shrinking much faster than its neighbours under the same sun is flagged for inspection (likely pumping).
 4. **By taluka, and for the whole division.** Drought is declared per taluka, so every pond is placed in its taluka (all 76 in Marathwada, from OpenStreetMap boundaries). The Divisional Commissioner gets one view of all 8 districts (`GET /division`): which districts and talukas need tankers first, the most urgent ponds and which to inspect, what changed since the last run, plus a division plan in English and Marathi.
-5. **AI plan.** Amazon Bedrock (Strands Agents) drafts the district's quarterly scarcity plan in English and Marathi, using only our numbers.
+5. **AI briefing on the plan.** Every district and the division get a quarterly scarcity plan in English and Marathi built from our numbers, and an AI briefing on top: an open model (Qwen3-1.7B) **running inside our own AWS Lambda** writes it sentence by sentence, and every sentence is checked against the data before it is shown. (The full Claude-on-Bedrock plan writer is built too and switches on once AWS enables Bedrock on our new account.)
 6. **Automatic.** The analysis re-runs every 5 days on AWS.
 
 The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" date uses only the data available up to that date.
@@ -33,7 +33,7 @@ The demo replays **Latur, Jan–Jun 2024** as an honest backtest: each "as of" d
 - **Replays can't see the future.** Each as-of snapshot is built only from satellite passes and weather available on that day, so the 2024 replay is a real backtest.
 - **Validated on an unseen season.** All rules were built on 2024; on the held-out 2023 season Talaab still flagged 62% of ponds about to dry in time (25-day median warning, 66% of critical calls right). See [`docs/model-experiment.md`](docs/model-experiment.md).
 - **Proof, not claims.** [`docs/backtest-*.md`](docs/) scores every past prediction against what actually happened: dry dates inside our range, days of warning, false and missed alarms. It also runs with the heat adjustment switched off for comparison.
-- **The AI can't invent numbers.** The Bedrock plan writer only sees our data through two tools, and a *number guard* rejects any draft containing a number that isn't in the data.
+- **The AI can't invent numbers.** The briefing model sees one small group of facts per sentence; each sentence is rejected (and re-written, or left out) if it has a number, date, pond id or place name that isn't in those facts, names the wrong taluka first, or states pumping as fact. The Bedrock writer has the same *number guard*.
 - **It tells you; you don't have to check.** After each 5-day run, Amazon SNS sends **one** digest email for the whole division: every district's state, the talukas needing action first, and the ponds that *newly* turned critical, dried up, or started shrinking faster than the sun. There are no repeats, and every number comes from the data.
 - **Officials' language and structure.** Plans come in English and Marathi, with one section per scarcity period (Oct–Dec, Jan–Mar, Apr–Jun) as the state order requires, a table by village and a concrete action per pond.
 
@@ -50,7 +50,8 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | **EventBridge Scheduler** | Every 5 days (one Sentinel-2 revisit): re-measure all of Marathwada from satellite, and recompute every region |
 | **DynamoDB** | Latest state of every pond |
 | **Amazon SNS** | One digest email per run for the division (new critical, dry or flagged ponds), plus ops alarms |
-| **Amazon Bedrock** | Claude writes the plan in English and Marathi (behind the number guard) |
+| **AWS Lambda (AI)** | `talaab-plan-llm`: Qwen3-1.7B with llama.cpp on the Lambda CPU writes the checked briefing; briefings are pre-written after each run and cached in S3 |
+| **Amazon Bedrock** | Built and tested (Claude via Strands Agents writes the whole plan); waiting for AWS to enable Bedrock on our new account |
 | **CloudWatch** | Logs, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS `talaab-ops` |
 | **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
 | **Amazon Location Service** | The web map's dark basemap and satellite layer (key locked to our site) |
@@ -76,7 +77,7 @@ Base URL: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
 | `GET /regions` | Regions with data (2024 replay, live 2026, synthetic test data) and the exact dates available |
 | `GET /ponds?region=latur-2024&asOf=2024-03-26` | Full `ponds.json` ([contract](docs/data-contract.md)); `asOf` resolves to the latest snapshot on or before that date |
 | `GET /ponds/P003?region=latur-2024&asOf=2024-03-26` | One pond |
-| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"mr"}` | `{markdown, pondIds, source, status}`. Instant template plan; the Bedrock plan arrives on a later call (`status: ready`) |
+| `POST /plan` `{"region":"latur-2024","asOf":"2024-03-26","language":"mr"}` | `{markdown, pondIds, source, status}`. Instant template plan; the AI version arrives on a later call (`status: ready`, `source: local-ai`) |
 | `GET /backtest?region=latur-2024` | How well past predictions matched reality |
 
 ```bash
@@ -94,9 +95,10 @@ cd backend && python -m pytest
 # deploy (needs AWS CLI + SAM CLI + credentials)
 cd backend && sam build && sam deploy
 
-# AI plan writer (Strands Agents on Bedrock): build the layer, then deploy with AI on/off
-python backend/scripts/build_layer.py        # needs `pip install uv`; no Docker
-cd backend && sam build && sam deploy --parameter-overrides PlanAI=on   # PlanAI=off = template only, no Bedrock cost
+# AI writer: local open model in Lambda (what runs today), or Bedrock; build the layer, then deploy
+python backend/scripts/build_layer.py --name llm-layer   # llama.cpp; needs `pip install uv`; no Docker
+cd backend && sam build && sam deploy --parameter-overrides PlanAI=local   # on = Bedrock (strands-layer), off = template only
+aws lambda invoke --function-name talaab-plan-llm --payload '{"action":"fetch-model"}' --cli-binary-format raw-in-base64-out out.json  # once: model -> S3
 
 # publish pipeline output: checks it, uploads measurements.json and recomputes that region on AWS
 pip install -r backend/scripts/requirements.txt
@@ -130,7 +132,8 @@ cd backend && sam delete
 ## AI tools used
 
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates, scripts, docs (pair-programmed with the team).
-- **Amazon Bedrock** (Claude) via **Strands Agents SDK**: in-product plan writer.
+- **Qwen3-1.7B** (Alibaba Qwen, Apache-2.0; GGUF by Unsloth) with **llama.cpp** / llama-cpp-python (MIT), running in AWS Lambda: in-product briefing writer.
+- **Amazon Bedrock** (Claude) via **Strands Agents SDK**: full plan writer, built and tested, waiting for Bedrock access.
 - _Add any others the team uses._
 
 ## License
