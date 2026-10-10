@@ -2813,3 +2813,8 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .app-shell:not(.no-scope) .region-switch .division-launch-button { font-size: 13px; padding: 8px 14px; }
 .app-shell:not(.no-scope) .region-switch .region-minor:not(.active) { color: #56635b; }
 @media (max-width: 760px) { .region-group-label { margin-left: 4px; } }
+/* Pond ID labels at street zoom (canvas markers carry no DOM labels of their own). */
+.leaflet-tooltip.pond-map-label { padding: 2px 7px; border: 1px solid #ffffff38; border-radius: 6px; background: #0f1a15; color: #f2f7f3; font: 700 11px 'Instrument Sans', sans-serif; box-shadow: none; }
+.leaflet-tooltip.pond-map-label::before { display: none; }
+.leaflet-tooltip.pond-map-label.status-critical, .leaflet-tooltip.pond-map-label.status-dry { border-color: #ef4444; }
+.leaflet-tooltip.pond-map-label.status-watch { border-color: #f59e0b; }

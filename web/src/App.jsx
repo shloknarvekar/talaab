@@ -74,6 +74,14 @@ export default function App() {
   const pendingPondRef = useRef(null);
   const sheetTouchStart = useRef(null);
 
+  // Warm the 1 MB map engine while the visitor reads the landing page, so opening the map doesn't stall on it.
+  useEffect(() => {
+    if (!import.meta.env.VITE_AWS_MAPS_KEY) return undefined;
+    const warm = () => { import('maplibre-gl').then(() => import('@maplibre/maplibre-gl-leaflet')).catch(() => {}); };
+    const id = 'requestIdleCallback' in window ? window.requestIdleCallback(warm, { timeout: 4000 }) : window.setTimeout(warm, 2500);
+    return () => ('cancelIdleCallback' in window ? window.cancelIdleCallback(id) : window.clearTimeout(id));
+  }, []);
+
   // On narrow screens the region chips scroll sideways: keep the selected one in view.
   useEffect(() => {
     document.querySelector('.region-switch button.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });

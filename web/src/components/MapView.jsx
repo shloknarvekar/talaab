@@ -81,6 +81,10 @@ export default function MapView({
           .then(() => show(L.maplibreGL({
             style: `${aws}/styles/Monochrome/descriptor?key=${encodeURIComponent(awsKey)}&color-scheme=Dark`,
             attribution,
+            // The vector basemap redraws on every zoom frame: cap its pixel density and skip label fades so zooming
+            // stays smooth on laptops with integrated graphics (pond markers stay sharp; they're drawn by Leaflet).
+            pixelRatio: Math.min(window.devicePixelRatio || 1, 1.25),
+            fadeDuration: 0,
           })))
           .catch(() => show(L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19, subdomains: 'abc', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
@@ -129,88 +133,119 @@ export default function MapView({
     });
   }, [focusRequest, selectedId, ponds]);
 
+  // Markers and outlines are built once per set of ponds (a region) and drawn on the map's single canvas; dates,
+  // filters and selection only restyle them. Rebuilding ~650 DOM markers with drop-shadows on every change is
+  // what made zooming, scrubbing the timeline and selecting a pond freeze for up to 1.5 s.
+  const built = useRef({ key: '', markers: new Map(), outlines: new Map(), outlineLayer: null, labels: null, renderer: null });
+  const latest = useRef({ ponds: [], visible: new Set(), selectedId: null, onSelect });
+  const refreshRef = useRef(() => {});
+  latest.current.onSelect = onSelect;
+
+  const styleFor = (pond, visible, selected, dense) => {
+    const meta = statusMeta(pond.status);
+    const urgent = pond.status === 'dry' || pond.status === 'critical';
+    const flagged = pond.flag === 'faster-than-sun';
+    const base = urgent ? 7 : flagged ? 6 : pond.status === 'watch' ? 5.5 : pond.status === 'unknown' ? 4 : 5;
+    return {
+      radius: visible ? (selected ? base + 3 : dense ? base - 0.5 : base) : 0,
+      fillColor: meta.color, fillOpacity: visible ? 0.92 : 0, opacity: visible ? 1 : 0,
+      color: selected ? '#ffffff' : flagged ? '#fbbf24' : '#0b1410', weight: selected ? 3 : flagged ? 2.4 : 1.4,
+    };
+  };
+
+  const refreshLabels = () => {
+    const map = mapRef.current; const b = built.current;
+    if (!map || !b.labels) return;
+    b.labels.clearLayers();
+    if (map.getZoom() < 13) return;
+    const bounds = map.getBounds().pad(0.05);
+    let shown = 0;
+    for (const pond of latest.current.ponds) {
+      if (shown >= 80) break;
+      if (!latest.current.visible.has(pond.status) || !bounds.contains([pond.lat, pond.lon])) continue;
+      L.tooltip({ permanent: true, direction: 'right', offset: [8, 0], className: `pond-map-label status-${pond.status}`, interactive: false })
+        .setLatLng([pond.lat, pond.lon]).setContent(pond.id).addTo(b.labels);
+      shown += 1;
+    }
+  };
+
+  // Build: when the region's ponds or outlines change.
   useEffect(() => {
-    if (!mapRef.current || !Array.isArray(ponds)) return;
     const map = mapRef.current;
-    const visibleStatusSet = new Set(visibleStatuses);
-    const visiblePonds = ponds.filter((pond) => visibleStatusSet.has(pond.status));
-    const pondById = new Map(visiblePonds.map((pond) => [pond.id, pond]));
-
-    layersRef.current.outlines?.remove();
-    layersRef.current.outlines = null;
+    if (!map || !Array.isArray(ponds)) return;
+    const b = built.current;
+    const key = `${ponds.length}:${ponds[0]?.id ?? ''}:${ponds.at(-1)?.id ?? ''}:${outlines?.features?.length ?? 0}`;
+    if (key === b.key) return;
+    b.key = key;
     layersRef.current.markers.clearLayers();
+    b.outlineLayer?.remove(); b.outlineLayer = null;
+    b.labels?.remove();
+    b.markers = new Map(); b.outlines = new Map();
+    b.renderer = b.renderer || L.canvas({ padding: 0.4, tolerance: L.Browser.mobile ? 10 : 4 });
+    b.labels = L.layerGroup().addTo(map);
 
-    const featureList = outlines?.type === 'FeatureCollection' && Array.isArray(outlines.features)
-      ? outlines.features
-      : [];
-    const matchingFeatures = featureList.filter((feature) => {
-      const id = feature?.properties?.id ?? feature?.properties?.pondId;
-      return id && pondById.has(id) && feature?.geometry;
-    });
-    const hasMatchingOutlines = matchingFeatures.length > 0;
-
-    if (hasMatchingOutlines) {
-      layersRef.current.outlines = L.geoJSON({ type: 'FeatureCollection', features: matchingFeatures }, {
-        style: (feature) => {
-          const id = feature?.properties?.id ?? feature?.properties?.pondId;
-          const pond = pondById.get(id);
-          const color = statusMeta(pond?.status).color;
-          const selected = id === selectedId;
-          return {
-            color,
-            weight: selected ? 3 : (pond?.flag === 'faster-than-sun' ? 2.4 : 1.6),
-            opacity: selected ? 1 : 0.92,
-            fillColor: color,
-            fillOpacity: selected ? 0.32 : 0.17,
-            lineCap: 'round',
-            lineJoin: 'round',
-          };
-        },
+    const features = outlines?.type === 'FeatureCollection' && Array.isArray(outlines.features) ? outlines.features : [];
+    const ids = new Set(ponds.map((p) => p.id));
+    const own = features.filter((f) => ids.has(f?.properties?.id ?? f?.properties?.pondId) && f?.geometry);
+    if (own.length) {
+      b.outlineLayer = L.geoJSON({ type: 'FeatureCollection', features: own }, {
+        renderer: b.renderer,
+        style: { weight: 1.6, opacity: 0.92, fillOpacity: 0.17, lineCap: 'round', lineJoin: 'round' },
         onEachFeature: (feature, layer) => {
           const id = feature?.properties?.id ?? feature?.properties?.pondId;
-          const pond = pondById.get(id);
-          const meta = statusMeta(pond?.status);
-          layer.bindTooltip(`${id} · ${meta.label}`, { sticky: true, className: 'pond-outline-tooltip' });
-          layer.on('click', () => onSelect(id));
+          b.outlines.set(id, layer);
+          layer.on('click', () => latest.current.onSelect(id));
+          layer.bindTooltip(() => { const p = latest.current.ponds.find((x) => x.id === id); return `${id} · ${statusMeta(p?.status).label}`; }, { sticky: true, className: 'pond-outline-tooltip' });
         },
       }).addTo(map);
     }
-
-    const dense = visiblePonds.length > 60;
-    const orderedPonds = [...visiblePonds].sort((a, b) => pondPriority(a) - pondPriority(b) || a.id.localeCompare(b.id));
-    orderedPonds.forEach((pond) => {
-      const meta = statusMeta(pond.status);
-      const selected = pond.id === selectedId;
-      const importanceClass = pond.status === 'dry'
-        ? 'is-dry'
-        : pond.status === 'critical'
-          ? 'is-critical'
-          : pond.flag === 'faster-than-sun'
-            ? 'is-flagged'
-            : '';
-      const iconHtml = hasMatchingOutlines
-        ? `<div class="pond-marker outline-backed ${dense ? 'dense' : ''} ${importanceClass} ${selected ? 'is-selected' : ''}" style="--pond-color:${meta.color}"><span class="pond-dot"></span><span class="pond-label">${pond.id}</span></div>`
-        : `<div class="pond-marker ${dense ? 'dense' : ''} ${importanceClass} ${selected ? 'is-selected' : ''}" style="--pond-color:${meta.color}"><span class="pond-dot"></span><span class="pond-label">${pond.id}</span></div>`;
-      const icon = L.divIcon({
-        className: 'pond-marker-wrap',
-        html: iconHtml,
-        iconSize: [96, 28],
-        iconAnchor: hasMatchingOutlines ? [4, 14] : [5, 14],
-      });
-      const marker = L.marker([pond.lat, pond.lon], {
-        icon,
-        title: `${pond.id} — ${meta.label}${pond.flag === 'faster-than-sun' ? ' — flagged for inspection' : ''}`,
-        keyboard: true,
-        zIndexOffset: pondPriority(pond) * 100 + (selected ? 10000 : 0),
-      });
-      marker.bindTooltip(`${pond.id} · ${meta.label}${pond.flag === 'faster-than-sun' ? ' · inspect' : ''}`, {
-        direction: 'top',
-        offset: [22, -12],
-      });
-      marker.on('click', () => onSelect(pond.id));
-      marker.addTo(layersRef.current.markers);
+    // Most urgent drawn last, so they sit on top of crowded areas.
+    [...ponds].sort((a, b2) => pondPriority(a) - pondPriority(b2) || a.id.localeCompare(b2.id)).forEach((pond) => {
+      const m = L.circleMarker([pond.lat, pond.lon], { renderer: b.renderer, bubblingMouseEvents: false });
+      m.on('click', () => latest.current.onSelect(pond.id));
+      m.bindTooltip(() => { const p = latest.current.ponds.find((x) => x.id === pond.id) ?? pond; return `${p.id} · ${statusMeta(p.status).label}${p.flag === 'faster-than-sun' ? ' · inspect' : ''}`; }, { direction: 'top', offset: [0, -8] });
+      m.addTo(layersRef.current.markers);
+      b.markers.set(pond.id, m);
     });
-  }, [ponds, selectedId, onSelect, outlines, visibleStatuses]);
+    if (!b.labelHandler) { b.labelHandler = () => refreshRef.current(); map.on('zoomend moveend', b.labelHandler); }  // one stable listener
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ponds, outlines]);
+
+  // Restyle: every date, filter or selection change (cheap: canvas repaint, no DOM churn).
+  useEffect(() => {
+    const b = built.current;
+    if (!mapRef.current || !Array.isArray(ponds) || !b.markers.size && !b.outlines.size) return;
+    const visible = new Set(visibleStatuses);
+    latest.current = { ...latest.current, ponds, visible, selectedId };
+    const dense = ponds.filter((p) => visible.has(p.status)).length > 60;
+    for (const pond of ponds) {
+      const on = visible.has(pond.status);
+      const selected = pond.id === selectedId;
+      const m = b.markers.get(pond.id);
+      if (m) {  // hidden ponds leave the map entirely, so they can't be clicked
+        const group = layersRef.current.markers;
+        if (!on) { if (group.hasLayer(m)) group.removeLayer(m); }
+        else {
+          if (!group.hasLayer(m)) group.addLayer(m);
+          const st = styleFor(pond, true, selected, dense);
+          m.setStyle(st); m.setRadius(st.radius);
+          if (selected) m.bringToFront();
+        }
+      }
+      const o = b.outlines.get(pond.id);
+      if (o && b.outlineLayer) {
+        if (!on) { if (b.outlineLayer.hasLayer(o)) b.outlineLayer.removeLayer(o); }
+        else {
+          if (!b.outlineLayer.hasLayer(o)) b.outlineLayer.addLayer(o);
+          const color = statusMeta(pond.status).color;
+          o.setStyle({ color, fillColor: color, opacity: selected ? 1 : 0.92, fillOpacity: selected ? 0.32 : 0.17, weight: selected ? 3 : pond.flag === 'faster-than-sun' ? 2.4 : 1.6 });
+        }
+      }
+    }
+    refreshRef.current = refreshLabels;
+    refreshLabels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ponds, selectedId, visibleStatuses, outlines]);
 
   return <div className="map-host" ref={hostRef} aria-label="Talaab pond map" />;
 }

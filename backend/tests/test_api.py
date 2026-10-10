@@ -179,3 +179,12 @@ def test_imagery_links_sign_every_date_of_one_pond_in_one_call(data_dir, monkeyp
         "2024-01-21": "https://s3/data/latur-2024/imagery/P001/2024-01-21.jpg?exp=3600"}
     missing = handler.lambda_handler({"routeKey": "GET /imagery/{proxy+}", "pathParameters": {"proxy": "latur-2024/P999/links.json"}}, None)
     assert missing["statusCode"] == 404
+
+
+def test_read_routes_are_briefly_cacheable_and_plans_are_not():
+    r = handler.lambda_handler({"routeKey": "GET /ponds", "queryStringParameters": {"region": "latur-2024"}}, None)
+    assert r["headers"]["cache-control"] == "public, max-age=300"
+    plan = handler.lambda_handler({"routeKey": "POST /plan", "body": json.dumps({"region": "latur-2024", "language": "en"})}, None)
+    assert "cache-control" not in plan["headers"]
+    missing = handler.lambda_handler({"routeKey": "GET /ponds", "queryStringParameters": {"region": "pune-2024"}}, None)
+    assert "cache-control" not in missing["headers"]  # errors are never cached

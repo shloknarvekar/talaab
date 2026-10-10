@@ -213,8 +213,17 @@ def _compress(response: dict, event: dict) -> dict:
             "headers": {**response["headers"], "content-encoding": "gzip", "vary": "accept-encoding"}}
 
 
+# Data changes once per 5-day run, so browsers may reuse read responses for a few minutes: switching back to a
+# region or date is then instant instead of another round trip to us-west-2. POST /plan is never cached.
+CACHEABLE = {"GET /regions", "GET /ponds", "GET /ponds/{id}", "GET /division", "GET /backtest", "GET /alerts"}
+CACHE_SECONDS = 300
+
+
 def lambda_handler(event, context):
-    return _compress(_route(event), event)
+    response = _route(event)
+    if event.get("routeKey") in CACHEABLE and response.get("statusCode") == 200:
+        response.setdefault("headers", {}).setdefault("cache-control", f"public, max-age={CACHE_SECONDS}")
+    return _compress(response, event)
 
 
 def _route(event):
