@@ -28,8 +28,8 @@ async function getJson(path, options) {
 
 /** Regions with published snapshots. Synthetic test data is intentionally hidden. */
 export async function fetchRegions() {
-  const { regions } = await getJson('/regions');
-  return regions.filter((region) => !region.synthetic);
+  const { regions, divisions = [] } = await getJson('/regions');
+  return { regions: regions.filter((region) => !region.synthetic), divisions };
 }
 
 export function fetchPonds(regionId, asOf) {
@@ -48,6 +48,15 @@ const ALERT_TEXT = {
  * Replay regions are simulated (what Talaab would have emailed); live regions list emails actually sent.
  * Regions without a published timeline return 404; that is not fatal.
  */
+// Marathwada division: one summary of every live district (GET /division) and district outlines for its map.
+export function fetchDivision(divisionId) {
+  return getJson(`/division?division=${encodeURIComponent(divisionId)}`);
+}
+
+export function fetchDivisionOutlines(divisionId) {
+  return getJson(`/division/outlines?division=${encodeURIComponent(divisionId)}`);
+}
+
 export async function fetchAlerts(regionId) {
   try {
     const payload = await getJson(`/alerts?region=${encodeURIComponent(regionId)}`);
