@@ -16,9 +16,8 @@ const keyOf = (regionId, asOf, language) => `${regionId}|${asOf ?? 'latest'}|${l
 
 
 // Keep the API-authored words intact, but make important evidence easier to scan.
-const planTokens = /(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping)\b|\b(?!20\d{2}\b)(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
+const planTokens = /(\b(?:20\d{2}-\d{2}-\d{2}|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+20\d{2})\b)|(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping)\b|\b(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
 
-const MONTH_AFTER = /^\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/;
 
 function highlightPlanText(text) {
   const parts = [];
@@ -26,13 +25,11 @@ function highlightPlanText(text) {
   for (const match of text.matchAll(planTokens)) {
     const token = match[0];
     const index = match.index ?? 0;
-    // The day of a date ("23 Oct 2026") is not a count: leave dates as plain text.
-    if (match[3] && MONTH_AFTER.test(text.slice(index + token.length))) continue;
     if (index > cursor) parts.push(text.slice(cursor, index));
     let className = 'plan-highlight-number';
-    if (match[1]) className = 'plan-highlight-pond';
-    else if (match[2]) {
-      const word = match[2].toLowerCase();
+    if (match[2]) className = 'plan-highlight-pond';
+    else if (match[3]) {
+      const word = match[3].toLowerCase();
       className = /critical|dry|urgent|pumping|flagged/.test(word) ? 'plan-highlight-risk'
         : /watch/.test(word) ? 'plan-highlight-watch'
         : /too early|not visible|no warning/.test(word) ? 'plan-highlight-uncertain'

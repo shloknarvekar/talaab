@@ -142,3 +142,12 @@
   .hover-reveal-card::after { display: none !important; }
   .hover-reveal-card-orbit, .hover-reveal-close { transition: none !important; }
 }
+
+/* Division and Accuracy jump cards: keep kickers legible without decorative P003 imagery.
+   Hover motion remains on transform/opacity; layout dimensions are not animated. */
+.accuracy-quick-actions .hover-reveal-card-subtitle,
+.division-quick-actions .hover-reveal-card-subtitle { font-size: 11px; letter-spacing: .08em; }
+.accuracy-quick-actions .hover-reveal-card-action,
+.division-quick-actions .hover-reveal-card-action { font-size: 11px; }
+.accuracy-quick-actions .hover-reveal-detail > div > span,
+.division-quick-actions .hover-reveal-detail > div > span { font-size: 11px; }
