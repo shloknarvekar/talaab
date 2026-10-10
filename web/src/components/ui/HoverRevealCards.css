@@ -151,3 +151,5 @@
 .division-quick-actions .hover-reveal-card-action { font-size: 11px; }
 .accuracy-quick-actions .hover-reveal-detail > div > span,
 .division-quick-actions .hover-reveal-detail > div > span { font-size: 11px; }
+.accuracy-quick-actions .hover-reveal-card-number,
+.division-quick-actions .hover-reveal-card-number { font-size: 11px; }

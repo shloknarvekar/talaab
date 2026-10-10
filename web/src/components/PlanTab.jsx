@@ -16,7 +16,7 @@ const keyOf = (regionId, asOf, language) => `${regionId}|${asOf ?? 'latest'}|${l
 
 
 // Keep the API-authored words intact, but make important evidence easier to scan.
-const planTokens = /(\b(?:20\d{2}-\d{2}-\d{2}|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+20\d{2})\b)|(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping)\b|\b(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
+const planTokens = /(\b(?:20\d{2}-\d{2}-\d{2}|\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+20\d{2})\b)|(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping)\b|\b(?!20\d{2}\b)(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
 
 
 function highlightPlanText(text) {
