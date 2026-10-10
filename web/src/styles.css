@@ -78,6 +78,17 @@ a { color: #5eead4; }
 .sun-share-inline span { color: #8ba99b; font-size: 12px; font-weight: 900; letter-spacing: .12em; }
 .sun-share-inline strong { color: #d2f9e8; font: 700 18px 'Instrument Sans',sans-serif; }
 .sun-share-inline small { grid-column: 1/-1; color: #7f9a8c; font-size: 12px; }
+.timelapse-feature-card { margin: 10px 14px 6px; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #13271f 0%, #0d1a15 100%); border: 1px solid #284a3c; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; gap: 10px; }
+.timelapse-feature-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.timelapse-badge { font-size: 8.5px; font-weight: 900; letter-spacing: .12em; color: #5eead4; }
+.timelapse-dates { font-size: 9px; color: #8fa89b; font-weight: 600; }
+.timelapse-feature-body { display: flex; gap: 10px; align-items: center; }
+.timelapse-thumb-preview { width: 72px; height: 72px; flex: 0 0 72px; border-radius: 8px; object-fit: cover; border: 1px solid #335948; background: #0a1410; }
+.timelapse-feature-copy { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.timelapse-feature-title { margin: 0; font: 700 13px/1.25 'Space Grotesk', sans-serif; color: #f1f8f3; letter-spacing: -.02em; }
+.timelapse-feature-desc { margin: 0; font-size: 10.5px; line-height: 1.4; color: #9cb1a5; }
+.timelapse-feature-btn { width: 100%; padding: 7px 10px; border-radius: 8px; border: 1px solid #3d7a60; background: #194634; color: #d8fae7; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .15s ease, border-color .15s ease; text-align: center; }
+.timelapse-feature-btn:hover { background: #225a43; border-color: #52a180; }
 .status-summary { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 9px; padding: 10px 16px; border-bottom: 1px solid #263830; }
 .status-summary span { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #b0c0b7; }
 .status-summary i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
@@ -101,6 +112,7 @@ a { color: #5eead4; }
 .pond-id { font: 700 13px 'Instrument Sans',sans-serif; color: #d5f7e7; letter-spacing: .02em; }
 .status-pill { display: inline-flex; align-items: center; justify-content: center; min-height: 22px; padding: 4px 8px; border-radius: 999px; background: var(--status-soft); color: var(--status-color); font-size: 12px; font-weight: 900; letter-spacing: .07em; white-space: nowrap; }
 .status-pill.large { min-height: 25px; padding: 5px 9px; font-size: 12px; }
+.timelapse-pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; background: rgba(20, 184, 166, 0.18); color: #5eead4; border: 1px solid rgba(45, 212, 191, 0.35); font-size: 9px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
 .pond-place { color: #9bafa4; font-size: 12px; margin-top: 5px; }
 .pond-metrics { display: grid; grid-template-columns: 1fr 1fr; margin-top: 11px; }
 .pond-metrics div { display: flex; flex-direction: column; gap: 2px; }
@@ -172,6 +184,19 @@ a { color: #5eead4; }
 .dry-by-box { margin-top: 12px; border: 1px solid #2b4036; border-radius: 11px; padding: 12px; display: grid; gap: 5px; background: #0d1713; }
 .dry-by-box strong { font-size: 13px; line-height: 1.45; color: #e8f5ec; }
 .dry-by-box small { color: #84998d; font-size: 12px; }
+.pond-timelapse-section { margin-top: 14px; padding: 13px 14px 14px; border-radius: 12px; background: #0d1a15; border: 1px solid #284a3c; display: flex; flex-direction: column; gap: 9px; }
+.timelapse-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.timelapse-section-head .eyebrow { display: block; font-size: 8.5px; font-weight: 900; letter-spacing: .12em; color: #5eead4; margin-bottom: 2px; }
+.timelapse-tagline { display: block; font: 700 13px/1.3 'Space Grotesk', sans-serif; color: #fed7aa; }
+.timelapse-meta-pill { font-size: 9px; font-weight: 700; color: #8da699; background: #152720; border: 1px solid #294437; padding: 3px 7px; border-radius: 999px; white-space: nowrap; }
+.timelapse-preview-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-height: 280px; border-radius: 10px; overflow: hidden; border: 1px solid #335948; background: #08110d; cursor: pointer; }
+.pond-timelapse-gif { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s ease; }
+.timelapse-preview-wrap:hover .pond-timelapse-gif { transform: scale(1.02); }
+.timelapse-preview-wrap:focus-visible { outline: 2px solid #5eead4; outline-offset: 3px; }
+.timelapse-feature-btn:focus-visible { outline: 2px solid #5eead4; outline-offset: 2px; }
+.timelapse-overlay-badge { position: absolute; bottom: 8px; right: 8px; pointer-events: none; }
+.timelapse-play-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: rgba(15, 23, 42, 0.88); color: #f1f8f3; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 10px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+.timelapse-caption { margin: 0; font-size: 10.5px; line-height: 1.45; color: #8fa598; }
 .detail-empty { padding: 30px; color: var(--muted); }
 .imagery-strip-wrap { margin-top: 19px; padding-top: 16px; border-top: 1px solid #2a3d33; }
 .imagery-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }

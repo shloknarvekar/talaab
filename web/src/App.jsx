@@ -12,6 +12,9 @@ const AboutTab = lazy(() => import('./components/AboutTab'));
 import { fetchAlerts, fetchPonds, fetchRegions, imageryBase } from './api';
 import { STATUS_KEYS, addDays, formatDate, formatRange, placeLabel, sortPonds, statusMeta } from './utils';
 
+const REPLAY_REGION = 'latur-2024';
+const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
+const P003_TIMELAPSE_SRC = `${BASE_PATH}/imagery/latur-2024/P003-timelapse.gif`;
 
 function Stat({ label, value, tone }) {
   return <div className={`stat ${tone || ''}`}><span>{label}</span><strong>{value}</strong></div>;
@@ -398,6 +401,24 @@ export default function App() {
               <p>{flaggedCount} pond{flaggedCount === 1 ? '' : 's'} shrinking faster than the local baseline. The flag suggests pumping; it is not proof.</p>
               <div className="sun-share-inline"><span>☀ SUN'S SHARE</span><strong>{data.sunShareMm ?? '—'} mm</strong><small>evaporation in the latest window</small></div>
             </div>
+            {(regionId === 'latur-2024' || regionId === REPLAY_REGION) && !isLive && (
+              <div className="timelapse-feature-card" role="region" aria-label="Satellite time-lapse feature">
+                <div className="timelapse-feature-header">
+                  <span className="timelapse-badge">SATELLITE TIME-LAPSE</span>
+                  <span className="timelapse-dates">Jan – May 2024</span>
+                </div>
+                <div className="timelapse-feature-body">
+                  <img src={P003_TIMELAPSE_SRC} alt="P003 time-lapse: Watch the sun drink the pond" className="timelapse-thumb-preview" loading="lazy" />
+                  <div className="timelapse-feature-copy">
+                    <h3 className="timelapse-feature-title">Watch the sun drink the pond</h3>
+                    <p className="timelapse-feature-desc">24 authentic Copernicus Sentinel-2 passes tracking 33 ha reservoir P003 drying through the 2024 drought.</p>
+                  </div>
+                </div>
+                <button type="button" className="timelapse-feature-btn" onClick={() => openPondFromList('P003')}>
+                  ▶ Inspect P003 time-lapse
+                </button>
+              </div>
+            )}
             <div className="status-summary">
               {STATUS_KEYS.filter((status) => counts[status]).map((status) => <span key={status}><i style={{ background: statusMeta(status).color }} />{counts[status]} {statusMeta(status).label.toLowerCase()}</span>)}
             </div>
@@ -418,7 +439,7 @@ export default function App() {
             )}
             </div>
             <AlertsFeed alerts={visibleAlerts} asOf={asOf} isReplay={!isLive} />
-            <PondList ponds={filteredPonds} selectedId={selected?.id} onSelect={openPondFromList} />
+            <PondList ponds={filteredPonds} selectedId={selected?.id} onSelect={openPondFromList} isLive={isLive} regionId={regionId} />
             <div className="data-footer">
               <strong>About the data</strong>
               <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · Basemap © AWS, HERE</span>
@@ -459,7 +480,7 @@ export default function App() {
 
           <aside className={`detail-panel ${mobileDetailOpen ? 'mobile-open' : ''}`}>
             <button className="drawer-close" onClick={() => setMobileDetailOpen(false)} aria-label="Close pond details">✕ Close details</button>
-            <PondDetailCard pond={selected} asOf={asOf} scenes={data.scenes} imageryIndex={imageryIndex} imageryRegion={imageryRegion} regionId={regionId} />
+            <PondDetailCard pond={selected} asOf={asOf} scenes={data.scenes} imageryIndex={imageryIndex} imageryRegion={imageryRegion} regionId={regionId} isLive={isLive} />
           </aside>
         </section>
       )}
@@ -530,9 +551,17 @@ function dryByText(pond) {
   return formatRange(pond.dryBy);
 }
 
-function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regionId }) {
+function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regionId, isLive }) {
   const [expandedPass, setExpandedPass] = useState(null);
   useEffect(() => setExpandedPass(null), [pond?.id, asOf]);
+  useEffect(() => {
+    if (!expandedPass) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setExpandedPass(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [expandedPass]);
   if (!pond) return <div className="detail-empty">Select a pond to inspect its history.</div>;
   const meta = statusMeta(pond.status);
   const shrinkPct = pond.maxAreaHa && pond.areaNowHa != null ? Math.max(0, Math.round((1 - pond.areaNowHa / pond.maxAreaHa) * 100)) : null;
@@ -558,6 +587,50 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
         <div className="inspection-callout"><div className="callout-icon">!</div><div><strong>Faster than the sun</strong><span>Shrinking {pond.shrinkVsNeighbours}× faster than nearby ponds under the same sun. Field inspection recommended; this suggests pumping but is not proof.</span></div></div>
       ) : <div className="safe-callout"><span>✓</span><div><strong>Within expected pattern</strong><span>No faster-than-sun flag on this pond.</span></div></div>}
       <div className="dry-by-box"><span className="eyebrow">DRY-BY WINDOW</span><strong>{dryByText(pond)}</strong><small>Range includes the year; it is not an exact day.</small></div>
+      {pond.id === 'P003' && !isLive && (regionId === 'latur-2024' || regionId === REPLAY_REGION) && (
+        <section className="pond-timelapse-section">
+          <div className="timelapse-section-head">
+            <div>
+              <span className="eyebrow">SATELLITE TIME-LAPSE</span>
+              <strong className="timelapse-tagline">“Watch the sun drink the pond”</strong>
+            </div>
+            <span className="timelapse-meta-pill">24 passes · 6.5s loop</span>
+          </div>
+          <div
+            className="timelapse-preview-wrap"
+            onClick={() => setExpandedPass({
+              date: '2024-01-01 – 2024-05-30',
+              src: P003_TIMELAPSE_SRC,
+              isTimelapse: true
+            })}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setExpandedPass({
+                  date: '2024-01-01 – 2024-05-30',
+                  src: P003_TIMELAPSE_SRC,
+                  isTimelapse: true
+                });
+              }
+            }}
+            aria-label="Expand P003 Sentinel-2 time-lapse: Watch the sun drink the pond"
+          >
+            <img
+              src={P003_TIMELAPSE_SRC}
+              alt="P003 time-lapse: Watch the sun drink the pond"
+              className="pond-timelapse-gif"
+            />
+            <div className="timelapse-overlay-badge">
+              <span className="timelapse-play-pill">▶ Full resolution (512×512)</span>
+            </div>
+          </div>
+          <p className="timelapse-caption">
+            24 authentic Copernicus Sentinel-2 L2A true-colour passes (1 Jan 2024 – 30 May 2024) tracking 33 ha reservoir P003 drying through the 2024 drought.
+          </p>
+        </section>
+      )}
       {passes.length > 0 && (
         <section className="imagery-strip-wrap">
           <div className="imagery-heading"><div><strong>Satellite passes</strong><span>Only passes up to {formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' })}</span></div><span>{passes.length} views</span></div>
@@ -572,14 +645,20 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
             </button>;
           })}</div>
           {imageryIndex?.credit && <p className="imagery-credit">{imageryIndex.credit}</p>}
-          {expandedPass && <div className="image-lightbox" role="dialog" aria-modal="true" aria-label={`Satellite image ${expandedPass.date}`} onClick={() => setExpandedPass(null)}>
-            <button className="lightbox-close" onClick={() => setExpandedPass(null)} aria-label="Close image">✕</button>
-            <img src={expandedPass.src} alt={`Pond ${pond.id} on ${expandedPass.date}`} onClick={(event) => event.stopPropagation()} />
-            <strong>{pond.id} · {formatDate(expandedPass.date, { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
-            {expandedPass.invalid && <span>Invalid or suspect pass — shown for context, not used for forecasting.</span>}
-            <small>{imageryIndex?.credit}</small>
-          </div>}
         </section>
+      )}
+      {expandedPass && (
+        <div className="image-lightbox" role="dialog" aria-modal="true" aria-label={expandedPass.isTimelapse ? 'Watch the sun drink the pond · Sentinel-2 time-lapse' : `Satellite image ${expandedPass.date}`} onClick={() => setExpandedPass(null)}>
+          <button className="lightbox-close" onClick={() => setExpandedPass(null)} aria-label="Close image">✕</button>
+          <img src={expandedPass.src} alt={expandedPass.isTimelapse ? 'Watch the sun drink the pond' : `Pond ${pond.id} on ${expandedPass.date}`} onClick={(event) => event.stopPropagation()} />
+          <strong>{expandedPass.isTimelapse ? 'Watch the sun drink the pond' : `${pond.id} · ${formatDate(expandedPass.date, { day: 'numeric', month: 'short', year: 'numeric' })}`}</strong>
+          {expandedPass.isTimelapse ? (
+            <span>24 Copernicus Sentinel-2 L2A passes (1 Jan 2024 – 30 May 2024) · 270 ms/frame</span>
+          ) : (
+            expandedPass.invalid && <span>Invalid or suspect pass — shown for context, not used for forecasting.</span>
+          )}
+          <small>{expandedPass.isTimelapse ? 'Copernicus Sentinel-2 (AWS Open Data / Element84 Earth Search)' : imageryIndex?.credit}</small>
+        </div>
       )}
       {districtImageryMissing && (
         <div className="imagery-empty" role="note">
