@@ -99,3 +99,24 @@ def test_plan_endpoint_en_and_mr():
 
 def test_unknown_route():
     assert call("DELETE /ponds")[0] == 404
+
+
+def test_division_summary_and_plan(data_dir):
+    from tests.test_division import doc as division_doc
+    d = division_doc({"Jalna": "जालना", "Beed": "बीड"})
+    base = data_dir / "marathwada-2026"
+    (base / "division").mkdir(parents=True)
+    (base / "division.json").write_text(json.dumps(d), encoding="utf-8")
+    (base / "division" / "2026-10-05.json").write_text(json.dumps({**d, "asOf": "2026-10-05"}), encoding="utf-8")
+    (base / "division" / "2026-10-10.json").write_text(json.dumps(d), encoding="utf-8")
+
+    status, latest = call("GET /division")
+    assert status == 200 and latest["asOf"] == "2026-10-10" and latest["totals"]["ponds"] == 7
+    assert call("GET /division", {"asOf": "2026-10-07"})[1]["asOf"] == "2026-10-05"  # never the future
+    assert call("GET /division", {"asOf": "2026-10-01"})[0] == 404
+    assert call("GET /division", {"division": "vidarbha-2026"})[0] == 404
+
+    status, plan = call("POST /plan", body={"region": "marathwada-2026", "language": "mr"})
+    assert status == 200 and plan["status"] == "template" and "जिल्हानिहाय स्थिती" in plan["markdown"]
+    status, plan = call("POST /plan", body={"region": "marathwada-2026", "asOf": "2026-10-07", "language": "en"})
+    assert status == 200 and plan["asOf"] == "2026-10-05" and "## By district" in plan["markdown"]

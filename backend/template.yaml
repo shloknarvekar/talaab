@@ -139,6 +139,12 @@ Resources:
             ApiId: !Ref HttpApi
             Path: /alerts
             Method: GET
+        Division:  # the Divisional Commissioner's summary of every district (written by recompute)
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /division
+            Method: GET
         Imagery:  # district outlines/index (JSON) and thumbnails (302 to a signed S3 link)
           Type: HttpApi
           Properties:
@@ -474,8 +480,11 @@ Resources:
             - Effect: Allow
               Action: ["events:PutTargets", "events:PutRule", "events:DescribeRule"]
               Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule"
+        - LambdaInvokePolicy:
+            FunctionName: !Ref RecomputeFunction
       DefinitionSubstitutions:
         DistrictArn: !Ref DistrictStateMachine
+        RecomputeArn: !GetAtt RecomputeFunction.Arn
       Definition:
         Comment: "Talaab: every Marathwada district, one district workflow after another"
         StartAt: Districts
@@ -520,7 +529,32 @@ Resources:
                     error.$: "$.error"
                   End: true
             ResultPath: "$.results"
-            End: true
+            Next: Digest
+          # Each district's merge only QUEUES its new alerts; this sends ONE email for the whole division (and
+          # refreshes the division summary). A failed digest is retried; the outbox keeps the alerts until it works.
+          Digest:
+            Type: Task
+            Resource: "arn:aws:states:::lambda:invoke"
+            Parameters:
+              FunctionName: "${RecomputeArn}"
+              Payload:
+                regions.$: "$.districts[*].region"
+                digest: true
+            ResultSelector:
+              divisions.$: "$.Payload.divisions"
+            ResultPath: "$.digest"
+            Retry:
+              - ErrorEquals: ["States.ALL"]
+                IntervalSeconds: 30
+                MaxAttempts: 2
+                BackoffRate: 2
+            Catch:
+              - ErrorEquals: ["States.ALL"]
+                ResultPath: "$.digestError"
+                Next: Done
+            Next: Done
+          Done:
+            Type: Succeed
       Events:
         # The live Marathwada districts: re-measured from Sentinel-2 every 5 days (one revisit). end "today"
         # is resolved by each cell; each district's merge then starts recompute, which emails new alerts.

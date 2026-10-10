@@ -73,6 +73,16 @@ def main() -> None:
         check(f"GET /alerts {rid}", s == 200 and isinstance(al.get("events"), list),
               f"{len(al.get('events', []))} event(s), {'simulated' if al.get('simulated') else 'sent'}")
 
+    # Marathwada division: one summary across the live districts, and its plan
+    members = [r for r in regions if r["mode"] == "live" and "district" in r["id"]]
+    s, div, dt = call("GET", f"{api}/division")
+    rows = div.get("districts", []) if s == 200 else []
+    check("GET /division", s == 200 and len(rows) == len(members) and div["totals"]["ponds"] == sum(r["ponds"] for r in rows)
+          and div.get("talukas") is not None, f"{len(rows)} districts, {div.get('totals', {}).get('ponds')} ponds, {dt:.2f}s")
+    for lang in ("en", "mr"):
+        s, plan, dt = call("POST", f"{api}/plan", {"region": "marathwada-2026", "language": lang})
+        check(f"POST /plan marathwada {lang}", s == 200 and plan.get("markdown") and plan.get("status") == "template", f"{dt:.2f}s")
+
     s, _, _ = call("GET", f"{api}/ponds?asOf=not-a-date")
     check("bad asOf -> 400", s == 400)
 

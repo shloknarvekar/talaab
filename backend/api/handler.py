@@ -20,7 +20,8 @@ import re
 
 from api import store
 from api.plans import get_plan
-from jobs.regions import REGIONS
+from jobs.regions import DIVISIONS, REGIONS
+from logic.plan import build_division_plan
 
 DEFAULT_REGION = os.environ.get("DEFAULT_REGION", "latur-2024")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -88,11 +89,30 @@ def get_pond(pond_id: str, query: dict) -> dict:
     raise HttpError(404, f"pond {pond_id} not found in {region} as of {doc['asOf']}")
 
 
+def get_division(query: dict) -> dict:
+    """The division summary (written by recompute): latest, or the latest on or before ?asOf (never the future)."""
+    division, as_of = _region_and_date(query.get("division") or "marathwada-2026", query.get("asOf"))
+    if division not in DIVISIONS:
+        raise HttpError(404, f"unknown division {division!r}; known: {', '.join(DIVISIONS)}")
+    if as_of is None:
+        doc = store.read_json(f"{division}/division.json")
+    else:
+        dates = sorted(k.rsplit("/", 1)[-1][:-5] for k in store.list_keys(f"{division}/division/") if k.endswith(".json"))
+        earlier = [d for d in dates if d <= as_of]
+        doc = store.read_json(f"{division}/division/{earlier[-1]}.json") if earlier else None
+    if doc is None:
+        raise HttpError(404, f"no division summary for {division!r}" + (f" on or before {as_of}" if as_of else " yet"))
+    return doc
+
+
 def post_plan(body: dict) -> dict:
     region, as_of = _region_and_date(body.get("region"), body.get("asOf"))
     language = body.get("language", "en")
     if language not in ("en", "mr"):
         raise HttpError(400, "language must be 'en' or 'mr'")
+    if region in DIVISIONS:  # the Divisional Commissioner's overview (deterministic, from the division summary)
+        div = get_division({"division": region, "asOf": as_of})
+        return {**build_division_plan(div, language), "status": "template"}
     doc = _load(region, as_of)
     return get_plan(doc, language)
 
@@ -152,6 +172,8 @@ def _route(event):
             return _response(200, get_ponds(query))
         if route == "GET /ponds/{id}":
             return _response(200, get_pond((event.get("pathParameters") or {}).get("id"), query))
+        if route == "GET /division":
+            return _response(200, get_division(query))
         if route == "GET /imagery/{proxy+}":
             return get_imagery((event.get("pathParameters") or {}).get("proxy"))
         if route == "GET /alerts":
