@@ -7,7 +7,7 @@ export default function AboutTab({ onExplore }) {
 
     <section className="about-section architecture-section">
       <div className="architecture-intro">
-        <span className="eyebrow">THE PIPELINE / EVERY FIVE DAYS</span>
+        
         <h3>From satellite pass<br /><em>to district action.</em></h3>
         <p>The forecast remains deterministic. Satellite readings are cleaned, snapshots are published by date, and the action plan can only use the numbers Talaab has already produced.</p>
         <div className="architecture-note"><span>01</span><p>One evidence trail, from a clear-sky observation to a field-ready priority.</p></div>
@@ -25,11 +25,11 @@ export default function AboutTab({ onExplore }) {
     </section>
 
     <section className="about-section credits-section credits-section--atlas">
-      <header className="credits-heading"><div><span className="eyebrow">DATA SOURCES & ATTRIBUTION</span><h3>Open data.<br /><em>Clear provenance.</em></h3><p>Every view should make it possible to understand where its evidence came from and what its limits are.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></header>
+      <header className="credits-heading"><div><h3>Open data.<br /><em>Clear provenance.</em></h3><p>Every view should make it possible to understand where its evidence came from and what its limits are.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></header>
       <div className="credits-grid">
-        <article className="credit-source credit-source-earth"><span className="credit-source-index">01 / EARTH OBSERVATION</span><div className="credit-source-symbol" aria-hidden="true">◉</div><h4>Copernicus Sentinel-2</h4><p>Sentinel-2 L2A imagery via AWS Open Data / Element84 Earth Search.</p><small>Source credit · Copernicus</small></article>
-        <article className="credit-source credit-source-weather"><span className="credit-source-index">02 / WEATHER INPUTS</span><div className="credit-source-symbol" aria-hidden="true">☼</div><h4>Open-Meteo</h4><p>Daily reference evapotranspiration (ET₀) and precipitation used by the backend.</p><small>Licence · CC BY 4.0</small></article>
-        <article className="credit-source credit-source-maps"><span className="credit-source-index">03 / GEOGRAPHY</span><div className="credit-source-symbol" aria-hidden="true">⌖</div><h4>OpenStreetMap + CARTO</h4><p>Geographic context and basemap tiles for exploring ponds and districts.</p><small>© OpenStreetMap contributors (ODbL) · © CARTO</small></article>
+        <article className="credit-source credit-source-earth"><span className="credit-source-index">Earth observation</span><div className="credit-source-symbol" aria-hidden="true">◉</div><h4>Copernicus Sentinel-2</h4><p>Sentinel-2 L2A imagery via AWS Open Data / Element84 Earth Search.</p><small>Source credit · Copernicus</small></article>
+        <article className="credit-source credit-source-weather"><span className="credit-source-index">Weather inputs</span><div className="credit-source-symbol" aria-hidden="true">☼</div><h4>Open-Meteo</h4><p>Daily reference evapotranspiration (ET₀) and precipitation used by the backend.</p><small>Licence · CC BY 4.0</small></article>
+        <article className="credit-source credit-source-maps"><span className="credit-source-index">Geography</span><div className="credit-source-symbol" aria-hidden="true">⌖</div><h4>OpenStreetMap + CARTO</h4><p>Geographic context and basemap tiles for exploring ponds and districts.</p><small>© OpenStreetMap contributors (ODbL) · © CARTO</small></article>
       </div>
       <div className="credits-footnote"><p>Historical views are labelled <b>2024 replay</b>; live views use the latest published region snapshot. Drying dates are presented as ranges, not guarantees. “Faster than the sun” suggests pumping and should prompt inspection, not an accusation.</p></div>
     </section>

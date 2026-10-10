@@ -42,10 +42,9 @@ export default function TalaabPortfolio({ onExplore }) {
     <section className="talaab-portfolio" aria-labelledby="portfolio-title">
       <header className="portfolio-heading">
         <div className="portfolio-heading-copy">
-          <span className="eyebrow">FIELD INTELLIGENCE · WATER RESILIENCE</span>
-          <h2 id="portfolio-title">Better signals.<br /><em>Earlier action.</em></h2>
+          <h2 id="portfolio-title">The sun drinks first.<br /><em>Talaab says when.</em></h2>
           <p>
-            Talaab turns satellite observations into a clearer picture of pond health—so field teams can focus attention where water may run short first.
+            Talaab measures every pond in a drought district from free Sentinel-2 passes, gives each one a dry-by range, and flags ponds shrinking faster than the sun can explain, so officers know where to send tankers and inspectors first.
           </p>
         </div>
         <button className="portfolio-cta" type="button" onClick={onExplore}>
@@ -69,7 +68,6 @@ export default function TalaabPortfolio({ onExplore }) {
               <h3>{story.title}</h3>
               <p>{story.description}</p>
             </div>
-            <span className="portfolio-card-mark" aria-hidden="true">T.</span>
           </article>
         ))}
       </div>

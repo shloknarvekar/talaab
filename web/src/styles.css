@@ -2697,3 +2697,34 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   }
   .app-shell:has(.workspace) .pond-list > .pond-card { scroll-snap-align: start; }
 }
+
+/* ---- Second audit pass, 10 Oct 2026 ---- */
+/* Region bar only where the region matters (map, plan, division); Accuracy always reports the 2024 replay. */
+.app-context-row.is-hidden { display: none; }
+/* "+7 more districts": a compact chip-sized menu instead of a wide empty field. */
+.app-shell:not(.no-scope) .region-switch select { flex: 0 0 auto; width: 196px; min-width: 0; padding-right: 30px; }
+/* Desktop pond cards: tall enough for their content, so nothing scrolls inside a card; no decorative label. */
+@media (min-width: 1181px) {
+  .app-shell:has(.workspace) .pond-list { height: 204px; padding-top: 6px; }
+  .app-shell:has(.workspace) .pond-list::before { content: none; }
+  .app-shell:has(.workspace) .pond-list > .pond-card { height: calc(100% - 10px); overflow: hidden; }
+  .app-shell:has(.workspace) .pond-list > .pond-card .dry-line { display: none; }
+  .app-shell:has(.workspace) .leaflet-control-zoom { margin-bottom: 232px !important; }  /* clear the taller card row */
+}
+/* Plan: a working header instead of a poster hero; the document starts on the first screen. */
+.plan-head { max-width: 1100px; margin: 0 auto 18px; padding-top: 6px; }
+.plan-head h2 { margin: 0 0 6px; color: #17231a; font: 400 clamp(30px, 3vw, 42px)/1.05 'Instrument Serif', Georgia, serif; letter-spacing: -.01em; }
+.plan-head p { margin: 0; color: #56635b; font-size: 14px; line-height: 1.5; }
+.plan-document { transition: opacity .25s ease; }
+.plan-document.is-refreshing { opacity: .55; }
+.plan-refreshing { margin: 0 0 12px; color: #56635b; font-size: 13px; }
+.plan-data-note { max-width: 1100px; margin: 14px auto 0; color: #56635b; font-size: 13px; }
+/* Short desktop windows: no room between the alert feed and the card row for zoom buttons (scroll and pinch still zoom). */
+@media (min-width: 1181px) and (max-height: 760px) {
+  .app-shell:has(.workspace) .leaflet-control-zoom { display: none; }
+  .app-shell:has(.workspace) .alerts-feed { max-height: 132px; }
+}
+.accuracy-table th { color: #4f5d55; }
+.about-screen--atlas :is(.portfolio-card-blue, .portfolio-card-violet) .portfolio-card-kicker { color: #3e4a5c; }
+.app-shell:has(.workspace) .pond-list > .pond-card { justify-content: flex-start; }
+@media (min-width: 761px) { .plan-screen.plan-screen--field-brief { padding-top: 28px; } }

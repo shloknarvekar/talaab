@@ -304,7 +304,7 @@ export default function App() {
           </nav>
         </div>
 
-        <div className="app-context-row">
+        <div className={`app-context-row ${['accuracy', 'about'].includes(activeTab) ? 'is-hidden' : ''}`}>
           <div className="region-block">
             <span className="eyebrow">REGION</span>
             <div className="region-switch" role="group" aria-label="Choose region">
@@ -357,7 +357,7 @@ export default function App() {
         </div>
       </header>
 
-      {activeTab !== 'division' && <div className={`mode-banner ${isLive ? 'live' : 'replay'}`}>
+      {!['division', 'accuracy', 'about'].includes(activeTab) && <div className={`mode-banner ${isLive ? 'live' : 'replay'}`}>
         {isLive
           ? <><b><span className="live-pulse" /> Live region</b> · Recomputed on AWS after new Sentinel-2 passes. Grey “Too early” ponds have fewer than three valid passes in the last 45 days, so Talaab will not guess a drying date.</>
           : <><b>2024 replay</b> · Each date shows only what Talaab could have known then. Ranges, not exact dates.</>}
@@ -387,7 +387,7 @@ export default function App() {
                 if (delta < -24) setMobileSheetExpanded(false);
                 sheetTouchStart.current = null;
               }}>
-              <div><span className="eyebrow">POND RISK · MOST URGENT FIRST</span><h2>Act before it dries.</h2></div>
+              <div><h2>Act before it dries.</h2></div>
               <span className="count-total">{ponds.length}</span>
               <button className="sheet-handle" aria-label={mobileSheetExpanded ? 'Collapse pond list' : 'Expand pond list'} aria-expanded={mobileSheetExpanded} onClick={() => setMobileSheetExpanded((value) => !value)}><span /></button>
             </div>

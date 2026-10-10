@@ -28,32 +28,20 @@ export default function AccuracyTab() {
     <div className="accuracy-page-shell">
       <header className="plan-hero accuracy-hero">
         <div className="accuracy-hero-copy">
-          <span className="eyebrow">MODEL REVIEW / {report.region?.name ?? 'Latur 2024'}</span>
           <h2>Every forecast,<br /><em>checked against what happened.</em></h2>
-          <p>For each of {evaluated.snapshots ?? '—'} satellite passes, Talaab forecast using only data available that day. Results are evaluated retrospectively.</p>
+          <p>{report.region?.name ?? 'Latur 2024'} replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast with only the data available that day, then we checked what really happened.</p>
         </div>
-        <aside className="accuracy-review-card" aria-label="Evaluation coverage">
-          <div className="accuracy-review-kicker"><span>REPLAY AUDIT</span><span>PUBLISHED REPORT</span></div>
-          <div className="accuracy-review-main"><strong>{evaluated.snapshots ?? '—'}</strong><span>satellite pass<br />snapshots reviewed</span></div>
-          <div className="accuracy-review-foot"><i /> Historical evaluation · not a live forecast</div>
-        </aside>
       </header>
 
-      <div className="accuracy-method-strip" aria-label="How forecast accuracy is evaluated">
-        <article className="accuracy-method-step method-observe"><span>01</span><div><strong>Observe</strong><p>Start with the satellite passes available on each date.</p></div><b aria-hidden="true">↘</b></article>
-        <article className="accuracy-method-step method-estimate"><span>02</span><div><strong>Estimate</strong><p>Compare the forecast range with what Talaab knew then.</p></div><b aria-hidden="true">↘</b></article>
-        <article className="accuracy-method-step method-review"><span>03</span><div><strong>Review</strong><p>Measure warnings against the eventual observed outcome.</p></div><b aria-hidden="true">✓</b></article>
-      </div>
-
-      <div className="accuracy-metrics-heading"><div><span className="eyebrow">THE SIGNALS THAT MATTER</span><h3>Warning quality, at a glance.</h3></div><span className="accuracy-metrics-note">Values from the published backtest</span></div>
+      <div className="accuracy-metrics-heading"><div><h3>Warning quality, at a glance.</h3></div><span className="accuracy-metrics-note">Values from the published backtest</span></div>
       <div className="accuracy-headline">
-        <div className="accuracy-metric accuracy-metric-recall"><div className="accuracy-metric-label"><span>01 / RECALL</span><i>↗</i></div><strong>{pct(summary.criticalRecall)}</strong><span>of ponds about to dry flagged critical in time</span><div className="accuracy-metric-footer"><span />Early warning</div></div>
-        <div className="accuracy-metric accuracy-metric-lead"><div className="accuracy-metric-label"><span>02 / LEAD TIME</span><i>◷</i></div><strong>{summary.medianLeadDays ?? '—'}<small> days</small></strong><span>median warning before a pond dried</span><div className="accuracy-metric-footer"><span />Room to act</div></div>
-        <div className="accuracy-metric accuracy-metric-precision"><div className="accuracy-metric-label"><span>03 / PRECISION</span><i>✓</i></div><strong>{pct(summary.criticalPrecision)}</strong><span>of critical calls that came true within 30 days</span><div className="accuracy-metric-footer"><span />Signal confidence</div></div>
+        <div className="accuracy-metric accuracy-metric-recall"><div className="accuracy-metric-label"><span>Caught in time</span></div><strong>{pct(summary.criticalRecall)}</strong><span>of ponds about to dry flagged critical in time</span></div>
+        <div className="accuracy-metric accuracy-metric-lead"><div className="accuracy-metric-label"><span>Warning before drying</span></div><strong>{summary.medianLeadDays ?? '—'}<small> days</small></strong><span>median warning before a pond dried</span></div>
+        <div className="accuracy-metric accuracy-metric-precision"><div className="accuracy-metric-label"><span>Critical calls that came true</span></div><strong>{pct(summary.criticalPrecision)}</strong><span>of critical calls that came true within 30 days</span></div>
       </div>
 
       <section className="accuracy-data-section accuracy-comparison-section">
-        <header className="accuracy-data-heading"><div><span className="eyebrow">COMPARISON TABLE / 01</span><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div><span className="accuracy-section-mark">A—F</span></header>
+        <header className="accuracy-data-heading"><div><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div><span className="accuracy-section-mark">A—F</span></header>
         <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Accuracy compared with simpler methods"><table className="accuracy-table"><thead><tr><th>Evaluation question</th><th>Talaab</th>{noHeat && <th>Without heat adjustment</th>}{comparisons.map((comparison, index) => <th key={comparison.label ?? index}>{comparison.label ?? `Comparison ${index + 1}`}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => <tr key={row.key}><td><span className="accuracy-row-index">{String(index + 1).padStart(2, '0')}</span>{row.label}</td><td><b>{row.format(summary[row.key])}</b></td>
             {noHeat && <td>{row.format(noHeat[row.key])}</td>}
@@ -63,7 +51,7 @@ export default function AccuracyTab() {
       </section>
 
       <section className="accuracy-data-section accuracy-outcomes-section">
-        <header className="accuracy-data-heading"><div><span className="eyebrow">OBSERVED OUTCOMES / 02</span><h3>Ponds that dried.</h3><p>These rows connect a real outcome to the first critical signal recorded for that pond.</p></div><span className="accuracy-outcome-count">{dried.length} <small>observed</small></span></header>
+        <header className="accuracy-data-heading"><div><h3>Ponds that dried.</h3><p>These rows connect a real outcome to the first critical signal recorded for that pond.</p></div><span className="accuracy-outcome-count">{dried.length} <small>observed</small></span></header>
         <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Ponds that dried and how much warning Talaab gave"><table className="accuracy-table"><thead><tr><th>Pond</th><th>Actually dried between</th><th>First marked critical</th><th>Warning</th></tr></thead>
           <tbody>{dried.map((pond) => <tr key={pond.id}><td><span className="accuracy-pond-id">{pond.id}</span></td><td>{formatDate(pond.actualDry.from, { day: 'numeric', month: 'short', year: 'numeric' })} – {formatDate(pond.actualDry.to, { day: 'numeric', month: 'short', year: 'numeric' })}</td><td>{pond.firstCritical ? formatDate(pond.firstCritical, { day: 'numeric', month: 'short', year: 'numeric' }) : 'never'}</td><td>{pond.leadDays != null ? <span className="accuracy-warning-pill">{pond.leadDays} days</span> : '—'}</td></tr>)}</tbody>
         </table></div>
