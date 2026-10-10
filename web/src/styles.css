@@ -3348,3 +3348,16 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   .talaab-proof img { width: 56px; height: 56px; }
   .talaab-proof figcaption { font-size: 12px; }
 }
+
+/* "View source on GitHub": a readable outlined pill (was dark text on a dark fill). */
+.about-screen .credits-heading .github-link { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border: 1px solid #315f4d; border-radius: 999px; background: transparent; color: #1f3d30; font: 700 13px 'Instrument Sans', sans-serif; text-decoration: none; transition: background .18s ease, color .18s ease; }
+.about-screen .credits-heading .github-link:hover { background: #1f3d30; color: #f4f7f2; }
+.about-screen .credits-heading .github-link:focus-visible { outline: 2px solid #315f4d; outline-offset: 3px; }
+.pond-list-sentinel { flex: 0 0 1px; align-self: stretch; }
+
+/* No blur over the moving map: every backdrop-filter re-blurs the map on each frame of a pan or zoom, which was
+   the main paint cost on laptop graphics. The panels are near-opaque, so they read the same without it. */
+.app-shell .topbar, .app-shell .mode-banner, .app-shell .season-timeline, .app-shell .alerts-feed, .app-shell .alerts-feed *, .map-panel *, .map-panel .leaflet-control-zoom a {
+  backdrop-filter: none !important;
+}
+.map-panel .legend, .map-panel .alerts-feed { background-color: rgba(250, 251, 247, 0.97); }

@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Scatter, ReferenceLine } from 'recharts';
 import MapView from './components/MapView';
 import PondList from './components/PondList';
@@ -6,9 +6,26 @@ import TalaabLandingPage from './components/ui/TalaabLandingPage';
 import DivisionOverview from './components/DivisionOverview';
 
 // Tabs opened less often load on demand: the plan needs the Markdown renderer, About the portfolio artwork.
-const PlanTab = lazy(() => import('./components/PlanTab'));
-const AccuracyTab = lazy(() => import('./components/AccuracyTab'));
-const AboutTab = lazy(() => import('./components/AboutTab'));
+// Every deploy renames these chunks. A tab left open from before a deploy would ask for a file that no longer
+// exists and the page went white; reload once onto the new version instead (the flag stops a reload loop).
+const lazyTab = (tab, load) => lazy(() => load().then((mod) => { try { sessionStorage.removeItem('talaab-chunk-reload'); } catch { /* storage blocked */ } return mod; }, (err) => {
+  let reloaded = false;
+  try { reloaded = sessionStorage.getItem('talaab-chunk-reload') === '1'; sessionStorage.setItem('talaab-chunk-reload', '1'); sessionStorage.setItem('talaab-open-tab', tab); } catch { /* storage blocked */ }
+  if (!reloaded) { window.location.reload(); return new Promise(() => {}); }
+  throw err;
+}));
+// A tab that fails to render shows a way out instead of a white page.
+class TabBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return <div className="tab-loading" role="alert">This page didn't load. <button type="button" className="retry-action" onClick={() => window.location.reload()}>Reload Talaab</button></div>;
+  }
+}
+const PlanTab = lazyTab('plan', () => import('./components/PlanTab'));
+const AccuracyTab = lazyTab('accuracy', () => import('./components/AccuracyTab'));
+const AboutTab = lazyTab('about', () => import('./components/AboutTab'));
 import { fetchAlerts, fetchPonds, fetchRegions, imageryBase } from './api';
 import { STATUS_KEYS, addDays, formatDate, formatRange, formatRatio, placeLabel, sortPonds, statusMeta } from './utils';
 
@@ -59,7 +76,9 @@ export default function App() {
   const [visibleStatuses, setVisibleStatuses] = useState(STATUS_KEYS);
   const [focusRequest, setFocusRequest] = useState(0);
   const [talukaFilter, setTalukaFilter] = useState('');
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() => {  // after a stale-chunk reload, reopen the tab that was clicked
+    try { const tab = sessionStorage.getItem('talaab-open-tab'); sessionStorage.removeItem('talaab-open-tab'); return tab || 'home'; } catch { return 'home'; }
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [alerts, setAlerts] = useState([]);
@@ -74,14 +93,6 @@ export default function App() {
   const pendingPondRef = useRef(null);
   const sheetTouchStart = useRef(null);
   const [dataRetryVersion, setDataRetryVersion] = useState(0);
-
-  // Warm the map engine while the visitor reads the landing page, so opening the map doesn't stall on it.
-  useEffect(() => {
-    if (!import.meta.env.VITE_AWS_MAPS_KEY) return undefined;
-    const warm = () => { import('maplibre-gl').then(() => import('@maplibre/maplibre-gl-leaflet')).catch(() => {}); };
-    const id = 'requestIdleCallback' in window ? window.requestIdleCallback(warm, { timeout: 4000 }) : window.setTimeout(warm, 2500);
-    return () => ('cancelIdleCallback' in window ? window.cancelIdleCallback(id) : window.clearTimeout(id));
-  }, []);
 
   // Retryable region initialization is shared by first load and error recovery.
   const loadRegions = useCallback(async () => {
@@ -425,11 +436,11 @@ export default function App() {
         onOpenPond={({ region: targetRegion, id }) => { setActiveTab('ponds'); switchRegion(targetRegion, id); }}
         onOpenPlan={(scope) => { setPlanScope(scope); setActiveTab('plan'); }}
       />}
-      <Suspense fallback={<div className="tab-loading" role="status">Loading…</div>}>
+      <TabBoundary key={activeTab}><Suspense fallback={<div className="tab-loading" role="status">Loading…</div>}>
         {activeTab === 'plan' && <PlanTab regionId={planScope?.regionId ?? regionId} asOf={planScope?.asOf ?? asOf} regionName={planScope?.regionName ?? data.region.name} />}
         {activeTab === 'accuracy' && <AccuracyTab />}
         {activeTab === 'about' && <AboutTab onExplore={() => setActiveTab('ponds')} />}
-      </Suspense>
+      </Suspense></TabBoundary>
       {activeTab === 'ponds' && (
         <section className="workspace">
           <aside className={`sidebar ${mobileSheetExpanded ? 'sheet-expanded' : ''}`}>
@@ -747,6 +758,14 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
 }
 
 function AreaChart({ pond, asOf }) {
+  // Draw the chart a frame after the card opens: the map pans and the card appears first, the chart a moment later.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(false);
+    let second = 0;
+    const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setReady(true)); });
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
+  }, [pond.id]);
   const data = (pond.history ?? []).filter((point) => !asOf || point.date <= asOf).map((point) => ({
     ...point,
     shortDate: formatDate(point.date, { day: '2-digit', month: 'short' }),
@@ -755,7 +774,7 @@ function AreaChart({ pond, asOf }) {
   }));
   return <div className="chart-wrap">
     <div className="chart-heading"><div><strong>Water area over time</strong><span>Grey marks show invalid or suspect passes</span></div><span>{data.length} passes</span></div>
-    <div className="chart"><ResponsiveContainer width="100%" height="100%">
+    <div className="chart">{ready && <ResponsiveContainer width="100%" height="100%">
       <ReAreaChart data={data} margin={{ top: 12, right: 4, left: -18, bottom: 0 }}>
         <defs><linearGradient id="waterFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#14b8a6" stopOpacity={0.3} /><stop offset="100%" stopColor="#14b8a6" stopOpacity={0.02} /></linearGradient></defs>
         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="#2a3a35" />
@@ -766,6 +785,6 @@ function AreaChart({ pond, asOf }) {
         <Area type="monotone" dataKey="validArea" stroke="#14b8a6" strokeWidth={2.5} fill="url(#waterFill)" dot={{ r: 2.5, fill: '#14b8a6', strokeWidth: 0 }} activeDot={{ r: 4 }} connectNulls />
         <Scatter dataKey="invalidArea" fill="#84928b" line={false} shape="circle" />
       </ReAreaChart>
-    </ResponsiveContainer></div>
+    </ResponsiveContainer>}</div>
   </div>;
 }

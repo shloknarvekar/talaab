@@ -12,6 +12,18 @@ function pondPriority(pond) {
   return 1;
 }
 
+// Smooth raster basemaps: load tiles once a zoom settles (not on every animation frame) and keep a ring of
+// off-screen tiles so short pans never show blank squares.
+const TILE_OPTIONS = { updateWhenZooming: false, updateWhenIdle: true, keepBuffer: 4 };
+const darkMatter = () => L.layerGroup([
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, maxNativeZoom: 16, ...TILE_OPTIONS, attribution: 'Tiles &copy; Esri — Esri, HERE, Garmin, &copy; OpenStreetMap contributors',
+  }),
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, maxNativeZoom: 16, ...TILE_OPTIONS,
+  }),
+]);
+
 export default function MapView({
   region,
   ponds,
@@ -54,69 +66,31 @@ export default function MapView({
     };
   }, []);
 
-  // Basemaps. With an Amazon Location key (set at build time by backend/scripts/deploy_web.py; it only works
-  // from our site and localhost) the map uses AWS: the Monochrome Dark vector style (MapLibre, loaded on demand)
-  // and AWS satellite tiles. Without one: CARTO Dark Matter if configured, else OpenStreetMap, and Esri satellite.
+  // Basemaps are raster tiles only: Leaflet moves them with the pond markers in one transform, so zooming stays
+  // smooth on any laptop and the map can't lag behind the dots (a WebGL vector style did both on weak graphics).
+  // Map view: Esri Dark Gray Canvas (base + place labels). Satellite: Amazon Location (key injected at build by
+  // backend/scripts/deploy_web.py, locked to our site and localhost), else Esri World Imagery.
   useEffect(() => {
     if (!mapRef.current) return undefined;
     const awsKey = import.meta.env.VITE_AWS_MAPS_KEY?.trim();
-    if (awsKey) {
-      const aws = 'https://maps.geo.us-west-2.amazonaws.com/v2';
-      const attribution = '&copy; <a href="https://docs.aws.amazon.com/location/latest/developerguide/data-attribution.html">AWS</a>, '
-        + '<a href="https://legal.here.com/en-gb/terms/general-content-supplier-terms-and-notices">HERE</a>';
-      let cancelled = false;
-      const show = (layer) => {
-        if (cancelled || !mapRef.current) return;
-        layersRef.current.tiles?.remove();
-        layersRef.current.tiles = layer.addTo(mapRef.current);
-      };
-      if (satellite) {
-        show(L.tileLayer(`${aws}/tiles/raster.satellite/{z}/{x}/{y}?key=${encodeURIComponent(awsKey)}`, { maxZoom: 18, attribution }));
-      } else {
-        Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl.css')])
-          .then(([maplibre]) => {
-            maplibre.setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');  // copied there by vite.config.js
-            return import('@maplibre/maplibre-gl-leaflet');
-          })
-          .then(() => show(L.maplibreGL({
-            style: `${aws}/styles/Monochrome/descriptor?key=${encodeURIComponent(awsKey)}&color-scheme=Dark`,
-            attribution,
-            // The vector basemap redraws on every zoom frame: skip label fades so zooming
-            // stays smoother on laptops with integrated graphics.
-            fadeDuration: 0,
-          })))
-          .catch(() => show(L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19, subdomains: 'abc', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-          })));
-      }
-      return () => { cancelled = true; };
-    }
-    const cartoKey = import.meta.env.VITE_CARTO_API_KEY?.trim();
-    const darkTiles = cartoKey
-      ? L.tileLayer(`https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=${encodeURIComponent(cartoKey)}`, {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    const satelliteTiles = awsKey
+      ? L.tileLayer(`https://maps.geo.us-west-2.amazonaws.com/v2/tiles/raster.satellite/{z}/{x}/{y}?key=${encodeURIComponent(awsKey)}`, {
+          maxZoom: 18, ...TILE_OPTIONS,
+          attribution: '&copy; <a href="https://docs.aws.amazon.com/location/latest/developerguide/data-attribution.html">AWS</a>, '
+            + '<a href="https://legal.here.com/en-gb/terms/general-content-supplier-terms-and-notices">HERE</a>',
         })
-      : L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          subdomains: 'abc',
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+      : L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19, ...TILE_OPTIONS, attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics',
         });
-    const tile = satellite
-      ? L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-          maxZoom: 19,
-          attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics',
-        })
-      : darkTiles;
     layersRef.current.tiles?.remove();
-    layersRef.current.tiles = tile.addTo(mapRef.current);
+    layersRef.current.tiles = (satellite ? satelliteTiles : darkMatter()).addTo(mapRef.current);
     return undefined;
   }, [satellite]);
 
   useEffect(() => {
     if (!mapRef.current || !region?.bbox) return;
     const [minLon, minLat, maxLon, maxLat] = region.bbox;
-    mapRef.current.fitBounds([[minLat, minLon], [maxLat, maxLon]], { padding: [28, 28] });
+    mapRef.current.fitBounds([[minLat, minLon], [maxLat, maxLon]], { padding: [28, 28], animate: false });
   }, [region]);
 
   // A deliberate selection (from the list or a marker) brings the pond into view.
@@ -127,9 +101,11 @@ export default function MapView({
     lastFocusRequestRef.current = focusRequest;
     if (!pond || !Number.isFinite(Number(pond.lat)) || !Number.isFinite(Number(pond.lon))) return;
     const map = mapRef.current;
-    map.flyTo([Number(pond.lat), Number(pond.lon)], Math.min(16, Math.max(13, map.getZoom())), {
-      duration: 0.65,
-    });
+    // Jump, don't fly: a multi-level fly-over stretches the marker canvas into giant blurred dots until it lands.
+    const target = [Number(pond.lat), Number(pond.lon)];
+    const zoom = Math.min(16, Math.max(13, map.getZoom()));
+    if (Math.abs(zoom - map.getZoom()) < 0.5) map.panTo(target, { animate: true, duration: 0.3 });
+    else map.setView(target, zoom, { animate: false });
   }, [focusRequest, selectedId, ponds]);
 
   // Markers and outlines are built once per set of ponds (a region) and drawn on the map's single canvas; dates,
@@ -155,6 +131,22 @@ export default function MapView({
   const refreshLabels = () => {
     const map = mapRef.current; const b = built.current;
     if (!map || !b.labels) return;
+    // Outlines are invisible specks below zoom 12 but cost the most to redraw: draw them only when they show.
+    // Only outlines near the view are on the map: jumping to street zoom then draws a dozen shapes, not ~400.
+    if (b.outlineLayer) {
+      const want = map.getZoom() >= 12;
+      if (want && !map.hasLayer(b.outlineLayer)) b.outlineLayer.addTo(map);
+      else if (!want && map.hasLayer(b.outlineLayer)) b.outlineLayer.remove();
+      if (want) {
+        const near = map.getBounds().pad(0.5);
+        const status = new Map(latest.current.ponds.map((p) => [p.id, p.status]));
+        for (const [id, o] of b.outlines) {
+          const keep = latest.current.visible.has(status.get(id)) && near.intersects(o.getBounds());
+          if (keep && !b.outlineLayer.hasLayer(o)) b.outlineLayer.addLayer(o);
+          else if (!keep && b.outlineLayer.hasLayer(o)) b.outlineLayer.removeLayer(o);
+        }
+      }
+    }
     b.labels.clearLayers();
     if (map.getZoom() < 13) return;
     const bounds = map.getBounds().pad(0.05);
@@ -180,7 +172,7 @@ export default function MapView({
     b.outlineLayer?.remove(); b.outlineLayer = null;
     b.labels?.remove();
     b.markers = new Map(); b.outlines = new Map();
-    b.renderer = b.renderer || L.canvas({ padding: 0.4, tolerance: L.Browser.mobile ? 10 : 4 });
+    b.renderer = b.renderer || L.canvas({ padding: 0.2, tolerance: L.Browser.mobile ? 10 : 4 });
     b.labels = L.layerGroup().addTo(map);
 
     const features = outlines?.type === 'FeatureCollection' && Array.isArray(outlines.features) ? outlines.features : [];
@@ -196,7 +188,8 @@ export default function MapView({
           layer.on('click', () => latest.current.onSelect(id));
           layer.bindTooltip(() => { const p = latest.current.ponds.find((x) => x.id === id); return `${id} · ${statusMeta(p?.status).label}`; }, { sticky: true, className: 'pond-outline-tooltip' });
         },
-      }).addTo(map);
+      });
+      b.outlineLayer.clearLayers();  // refreshLabels adds back only the outlines near the view
     }
     // Most urgent drawn last, so they sit on top of crowded areas.
     [...ponds].sort((a, b2) => pondPriority(a) - pondPriority(b2) || a.id.localeCompare(b2.id)).forEach((pond) => {
@@ -232,13 +225,10 @@ export default function MapView({
         }
       }
       const o = b.outlines.get(pond.id);
-      if (o && b.outlineLayer) {
-        if (!on) { if (b.outlineLayer.hasLayer(o)) b.outlineLayer.removeLayer(o); }
-        else {
-          if (!b.outlineLayer.hasLayer(o)) b.outlineLayer.addLayer(o);
-          const color = statusMeta(pond.status).color;
-          o.setStyle({ color, fillColor: color, opacity: selected ? 1 : 0.92, fillOpacity: selected ? 0.32 : 0.17, weight: selected ? 3 : pond.flag === 'faster-than-sun' ? 2.4 : 1.6 });
-        }
+      if (o) {  // style only; which outlines are on the map is decided by refreshLabels (zoom, view, filter)
+        const color = statusMeta(pond.status).color;
+        const st = { color, fillColor: color, opacity: selected ? 1 : 0.92, fillOpacity: selected ? 0.32 : 0.17, weight: selected ? 3 : pond.flag === 'faster-than-sun' ? 2.4 : 1.6 };
+        if (o._map) o.setStyle(st); else L.Util.setOptions(o, st);
       }
     }
     refreshRef.current = refreshLabels;
