@@ -1,3 +1,4 @@
+import HoverRevealCards from './HoverRevealCards';
 const stories = [
   {
     number: '01',
@@ -42,6 +43,17 @@ const stories = [
 ];
 
 export default function TalaabPortfolio({ onExplore }) {
+  const interactiveStories = stories.map((story) => ({
+    id: story.number,
+    title: story.title,
+    subtitle: `${story.eyebrow} · ${story.frame}`,
+    imageUrl: story.image,
+    imageClassName: 'portfolio-card-frame',
+    description: story.description,
+    detail: `${story.description} This card uses a locally stored Sentinel-2 frame of pond P003 near Latur dated ${story.frame}.`,
+    actionLabel: 'Explore story',
+  }));
+
   return (
     <section className="talaab-portfolio" aria-labelledby="portfolio-title">
       <header className="portfolio-heading">
@@ -56,23 +68,14 @@ export default function TalaabPortfolio({ onExplore }) {
         </button>
       </header>
 
-      <div className="portfolio-grid">
-        {stories.map((story) => (
-          <article className={`portfolio-card portfolio-card-${story.tone} ${story.wide ? 'portfolio-card-wide' : ''}`} key={story.number}>
-            {/* The same pond (P003, Latur) from Sentinel-2 across the 2024 season: the cards show it drying. */}
-            <figure className="portfolio-card-figure">
-              <img className="portfolio-card-frame" src={story.image} alt={`Sentinel-2 view of pond P003 near Latur on ${story.frame}`} loading="lazy" />
-              <figcaption>P003 · {new Date(story.frame).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</figcaption>
-            </figure>
-            <div className="portfolio-card-shade" aria-hidden="true" />
-            <div className="portfolio-card-content">
-              <span className="portfolio-card-kicker">{story.eyebrow}</span>
-              <h3>{story.title}</h3>
-              <p>{story.description}</p>
-            </div>
-          </article>
-        ))}
-      </div>
+      <HoverRevealCards
+        items={interactiveStories}
+        heading="Follow the workflow"
+        eyebrow="FROM SATELLITE TO FIELD"
+        density="regular"
+        className="portfolio-hover-cards"
+        ariaLabel="Interactive Talaab workflow stories"
+      />
       <p className="portfolio-footnote">Forecasts are decision support, not guarantees. “Faster than the sun” is an inspection signal—not proof of pumping.</p>
     </section>
   );

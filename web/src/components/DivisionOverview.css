@@ -160,3 +160,27 @@
   .division-pond-dry, .division-map-credit, .division-data-credit, .division-muted, .division-rank, .division-main-change small) { color: #5b675e; }
 
 .division-overview-page .division-change-pair small { font-size: 11px; }
+
+/* Ranking interactions are intentionally additive: protected district row class remains unchanged. */
+.division-ranked-card { background: linear-gradient(150deg, #fcfcf7 0%, #f7f7ef 100%); }
+.division-ranked-card .division-section-heading { margin-bottom: 12px; }
+.division-map-card .leaflet-interactive { transition: fill-opacity .22s ease, stroke-width .22s ease, filter .22s ease; }
+.division-map-card .leaflet-interactive:hover { filter: drop-shadow(0 2px 3px rgba(28,55,36,.2)); }
+.division-map-legend { animation: talaab-pop-in .5s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .division-map-legend { animation: none !important; }
+  .division-map-card .leaflet-interactive { transition: none !important; }
+}
+
+.division-metric-mosaic .division-metric { width: 100%; appearance: none; font-family: inherit; text-align: left; cursor: pointer; }
+.division-metric-mosaic .division-metric > span { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.division-metric-mosaic .division-metric > span i { display: inline-grid; width: 20px; height: 20px; place-items: center; border: 1px solid rgba(61,86,64,.13); border-radius: 50%; background: rgba(255,255,255,.5); color: #57765a; font-size: 12px; font-style: normal; transition: transform .2s ease, background .2s ease, color .2s ease; }
+.division-metric-mosaic .division-metric > small { margin-top: 7px; color: #708071; font-size: 9px; opacity: 0; transform: translateY(3px); transition: opacity .2s ease, transform .2s ease; }
+.division-metric-mosaic .division-metric:hover > small, .division-metric-mosaic .division-metric:focus-visible > small, .division-metric-mosaic .division-metric.is-active > small { opacity: 1; transform: translateY(0); }
+.division-metric-mosaic .division-metric:hover > span i, .division-metric-mosaic .division-metric:focus-visible > span i, .division-metric-mosaic .division-metric.is-active > span i { transform: translate(2px,-2px); border-color: #557c58; background: #315d3c; color: #fff; }
+.division-metric-mosaic .division-metric.is-active { border-color: #73956b; box-shadow: 0 0 0 2px rgba(112,151,101,.16), 0 12px 25px rgba(35,50,38,.1); }
+.division-metric-mosaic .division-metric:focus-visible { outline: 3px solid #73956b; outline-offset: 3px; }
+@media (max-width: 760px) {
+  .division-metric-mosaic .division-metric > small { opacity: 1; transform: none; }
+  .division-metric-mosaic .division-metric { min-height: 100px; }
+}

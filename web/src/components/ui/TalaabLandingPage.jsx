@@ -15,6 +15,11 @@ const NAV_ITEMS = [
 export default function TalaabLandingPage({ onExplore, onOpenView }) {
   const videoRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const prefersPoster = () => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true || navigator.connection?.saveData === true;
+  };
+  const [posterOnly, setPosterOnly] = useState(prefersPoster);
 
   const openView = (view) => {
     setMenuOpen(false);
@@ -28,13 +33,23 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
   }, [menuOpen]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return undefined;
-    let mounted = true;
-
-    const reveal = () => {
-      if (mounted) video.classList.add('is-ready');
+    const motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const connection = navigator.connection;
+    const updatePosterMode = () => setPosterOnly(motionQuery?.matches === true || connection?.saveData === true);
+    motionQuery?.addEventListener?.('change', updatePosterMode);
+    connection?.addEventListener?.('change', updatePosterMode);
+    updatePosterMode();
+    return () => {
+      motionQuery?.removeEventListener?.('change', updatePosterMode);
+      connection?.removeEventListener?.('change', updatePosterMode);
     };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (posterOnly || !video) return undefined;
+    let mounted = true;
+    const reveal = () => { if (mounted) video.classList.add('is-ready'); };
     const kick = () => {
       const playback = video.play();
       if (playback && typeof playback.catch === 'function') playback.catch(() => {});
@@ -44,14 +59,14 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
     kick();
     window.addEventListener('touchstart', kick, { once: true, passive: true });
     window.addEventListener('click', kick, { once: true });
-
     return () => {
       mounted = false;
+      video.pause();
       video.removeEventListener('loadeddata', reveal);
       window.removeEventListener('touchstart', kick);
       window.removeEventListener('click', kick);
     };
-  }, []);
+  }, [posterOnly]);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -90,7 +105,7 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
           alt="Landscape frame from the Talaab landing video"
           fetchPriority="high"
         />
-        <video
+        {!posterOnly && <video
           ref={videoRef}
           className="talaab-hero__video"
           autoPlay
@@ -103,12 +118,12 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
           tabIndex={-1}
         >
           <source src={VIDEO_URL} type="video/mp4" />
-        </video>
+        </video>}
       </div>
 
       <header className="talaab-nav">
         <a className="talaab-wordmark" href="#top" aria-label="Talaab — home">
-          Talaab<span className="talaab-wordmark-dot">.</span>
+          Talaab<span className="talaab-wordmark-dot" aria-hidden="true" />
         </a>
 
         {renderLinks('talaab-nav-links')}
