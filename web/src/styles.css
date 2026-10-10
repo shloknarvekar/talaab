@@ -2770,3 +2770,15 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 @media (min-width: 1181px) and (max-height: 860px) {
   .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card { display: none; }
 }
+.imagery-thumb-loading { display: block; width: 100%; aspect-ratio: 1; border-radius: 8px; background: linear-gradient(90deg, #e8ece4, #f3f5ef, #e8ece4); background-size: 200% 100%; animation: thumb-wait 1.2s ease-in-out infinite; }
+@keyframes thumb-wait { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .imagery-thumb-loading { animation: none; } }
+/* "About the data": a small chip that opens upward with the full credits, instead of a cramped scrolling box on the map. */
+.data-footer > summary { list-style: none; cursor: pointer; display: inline-flex; gap: 8px; align-items: baseline; padding: 7px 12px; border-radius: 999px; border: 1px solid #fff; background: rgba(255,255,255,.94); color: #26352b; font: 600 12px 'Instrument Sans', sans-serif; box-shadow: 0 4px 14px rgba(24,30,45,.08); }
+.data-footer > summary::-webkit-details-marker { display: none; }
+.data-footer > summary span { color: #56635b; font-weight: 500; }
+.data-footer > summary:focus-visible { outline: 2px solid #315f4d; outline-offset: 2px; }
+.data-footer-body { margin-top: 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid #fff; background: rgba(255,255,255,.97); color: #3d4a41; font: 500 12px/1.5 'Instrument Sans', sans-serif; box-shadow: 0 6px 18px rgba(24,30,45,.1); }
+.data-footer-body p { margin: 0 0 6px; }
+.app-shell:not(.no-scope) .data-footer, .app-shell:has(.workspace) .data-footer { max-height: none; overflow: visible; padding: 0; border: 0; background: transparent; box-shadow: none; }
+@media (min-width: 1181px) { .app-shell:has(.workspace) .data-footer { width: auto; max-width: 300px; } }

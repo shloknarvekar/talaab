@@ -440,12 +440,14 @@ export default function App() {
             </div>
             <AlertsFeed alerts={visibleAlerts} asOf={asOf} isReplay={!isLive} />
             <PondList ponds={filteredPonds} selectedId={selected?.id} onSelect={openPondFromList} isLive={isLive} regionId={regionId} />
-            <div className="data-footer">
-              <strong>About the data</strong>
-              <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · Basemap © AWS, HERE</span>
-              <span>{data.scenes?.length ?? 0} satellite passes · {data.scenes?.filter((scene) => scene.status === 'suspect').length ?? 0} suspect, not used.</span>
-              <ExcludedPonds excluded={data.excludedPonds} />
-            </div>
+            <details className="data-footer">
+              <summary>About the data <span>{data.scenes?.length ?? 0} passes · {data.scenes?.filter((scene) => scene.status === 'suspect').length ?? 0} suspect</span></summary>
+              <div className="data-footer-body">
+                <p>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · Basemap © AWS, HERE</p>
+                <p>{data.scenes?.length ?? 0} satellite passes; {data.scenes?.filter((scene) => scene.status === 'suspect').length ?? 0} suspect, not used for forecasts.</p>
+                <ExcludedPonds excluded={data.excludedPonds} />
+              </div>
+            </details>
           </aside>
 
           <section className="map-panel">
@@ -554,6 +556,19 @@ function dryByText(pond) {
 function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regionId, isLive }) {
   const [expandedPass, setExpandedPass] = useState(null);
   useEffect(() => setExpandedPass(null), [pond?.id, asOf]);
+  // District thumbnails live in our S3 bucket: ONE API call returns a signed link for every pass of this pond
+  // (one call per thumbnail would run ~24 Lambdas at once against the account's limit of 10). Box regions ship
+  // their thumbnails with the site.
+  const [links, setLinks] = useState(null);
+  const fromApi = String(imageryRegion || '').includes('district');
+  useEffect(() => {
+    setLinks(null);
+    if (!fromApi || !pond?.id || !imageryRegion) return undefined;
+    const controller = new AbortController();
+    fetch(`${imageryBase(imageryRegion)}/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(pond.id)}/links.json`, { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : null)).then((body) => setLinks(body?.links ?? {})).catch(() => {});
+    return () => controller.abort();
+  }, [fromApi, imageryRegion, pond?.id]);
   useEffect(() => {
     if (!expandedPass) return;
     const handleKeyDown = (e) => {
@@ -638,9 +653,9 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
             const history = historyByDate.get(date);
             const suspect = sceneByDate.get(date)?.status === 'suspect';
             const invalid = history?.valid === false || suspect;
-            const src = `/imagery/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(pond.id)}/${date}.jpg`;
-            return <button key={date} className={`imagery-thumb ${invalid ? 'invalid-pass' : ''}`} onClick={() => setExpandedPass({ date, src, invalid })} aria-label={`View satellite pass ${date}${invalid ? ', marked invalid or suspect' : ''}`}>
-              <img src={src} loading="lazy" alt={`Sentinel-2 view of ${pond.id} on ${date}`} />
+            const src = fromApi ? links?.[date] : `${imageryBase(imageryRegion)}/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(pond.id)}/${date}.jpg`;
+            return <button key={date} className={`imagery-thumb ${invalid ? 'invalid-pass' : ''}`} disabled={!src} onClick={() => src && setExpandedPass({ date, src, invalid })} aria-label={`View satellite pass ${date}${invalid ? ', marked invalid or suspect' : ''}`}>
+              {src ? <img src={src} loading="lazy" alt={`Sentinel-2 view of ${pond.id} on ${date}`} /> : <span className="imagery-thumb-loading" aria-hidden="true" />}
               <span>{formatDate(date, { day: '2-digit', month: 'short' })}</span><small>{invalid ? 'Not used' : 'Pass'}</small>
             </button>;
           })}</div>

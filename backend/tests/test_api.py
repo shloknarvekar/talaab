@@ -60,6 +60,8 @@ def test_imagery_route_serves_index_and_refuses_anything_else(data_dir):
         assert get(bad)[0] == 404, bad
     assert get("latur-2024/outlines.geojson")[0] == 404          # not published yet
     assert get("latur-2024/P001/2024-01-16.jpg")[0] == 404       # thumbnails only via S3 links (no DATA_BUCKET here)
+    assert get("latur-2024/P001/links.json")[0] == 404           # one-call links also need the bucket
+    assert get("latur-2024/P001/../links.json")[0] == 404
 
 
 def test_get_ponds_latest_and_as_of_resolution():
@@ -158,3 +160,22 @@ def test_latest_pond_comes_from_dynamodb_and_dated_views_from_s3(monkeypatch):
     status, pond = call("GET /ponds/{id}", None, {"id": "P001"})                    # not in the table: S3 fallback
     assert status == 200 and pond["id"] == "P001" and "history" in pond
     assert store._plain({"a": Decimal("2"), "b": [Decimal("0.75")]}) == {"a": 2, "b": [0.75]}
+
+
+def test_imagery_links_sign_every_date_of_one_pond_in_one_call(data_dir, monkeypatch):
+    idx = {"region": "latur-2024", "ponds": {"P001": {"dates": ["2024-01-16", "2024-01-21"]}}}
+    (data_dir / "latur-2024" / "imagery").mkdir()
+    (data_dir / "latur-2024" / "imagery" / "index.json").write_text(json.dumps(idx), encoding="utf-8")
+    monkeypatch.setenv("DATA_BUCKET", "bucket")
+
+    class FakeS3:
+        def generate_presigned_url(self, op, Params, ExpiresIn):
+            return f"https://s3/{Params['Key']}?exp={ExpiresIn}"
+    monkeypatch.setattr(store, "_s3_client", lambda: FakeS3())
+    r = handler.lambda_handler({"routeKey": "GET /imagery/{proxy+}", "pathParameters": {"proxy": "latur-2024/P001/links.json"}}, None)
+    body = json.loads(r["body"])
+    assert r["statusCode"] == 200 and body["links"] == {
+        "2024-01-16": "https://s3/data/latur-2024/imagery/P001/2024-01-16.jpg?exp=3600",
+        "2024-01-21": "https://s3/data/latur-2024/imagery/P001/2024-01-21.jpg?exp=3600"}
+    missing = handler.lambda_handler({"routeKey": "GET /imagery/{proxy+}", "pathParameters": {"proxy": "latur-2024/P999/links.json"}}, None)
+    assert missing["statusCode"] == 404

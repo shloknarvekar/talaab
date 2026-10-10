@@ -161,7 +161,7 @@ def post_plan(body: dict) -> dict:
 GZIP_MIN_BYTES = 1024
 # District imagery is made on AWS (pipeline merge -> s3://<bucket>/data/<region>/imagery/...). Only these files can
 # be asked for; a thumbnail is answered with a short-lived signed S3 link so the image bytes never pass the Lambda.
-IMAGERY_RE = re.compile(r"^(?P<region>[a-z0-9]+(?:-[a-z0-9]+)*)/(?P<file>index\.json|outlines\.geojson|P\d{3,5}/\d{4}-\d{2}-\d{2}\.jpg)$")
+IMAGERY_RE = re.compile(r"^(?P<region>[a-z0-9]+(?:-[a-z0-9]+)*)/(?P<file>index\.json|outlines\.geojson|P\d{3,5}/\d{4}-\d{2}-\d{2}\.jpg|P\d{3,5}/links\.json)$")
 THUMB_LINK_SECONDS = 3600
 
 
@@ -170,6 +170,21 @@ def get_imagery(path: str | None) -> dict:
     if not m:
         raise HttpError(404, "no such imagery file")
     region, name = m["region"], m["file"]
+    if name.endswith("/links.json"):  # every thumbnail of one pond in ONE call: signed S3 links the browser loads directly
+        bucket = os.environ.get("DATA_BUCKET")
+        if not bucket:
+            raise HttpError(404, "thumbnails are served from S3 only")
+        pond = name.split("/", 1)[0]
+        index = store.read_json(f"{region}/imagery/index.json") or {}
+        dates = ((index.get("ponds") or {}).get(pond) or {}).get("dates")
+        if not dates:
+            raise HttpError(404, f"no imagery for {pond} in {region!r}")
+        s3 = store._s3_client()
+        links = {d: s3.generate_presigned_url("get_object", Params={"Bucket": bucket, "Key": f"data/{region}/imagery/{pond}/{d}.jpg"},
+                                              ExpiresIn=THUMB_LINK_SECONDS) for d in dates}
+        r = _response(200, {"region": region, "pond": pond, "expiresIn": THUMB_LINK_SECONDS, "links": links})
+        r["headers"]["cache-control"] = f"private, max-age={THUMB_LINK_SECONDS - 300}"
+        return r
     if name.endswith(".jpg"):
         bucket = os.environ.get("DATA_BUCKET")
         if not bucket:

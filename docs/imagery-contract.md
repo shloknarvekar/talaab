@@ -73,7 +73,8 @@ s3://<DataBucketName>/data/<region>/imagery/outlines.geojson
 s3://<DataBucketName>/data/<region>/imagery/<pondId>/<YYYY-MM-DD>.jpg
 ```
 
-The API serves them (`GET <API>/imagery/<region>/index.json`, `.../outlines.geojson`, and `.../<pondId>/<date>.jpg`
+The API serves them (`GET <API>/imagery/<region>/index.json`, `.../outlines.geojson`, `.../<pondId>/links.json` (a signed
+S3 link for every pass of one pond, in one call: what the pond panel uses, so opening a pond runs one Lambda, not ~24), and `.../<pondId>/<date>.jpg`
 as a 302 to a 1-hour signed S3 link), and the web app reads district regions from there (`imageryBase()` in
 `web/src/api.js`); nothing is bundled into the site. How it is made (Nikhil's `pipeline/imagery.py`): each cell
 Lambda writes `data/<region>/imagery-cells/<cell>/...` with cell pond ids (`cXX-YY-P###`); the merge, which alone
