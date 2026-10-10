@@ -21,7 +21,7 @@
 .hover-reveal-card-copy { position: relative; z-index: 1; display: flex; width: 100%; min-height: inherit; flex-direction: column; justify-content: flex-end; align-items: flex-start; padding: 15px; }
 .hover-reveal-card-subtitle { display: block; margin-bottom: 7px; color: rgba(255,255,255,.82); font-size: 9px; font-weight: 800; line-height: 1.35; letter-spacing: .13em; text-transform: uppercase; }
 .hover-reveal-card-copy > strong { display: block; color: #fff; font: 600 clamp(16px, 1.5vw, 21px)/1.05 'Instrument Sans', sans-serif; letter-spacing: -.025em; }
-.hover-reveal-card-description { display: block; max-height: 0; margin-top: 0; overflow: hidden; color: rgba(255,255,255,.9); font-size: 11px; line-height: 1.45; opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease, max-height .3s ease, margin .3s ease; }
+.hover-reveal-card-description { display: block; max-height: 0; margin-top: 0; overflow: hidden; color: rgba(255,255,255,.9); font-size: 11px; line-height: 1.45; opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
 .hover-reveal-card-action { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; color: #f2f6ea; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
 .hover-reveal-card-action svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s ease; }
 .hover-reveal-card:hover, .hover-reveal-card:focus-visible, .hover-reveal-card.is-selected { transform: translateY(-3px) scale(1.015); border-color: #fff; box-shadow: 0 10px 28px rgba(21,44,31,.18); outline: none; }

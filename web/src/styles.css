@@ -3320,3 +3320,16 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .map-quick-actions button:hover:not(:disabled) { border-color: #315c43; background: #fff; }
 .map-quick-actions button:focus-visible { outline: 2px solid #315c43; outline-offset: 2px; }
 .map-quick-actions button:disabled { opacity: .55; cursor: default; }
+
+/* Readability floor (11px) for small labels added in the last polish pass. */
+.plan-document .markdown-render th, .plan-document .markdown-render th span, .plan-markdown-brand i,
+.hover-reveal-eyebrow, .hover-reveal-card-number, .hover-reveal-card-subtitle, .hover-reveal-card-description,
+.accuracy-sort-hint, .accuracy-row-index, .accuracy-no-warning, .accuracy-table-meta span, .accuracy-sort-select span,
+.accuracy-filter-chips button span, .division-filter-chips button span, .accuracy-screen th,
+.division-metric small, .division-ranking-count b { font-size: 11px !important; }
+
+/* Phone tap targets: the sheet handle and "Open <district>'s pond map" were 15px tall. */
+@media (max-width: 760px) {
+  .sheet-handle { min-height: 32px; }
+  .division-open-map { min-height: 36px; display: inline-flex; align-items: center; }
+}
