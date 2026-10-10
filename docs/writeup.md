@@ -188,6 +188,8 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Sentinel-2 L2A**: contains modified Copernicus Sentinel data 2023, 2024 and 2026, via the AWS Open Data Registry and the Element 84 Earth Search STAC API.
 - **Open-Meteo** weather (ET0, rain): CC BY 4.0.
 - **OpenStreetMap** village names, taluka boundaries and basemap: © OpenStreetMap contributors, ODbL.
+- **Amazon Location Service** basemap: © AWS, © HERE.
+- **Landing-page video**: stock footage from Pexels (Pexels License).
 
 ## AI tools we used
 

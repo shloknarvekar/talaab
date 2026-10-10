@@ -154,6 +154,8 @@ cd backend && sam delete
 - **Open-Meteo**: weather data (ET0, precipitation) from [Open-Meteo.com](https://open-meteo.com/), licensed CC BY 4.0.
 - **OpenStreetMap**: village names and taluka boundaries for each pond (and the map basemap): © OpenStreetMap contributors, ODbL 1.0.
 - **Pond thumbnails and outlines** in the web app are cut from the same Sentinel-2 L2A true-colour images (`pipeline/imagery.py`).
+- **Basemap**: Amazon Location Service map styles (© AWS, © HERE).
+- **Landing-page video**: stock footage from [Pexels](https://www.pexels.com/), used under the Pexels License.
 - **Optional basemaps**: CARTO Dark Matter (only with `VITE_CARTO_API_KEY`) and the Esri World Imagery satellite layer (Esri, Maxar, Earthstar Geographics).
 
 ## AI tools used
