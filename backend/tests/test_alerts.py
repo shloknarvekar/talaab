@@ -69,7 +69,7 @@ def test_alert_text_uses_only_snapshot_numbers():
 
 @pytest.fixture
 def data_dir(tmp_path, monkeypatch):
-    for region in ("latur-2024-synthetic", "latur-2026", "latur-district-2026"):
+    for region in ("latur-2024-synthetic", "latur-2026", "latur-district-2026", "beed-district-2026"):
         d = tmp_path / region
         d.mkdir()
         (d / "measurements.json").write_text(json.dumps(generate()), encoding="utf-8")
@@ -84,7 +84,10 @@ def fake_weather(lat, lon, today):
     return obs, [{"date": (today + timedelta(days=i)).isoformat(), "et0": 7.0, "precip": 0.0} for i in range(1, 17)]
 
 
-def test_live_recompute_sends_once_then_stays_quiet(data_dir):
+def test_live_recompute_sends_once_then_stays_quiet(data_dir, monkeypatch):
+    # a live region outside any division emails on its own (division members queue for a digest instead)
+    monkeypatch.setitem(recompute.REGIONS, "latur-district-2026",
+                        {k: v for k, v in recompute.REGIONS["latur-district-2026"].items() if k != "division"})
     sent = []
     publish = lambda subject, body: sent.append((subject, body)) or True  # noqa: E731
     today = date(2024, 6, 16)
@@ -135,7 +138,10 @@ def test_replay_timeline_is_simulated_and_ordered(data_dir):
     assert handler.lambda_handler({"routeKey": "GET /alerts", "queryStringParameters": {"region": "latur-2024"}}, None)["statusCode"] == 404
 
 
-def test_live_timeline_lists_sent_alerts(data_dir):
+def test_live_timeline_lists_sent_alerts(data_dir, monkeypatch):
+    # a live region outside any division emails on its own (division members queue for a digest instead)
+    monkeypatch.setitem(recompute.REGIONS, "latur-district-2026",
+                        {k: v for k, v in recompute.REGIONS["latur-district-2026"].items() if k != "division"})
     recompute.recompute_region("latur-district-2026", date(2024, 6, 16), fetch_weather=fake_weather, write_table=lambda r, s: 0,
                                publish=lambda s, b: True)
     timeline = json.loads((data_dir / "latur-district-2026" / "alerts" / "timeline.json").read_text(encoding="utf-8"))
@@ -155,3 +161,57 @@ def test_unsent_alerts_are_not_remembered():
     assert new_alerts(alert_state(s, None, []), s) == []          # status unchanged: no transition
     assert alert_state(s, None, [])["18.36,76.5"]["alerted"] == []  # but nothing recorded as sent
     assert alert_state(s, None, pending)["18.36,76.5"]["alerted"] == ["critical"]
+
+
+def _recompute(region, sent):
+    return recompute.recompute_region(region, date(2024, 6, 16), fetch_weather=fake_weather, write_table=lambda r, s: 0,
+                                      publish=lambda s, b: sent.append((s, b)) or True)
+
+
+def test_division_districts_queue_and_the_division_gets_one_digest(data_dir):
+    sent = []
+    a, b = _recompute("latur-district-2026", sent), _recompute("beed-district-2026", sent)
+    assert sent == [] and a["alertsQueued"] > 0 and b["alertsQueued"] > 0 and a["alertsSent"] == b["alertsSent"] == 0
+    doc = recompute.write_division("marathwada-2026")
+    assert {r["region"] for r in doc["districts"]} == {"latur-district-2026", "beed-district-2026"}
+
+    n = recompute.send_digest("marathwada-2026", publish=lambda s, body: sent.append((s, body)) or True)
+    assert n == a["alertsQueued"] + b["alertsQueued"] and len(sent) == 1      # ONE email for both districts
+    subject, body = sent[0]
+    assert subject.startswith("Talaab: ") and subject.endswith("action across Marathwada") and len(subject) <= 100
+    assert "- Latur: " in body and "- Beed: " in body and "Latur district)" in body and "Beed district)" in body
+    for region in ("latur-district-2026", "beed-district-2026"):  # GET /alerts per district shows what was sent
+        timeline = json.loads((data_dir / region / "alerts" / "timeline.json").read_text(encoding="utf-8"))
+        assert timeline["events"][-1]["delivered"] is True and timeline["events"][-1]["subject"] == subject
+    # outbox emptied; the next digest has nothing to say, and a re-run queues nothing new
+    assert recompute.send_digest("marathwada-2026", publish=lambda s, body: sent.append(s) or True) == 0 and len(sent) == 1
+    assert _recompute("latur-district-2026", sent)["alertsQueued"] == 0
+
+
+def test_digest_keeps_the_outbox_when_sending_fails(data_dir):
+    _recompute("latur-district-2026", [])
+
+    def broken(subject, body):
+        raise RuntimeError("SNS down")
+
+    with pytest.raises(RuntimeError):
+        recompute.send_digest("marathwada-2026", publish=broken)
+    sent = []
+    assert recompute.send_digest("marathwada-2026", publish=lambda s, b: sent.append(s) or True) > 0 and len(sent) == 1
+
+
+def test_digest_text_uses_only_division_numbers_and_caps_the_list():
+    from jobs.alerts import MAX_LISTED, format_digest
+    division = {"totals": {"ponds": 900, "districts": 2, "dry": 1, "critical": 30, "watch": 40},
+                "districts": [{"region": "jalna-district-2026", "name": "Jalna", "dry": 1, "critical": 20, "watch": 25},
+                              {"region": "beed-district-2026", "name": "Beed", "dry": 0, "critical": 10, "watch": 15}],
+                "talukas": [{"name": "Jafferabad", "district": "Jalna", "dry": 1, "critical": 6, "watch": 13}]}
+    alerts = [dict(pond(f"P{i:03d}", 18.0 + i / 100, "critical"), key=f"k{i}", reason="critical", region="jalna-district-2026",
+                   district="Jalna", ratio=None, place=f"near V{i}", taluka="Jalna") for i in range(1, 26)]
+    alerts.append(dict(alerts[0], region="beed-district-2026", district="Beed", key="kb"))  # same id P001 in another district
+    subject, body = format_digest("Marathwada (live, 2026)", "2026-10-10", division, alerts, "x")
+    assert subject == "Talaab: 26 ponds need action across Marathwada"      # P001 counted once per district
+    assert "900 ponds in 2 districts: 1 dry, 30 critical, 40 watch." in body
+    assert "- Jalna: 1 dry, 20 critical, 25 watch (25 new alerts)" in body and "- Beed: 0 dry, 10 critical, 15 watch (1 new alert)" in body
+    assert "- Jafferabad (Jalna): 1 dry, 6 critical, 13 watch" in body
+    assert body.count("turned CRITICAL") == MAX_LISTED and "...and 6 more alerts (6 more ponds): see the map." in body

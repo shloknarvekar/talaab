@@ -71,22 +71,69 @@ def format_alert(region_name: str, as_of: str, alerts: list[dict], site_url: str
     subject = f"Talaab: {n} {'ponds need' if n != 1 else 'pond needs'} action in {region_name}"[:100]
     lines = [f"Talaab update for {region_name}, as of {_d(as_of)}.", ""]
     for a in alerts[:MAX_LISTED]:  # most urgent first (new_alerts order)
-        parts = [x for x in (a["place"], f"{a['taluka']} taluka" if a.get("taluka") else "") if x]
-        where = f" ({', '.join(parts)})" if parts else ""
-        lines.append(f"- {a['id']}{where} {REASONS[a['reason']]}.")
-        if a["reason"] == "critical" and a.get("dryBy"):
-            lines.append(f"    Likely dry {_d(a['dryBy']['likely'])} (range {_d(a['dryBy']['earliest'])} to {_d(a['dryBy']['latest'])}); "
-                         f"{a['areaNowHa']} ha of {a['maxAreaHa']} ha left.")
-        if a["reason"] == "flag" and a.get("ratio"):
-            lines.append(f"    Shrinking {a['ratio']}x faster than nearby ponds under the same sun. This suggests pumping; it is not proof.")
-        if a["reason"] == "dry":
-            lines.append(f"    {a['areaNowHa']} ha left of {a['maxAreaHa']} ha (below 5%).")
+        lines += _alert_lines(a)
     if len(alerts) > MAX_LISTED:
         more = len({a["id"] for a in alerts[MAX_LISTED:]} - {a["id"] for a in alerts[:MAX_LISTED]})
         lines.append(f"- ...and {len(alerts) - MAX_LISTED} more alerts ({more} more ponds): see the map.")
-    lines += ["", f"Map and full plan: {site_url}",
-              "Forecasts are ranges from Sentinel-2 satellite measurements and Open-Meteo heat forecasts; verify on the ground.",
-              "You receive this because you subscribed to Talaab alerts (Amazon SNS)."]
+    lines += _footer(site_url)
+    return subject, "\n".join(lines)
+
+
+def _alert_lines(a: dict, district: str | None = None) -> list[str]:
+    parts = [x for x in (a["place"], f"{a['taluka']} taluka" if a.get("taluka") else "", f"{district} district" if district else "") if x]
+    where = f" ({', '.join(parts)})" if parts else ""
+    out = [f"- {a['id']}{where} {REASONS[a['reason']]}."]
+    if a["reason"] == "critical" and a.get("dryBy"):
+        out.append(f"    Likely dry {_d(a['dryBy']['likely'])} (range {_d(a['dryBy']['earliest'])} to {_d(a['dryBy']['latest'])}); "
+                   f"{a['areaNowHa']} ha of {a['maxAreaHa']} ha left.")
+    if a["reason"] == "flag" and a.get("ratio"):
+        out.append(f"    Shrinking {a['ratio']}x faster than nearby ponds under the same sun. This suggests pumping; it is not proof.")
+    if a["reason"] == "dry":
+        out.append(f"    {a['areaNowHa']} ha left of {a['maxAreaHa']} ha (below 5%).")
+    return out
+
+
+def _footer(site_url: str) -> list[str]:
+    return ["", f"Map and full plan: {site_url}",
+            "Forecasts are ranges from Sentinel-2 satellite measurements and Open-Meteo heat forecasts; verify on the ground.",
+            "You receive this because you subscribed to Talaab alerts (Amazon SNS)."]
+
+
+DIGEST_TALUKAS = 5
+
+
+def format_digest(division_name: str, as_of: str, division: dict, alerts: list[dict], site_url: str) -> tuple[str, str]:
+    """ONE email for a whole division (subject <= 100 chars, plain-text body).
+
+    alerts: new alerts of every member district since the last digest, each with "region" and "district".
+    division: the division summary (logic/division.py). Every number is copied from one of the two.
+    """
+    ponds = {(a["region"], a["id"]) for a in alerts}
+    n = len(ponds)
+    subject = f"Talaab: {n} {'ponds need' if n != 1 else 'pond needs'} action across {division_name.split(' (')[0]}"[:100]
+    new_by_region: dict[str, int] = {}
+    for a in alerts:
+        new_by_region[a["region"]] = new_by_region.get(a["region"], 0) + 1
+    t = division["totals"]
+    lines = [f"Talaab update for {division_name}, as of {_d(as_of)}.",
+             f"{t['ponds']} ponds in {t['districts']} districts: {t['dry']} dry, {t['critical']} critical, {t['watch']} watch.", "",
+             "By district, most in need first:"]
+    for r in division["districts"]:
+        new = new_by_region.get(r["region"], 0)
+        lines.append(f"- {r['name']}: {r['dry']} dry, {r['critical']} critical, {r['watch']} watch"
+                     + (f" ({new} new alert{'s' if new != 1 else ''})" if new else ""))
+    if division.get("talukas"):
+        lines += ["", "Talukas needing action first:"]
+        lines += [f"- {g['name']} ({g['district']}): {g['dry']} dry, {g['critical']} critical, {g['watch']} watch"
+                  for g in division["talukas"][:DIGEST_TALUKAS]]
+    lines += ["", "New since the last update, most urgent first:"]
+    ordered = sorted(alerts, key=lambda a: (ORDER[a["reason"]], a["district"], a["id"]))
+    for a in ordered[:MAX_LISTED]:
+        lines += _alert_lines(a, a["district"])
+    if len(ordered) > MAX_LISTED:
+        more = len(ponds - {(a["region"], a["id"]) for a in ordered[:MAX_LISTED]})
+        lines.append(f"- ...and {len(ordered) - MAX_LISTED} more alerts ({more} more ponds): see the map.")
+    lines += _footer(site_url)
     return subject, "\n".join(lines)
 
 
