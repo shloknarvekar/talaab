@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "instrument sans",
+        "createdAt": "2026-10-10T12:47:20.658Z",
+        "reason": "assistant decision during the 10 Oct audit fixes: the site's single consolidated type pair (replaced five faces); same exception as the repo-root config"
+      },
+      {
+        "rule": "overused-font",
+        "value": "instrument serif",
+        "createdAt": "2026-10-10T12:47:21.321Z",
+        "reason": "assistant decision during the 10 Oct audit fixes: the site's single consolidated type pair (replaced five faces); same exception as the repo-root config"
+      }
+    ]
+  }
+}
