@@ -4,9 +4,9 @@
   "pondsKept": 238,
   "pondsExcluded": 11,
   "passes": 13,
-  "cellSeconds": 778.5,
-  "slowestCellSeconds": 43.4,
-  "mergeSeconds": 12.3,
-  "lambdaGbSeconds": 1569,
-  "lambdaCostUsdWithoutFreeTier": 0.0209
+  "cellSeconds": 742.7,
+  "slowestCellSeconds": 39.3,
+  "mergeSeconds": 11.6,
+  "lambdaGbSeconds": 1497,
+  "lambdaCostUsdWithoutFreeTier": 0.02
 }
