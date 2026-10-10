@@ -22,6 +22,7 @@ Per-pond "dry-by" countdowns and pumping flags for drought districts, built from
 | **Median warning** | **25 days** before a pond dried | same backtests |
 | **Dry date inside our range** | **40%** (2024 district) · **33%** (2023), median error of the likely date 9 days: the ranges are still too narrow for many ponds | same backtests |
 | **It says how sure it is** | High-confidence critical calls were right 73% of the time, low-confidence ones 57% (2024 district); lists lead with the trusted ones | [`docs/data-quality.md`](docs/data-quality.md) |
+| **Pumping flag, checked on days it never saw** | Flagged ponds lost **23.8%** of their full area over the next 30 days vs 14.0% for the rest, and **86%** dried within 60 days vs 25% (2024 district; same pattern in 2023). It can't tell *why* a pond loses water, so it only suggests an inspection | [`docs/flag-check.md`](docs/flag-check.md) |
 | **Known weak spot** | Big tanks were predicted to dry too early 9 times in 2024 | [`docs/model-experiment.md`](docs/model-experiment.md) |
 | **AWS cost** | **$0** so far (free tier); a whole-Marathwada run is about $0.14 of Lambda without it | AWS Cost Explorer |
 

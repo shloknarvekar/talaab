@@ -95,6 +95,11 @@ We treated honesty as a feature, because district officials will only use a tool
   drop, is marked low. Backtested, low-confidence critical calls were right 57% / 0% / 33% of the time against
   73% / 84% / 75% for the rest (2024 district, 2024 box, held-out 2023), so lists and the AI briefing lead with
   the trusted ones.
+- **The pumping flag is tested, not just asserted.** Nobody records which ponds are pumped, so we test the
+  flag on the days it never saw: ponds flagged at a date lost 23.8% of their full area over the next 30 days
+  against 14.0% for the rest, and 86% dried within 60 days against 25% (2024 district; 21.5% vs 13.6% and
+  90% vs 24% in the held-out 2023). It finds ponds that really lose water fast; it can't say *why* (pumping,
+  a shallow bed, seepage), so Talaab only ever suggests an inspection (`docs/flag-check.md`).
 - **Known limits, stated plainly.** Big tanks are often predicted to dry too early (9 times in 2024).
   Passes are about 5 days apart, so a dry date is known only to within a window. The heat
   adjustment helped clearly in 2024 (median error 18.5 vs 31 days) but made no difference in 2023.
