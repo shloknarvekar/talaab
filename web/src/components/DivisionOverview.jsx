@@ -119,7 +119,7 @@ export default function DivisionOverview({ division, onOpenDistrict, onOpenPond,
   return <section className="division-overview-page">
     <div className="division-overview-hero">
       <div className="division-overview-heading">
-                <h2>{name}, <em>all at once.</em></h2>
+        <h2>{name}, <em>all at once.</em></h2>
         <p>Which districts and talukas need tankers first, the most urgent ponds and the ones worth an inspection,
           from every district's latest Sentinel-2 pass. Click a district to see its talukas; double-click it on the map to open its ponds.</p>
         <span className="division-asof">DATA AS OF {formatDate(doc.asOf, { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase()}</span>

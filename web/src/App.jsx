@@ -3,7 +3,6 @@ import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Too
 import MapView from './components/MapView';
 import PondList from './components/PondList';
 import TalaabLandingPage from './components/ui/TalaabLandingPage';
-import HoverRevealCards from './components/ui/HoverRevealCards';
 import DivisionOverview from './components/DivisionOverview';
 
 // Tabs opened less often load on demand: the plan needs the Markdown renderer, About the portfolio artwork.
@@ -449,30 +448,17 @@ export default function App() {
               <p>{flaggedCount} pond{flaggedCount === 1 ? '' : 's'} shrinking faster than the local baseline. The flag suggests pumping; it is not proof.</p>
               <div className="sun-share-inline"><span>☀ SUN'S SHARE</span><strong>{data.sunShareMm ?? '—'} mm</strong><small>evaporation in the latest window</small></div>
             </div>
-            <HoverRevealCards
-              className="map-quick-actions"
-              density="micro"
-              heading="Quick map actions"
-              ariaLabel="Quick pond map actions"
-              items={[
-                { id: 'map-risk-first', title: 'Risk first', subtitle: 'DRY + CRITICAL', imageUrl: '/imagery/latur-2024/P003/2024-05-30.jpg', description: 'Show urgent ponds and open the first priority.', detail: 'The map is filtered to dry and critical ponds. Counts and forecast windows still come from the published API data.', actionLabel: 'Filter risk' },
-                { id: 'map-flagged', title: 'Inspect a flag', subtitle: 'FIELD VISIT', imageUrl: '/imagery/latur-2024/P003/2024-04-15.jpg', description: 'Open a pond flagged for faster-than-sun shrinkage.', detail: 'The flag suggests pumping but does not prove it. Use it as a reason to inspect the site, not as an accusation.', actionLabel: 'Find a flag' },
-                { id: 'map-satellite', title: 'Satellite layer', subtitle: 'MAP STYLE', imageUrl: '/imagery/latur-2024/P003/2024-03-06.jpg', description: 'Switch between the map and satellite basemap.', detail: 'Toggle the underlying basemap. Pond status filters and selection stay in place.', actionLabel: 'Toggle layer' },
-              ]}
-              onActivate={(item) => {
-                if (item.id === 'map-risk-first') {
-                  setVisibleStatuses(['dry', 'critical']);
-                  const priority = ponds.find((pond) => pond.status === 'dry') ?? [...ponds.filter((pond) => pond.status === 'critical')].sort((a, b) => (a.daysLeft?.likely ?? Infinity) - (b.daysLeft?.likely ?? Infinity))[0];
-                  if (priority) openPondFromList(priority.id);
-                } else if (item.id === 'map-flagged') {
-                  const flagged = ponds.find((pond) => pond.flag === 'faster-than-sun');
-                  if (flagged) openPondFromList(flagged.id);
-                  else setVisibleStatuses(STATUS_KEYS);
-                } else if (item.id === 'map-satellite') {
-                  setSatellite((value) => !value);
-                }
-              }}
-            />
+            <div className="map-quick-actions" role="group" aria-label="Quick pond map actions">
+              <button type="button" onClick={() => {
+                setVisibleStatuses(['dry', 'critical']);
+                const priority = ponds.find((pond) => pond.status === 'dry') ?? [...ponds.filter((pond) => pond.status === 'critical')].sort((a, b) => (a.daysLeft?.likely ?? Infinity) - (b.daysLeft?.likely ?? Infinity))[0];
+                if (priority) openPondFromList(priority.id);
+              }}><b>Risk first</b><small>Dry + critical only</small></button>
+              <button type="button" disabled={!flaggedCount} onClick={() => {
+                const flagged = ponds.find((pond) => pond.flag === 'faster-than-sun');
+                if (flagged) openPondFromList(flagged.id);
+              }}><b>Inspect a flag</b><small>{flaggedCount ? 'Open a faster-than-sun pond' : 'No flagged ponds'}</small></button>
+            </div>
             {(regionId === 'latur-2024' || regionId === REPLAY_REGION) && !isLive && (
               <div className="timelapse-feature-card" role="region" aria-label="Satellite time-lapse feature">
                 <div className="timelapse-feature-header">

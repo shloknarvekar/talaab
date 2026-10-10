@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { requestPlan } from '../api';
 import { formatDate } from '../utils';
-import HoverRevealCards from './ui/HoverRevealCards';
 
 const PLAN_SOURCE = {
   bedrock: 'Written with Amazon Bedrock · numbers checked against the data',
@@ -17,7 +16,9 @@ const keyOf = (regionId, asOf, language) => `${regionId}|${asOf ?? 'latest'}|${l
 
 
 // Keep the API-authored words intact, but make important evidence easier to scan.
-const planTokens = /(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping|priority|first|before|action)\b|\b(?!20\d{2}\b)(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
+const planTokens = /(P\d{2,})|\b(too early(?: to say)?|not visible|no warning|critical|dry(?:ing)?|watch|flagged|inspect(?:ion)?|urgent|pumping)\b|\b(?!20\d{2}\b)(\d+(?:,\d{3})*(?:\.\d+)?%?)\b/gi;
+
+const MONTH_AFTER = /^\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/;
 
 function highlightPlanText(text) {
   const parts = [];
@@ -25,6 +26,8 @@ function highlightPlanText(text) {
   for (const match of text.matchAll(planTokens)) {
     const token = match[0];
     const index = match.index ?? 0;
+    // The day of a date ("23 Oct 2026") is not a count: leave dates as plain text.
+    if (match[3] && MONTH_AFTER.test(text.slice(index + token.length))) continue;
     if (index > cursor) parts.push(text.slice(cursor, index));
     let className = 'plan-highlight-number';
     if (match[1]) className = 'plan-highlight-pond';
@@ -144,26 +147,6 @@ export default function PlanTab({ regionId, asOf, regionName }) {
         <h2>{isDivision ? 'Division action plan' : 'District action plan'}</h2>
         <p>{regionName} · data as of {asOf ? formatDate(asOf, { day: 'numeric', month: 'short', year: 'numeric' }) : 'the latest pass'} · actions by scarcity period, dry-by dates as ranges</p>
       </header>
-
-      <HoverRevealCards
-        className="plan-quick-actions"
-        density="compact"
-        eyebrow="FIELD BRIEF TOOLS"
-        heading="Make the plan work for you"
-        ariaLabel="Plan tools"
-        items={[
-          { id: 'plan-english', title: 'English briefing', subtitle: 'LANGUAGE', imageUrl: '/imagery/latur-2024/P003/2024-01-16.jpg', description: 'Read the currently published plan in English.', detail: 'The English plan includes the briefing, evidence-backed priorities, and actions ordered by scarcity period.', actionLabel: 'Use English' },
-          { id: 'plan-marathi', title: 'मराठी briefing', subtitle: 'LANGUAGE', imageUrl: '/imagery/latur-2024/P003/2024-03-06.jpg', description: 'Switch the plan to Marathi.', detail: 'The language control requests the Marathi version from the plan API; it does not translate forecast maths in the browser.', actionLabel: 'Use Marathi' },
-          { id: 'plan-print', title: 'Print a field copy', subtitle: 'PDF / PAPER', imageUrl: '/imagery/latur-2024/P003/2024-04-15.jpg', description: 'Open the print dialog to save the action plan as a PDF.', detail: 'The print layout is designed to remove application controls and keep the plan title, date, and tables legible.', actionLabel: 'Print plan', disabled: !plan?.markdown },
-          { id: 'plan-refresh', title: 'Refresh plan', subtitle: 'LATEST RUN', imageUrl: '/imagery/latur-2024/P003/2024-05-30.jpg', description: 'Request the briefing again for the selected place and date.', detail: 'The plan is built from published Talaab outputs. Forecast countdown calculations remain on the backend.', actionLabel: 'Refresh', disabled: busy },
-        ]}
-        onActivate={(item) => {
-          if (item.id === 'plan-english') setLanguage('en');
-          else if (item.id === 'plan-marathi') setLanguage('mr');
-          else if (item.id === 'plan-print' && plan?.markdown) window.print();
-          else if (item.id === 'plan-refresh' && !busy) regenerate();
-        }}
-      />
 
       <div className="plan-command-bar">
         <div className="plan-actions">

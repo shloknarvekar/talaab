@@ -2849,7 +2849,7 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .tab-error-state p { margin: 0 0 14px; }
 .division-error .retry-action { margin-top: 6px; }
 .region-switch-mobile { display: none; }
-.division-launch-button { display: inline-flex !important; align-items: center; gap: 6px; font-size: inherit !important; padding: 7px 9px !important; }
+.division-launch-button { display: inline-flex !important; align-items: center; gap: 6px; font-size: 12px !important; padding: 7px 10px !important; }
 .division-launch-icon { display: block; width: 14px; height: 14px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linecap: round; stroke-linejoin: round; }
 .inline-icon { display: inline-block; width: 12px; height: 12px; vertical-align: -1px; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
 .layers-icon { width: 15px; height: 15px; margin-left: 3px; }
@@ -3311,3 +3311,12 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 @media (prefers-reduced-motion: reduce) {
   .app-shell .brand-wordmark, .talaab-wordmark .talaab-wordmark-dot { transition: none; }
 }
+
+/* Map sidebar shortcuts: two plain, legible buttons (the map already has its own satellite toggle). */
+.map-quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.map-quick-actions button { display: grid; gap: 2px; text-align: left; padding: 9px 11px; border-radius: 12px; border: 1px solid rgba(108,133,119,.28); background: rgba(255,255,255,.82); color: #25372c; cursor: pointer; font: inherit; }
+.map-quick-actions button b { font: 700 13px 'Instrument Sans', sans-serif; }
+.map-quick-actions button small { font: 500 11px 'Instrument Sans', sans-serif; color: #4d6155; }
+.map-quick-actions button:hover:not(:disabled) { border-color: #315c43; background: #fff; }
+.map-quick-actions button:focus-visible { outline: 2px solid #315c43; outline-offset: 2px; }
+.map-quick-actions button:disabled { opacity: .55; cursor: default; }
