@@ -2759,3 +2759,14 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 /* Accuracy header: a text-only lead, so keep its measure readable instead of leaving a dead right half. */
 .accuracy-hero { max-width: 1100px; }
 .accuracy-hero h2 { font-size: clamp(40px, 4.6vw, 64px); }
+/* Nikhil's P003 time-lapse in the map column: compact on wide screens so the column never overruns the map;
+   on short windows it lives only in P003's pond panel (and its card's Time-lapse tag). */
+@media (min-width: 1181px) {
+  .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card { margin: 0; padding: 10px 12px; gap: 8px; }
+  .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card :is(.timelapse-feature-header, .timelapse-feature-desc) { display: none; }
+  .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card .timelapse-thumb-preview { width: 52px; height: 52px; flex: 0 0 52px; }
+  .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card .timelapse-feature-title { margin: 0; font-size: 15px; }
+}
+@media (min-width: 1181px) and (max-height: 860px) {
+  .app-shell:has(.workspace) .sidebar-stack > .timelapse-feature-card { display: none; }
+}
