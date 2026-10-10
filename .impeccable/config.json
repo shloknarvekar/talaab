@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "instrument sans",
+        "createdAt": "2026-10-10T08:45:41.599Z",
+        "reason": "assistant decision during the 10 Oct audit fixes: consolidated five UI faces onto the incumbent Instrument Sans/Serif pair already used across Plan/Accuracy/About; a new typeface would be a redesign"
+      },
+      {
+        "rule": "overused-font",
+        "value": "instrument serif",
+        "createdAt": "2026-10-10T08:46:06.079Z",
+        "reason": "assistant decision during the 10 Oct audit fixes: display half of the incumbent Instrument pair kept as the site's one serif"
+      }
+    ]
+  }
+}

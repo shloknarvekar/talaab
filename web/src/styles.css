@@ -2591,7 +2591,7 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .plan-document-stamp { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid #d0dace; border-radius: 999px; background: rgba(247,245,237,.76); color: #68796d; font-size: 11px; font-weight: 700; letter-spacing: .07em; }
 .plan-document-stamp i { width: 5px; height: 5px; border-radius: 50%; background: #688b5e; }
 .markdown-card.plan-document { max-width: none; margin: 0; position: relative; overflow: hidden; padding: clamp(23px, 4.2vw, 52px); border: 1px solid #e0e4d8; border-radius: 22px; background: #fffdf8; box-shadow: 0 18px 45px rgba(43,61,50,.07), inset 0 1px 0 #fff; }
-.markdown-card.plan-document::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 4px; background: linear-gradient(180deg, #a9bf83, #315f4d 55%, #d8b8a4); opacity: .88; }
+.markdown-card.plan-document::before { content: none; }
 .plan-document .markdown-render { max-width: 78ch; }
 .plan-document .markdown-render h1 { margin-top: 0; font-size: clamp(32px, 4vw, 49px); }
 .plan-document .markdown-render h2 { margin: 32px 0 13px; padding-top: 16px; border-top: 1px solid #e5e8df; color: #315f4d; font: 400 clamp(25px, 2.8vw, 34px)/1.08 'Instrument Serif', Georgia, serif; }
