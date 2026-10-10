@@ -24,6 +24,21 @@ MIN_SPAN_DAYS = 15  # ...spread over at least two weeks: 3 passes in 10 days can
 DRY_FRACTION = 0.05
 MIN_RANGE_FRACTION = 0.20
 MAX_DAYS = 365  # cap so "latest" is always a real date; likely >= this counts as stable
+DOMINANT_DROP = 0.6  # one pass carrying more than this share of the window's whole drop = low confidence
+
+
+def confidence(pts: list[tuple[date, float]]) -> tuple[str, str | None]:
+    """How much a countdown can be trusted, from the points it was fitted to (docs/data-quality.md).
+
+    "low" when it rests on the bare minimum of clear passes, or when one pass carries most of the drop
+    (a single reading, e.g. haze or a half-hidden pond, can then make a pond look about to dry)."""
+    if len(pts) <= MIN_POINTS:
+        return "low", f"only {len(pts)} clear passes"
+    total = pts[0][1] - pts[-1][1]
+    biggest = max(a - b for (_, a), (_, b) in zip(pts, pts[1:]))
+    if total > 0 and biggest > DOMINANT_DROP * total:
+        return "low", "one pass carries most of the drop"
+    return "high", None
 STABLE_SE_MULTIPLE = 2.0  # shrink smaller than 2 standard errors = noise
 SHAPE = "linear"  # "linear" | "sqrt" | "auto": see docs/model-experiment.md
 CRITICAL_DAYS = 30
@@ -236,9 +251,12 @@ def countdown(
         "likely": int(round(likely)),
         "max": int(math.ceil(latest)),
     }
+    level, reason = confidence(pts)
     out.update(
         trend="shrinking",
         status=status_for(likely, is_dry=False),
+        confidence=level,
+        confidenceReason=reason,
         daysLeft=days,
         dryBy={
             "earliest": (t + timedelta(days=days["min"])).isoformat(),

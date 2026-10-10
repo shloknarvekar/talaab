@@ -35,8 +35,19 @@ def test_snapshot_matches_contract_shape():
     assert set(snap) == {"region", "asOf", "sunShareMm", "scenes", "ponds"}
     keys = {"id", "lat", "lon", "place", "maxAreaHa", "areaNowHa", "history", "dryBy", "daysLeft",
             "shrinkVsNeighbours", "flag", "status"}
-    assert all(set(p) == keys for p in snap["ponds"])
+    assert all(set(p) - {"confidence", "confidenceReason"} == keys for p in snap["ponds"])
+    assert all(("confidence" in p) == bool(p["dryBy"]) for p in snap["ponds"])  # only ponds with a countdown
+    assert {p["confidence"] for p in snap["ponds"] if p["dryBy"]} <= {"high", "low"}
     assert snap["sunShareMm"] > 0
+
+
+def test_confidence_is_low_on_three_passes_or_one_dominant_drop():
+    from datetime import date
+    from logic.countdown import confidence
+    d = [date(2024, 3, x) for x in (1, 6, 11, 16, 21)]
+    assert confidence(list(zip(d[:3], [3.0, 2.5, 2.0]))) == ("low", "only 3 clear passes")
+    assert confidence(list(zip(d, [3.0, 2.9, 2.8, 2.7, 0.5]))) == ("low", "one pass carries most of the drop")
+    assert confidence(list(zip(d, [3.0, 2.6, 2.2, 1.8, 1.4]))) == ("high", None)
 
 
 def test_pumped_pond_flagged_small_one_not():

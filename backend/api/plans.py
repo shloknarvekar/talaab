@@ -27,6 +27,9 @@ RETRY_AFTER_SECONDS = 600
 LOCK_KEY = "_ai/llm-lock.json"
 LOCK_SECONDS = 900  # the worker Lambda's time limit: a crashed worker frees the lock after this
 LOCAL_LANGUAGES = ("en",)  # a 1.7B model writes poor Marathi: Marathi stays the template plan
+# Spend guard: the API is public and each new briefing is ~90 s of a 3 GB Lambda. On request, the local writer only
+# writes for a region's LATEST data (pre-written replay dates are already cached) and at most this many a day.
+MAX_LOCAL_PER_DAY = 30
 
 
 def plan_key(region: str, as_of: str, language: str) -> str:
@@ -47,6 +50,32 @@ def _ai_for(region: str, language: str) -> bool:
     if mode == "local":
         return language in LOCAL_LANGUAGES
     return mode == "on" and region not in DIVISIONS  # the Bedrock agent's tools read pond snapshots only
+
+
+def _latest(region: str) -> str | None:
+    if region in DIVISIONS:
+        dates = [k.rsplit("/", 1)[-1][:-5] for k in store.list_keys(f"{region}/division/") if k.endswith(".json")]
+    else:
+        dates = (store.read_json(f"{region}/index.json") or {}).get("asOf", [])
+    return max(dates) if dates else None
+
+
+def _local_refusal(region: str, as_of: str) -> str | None:
+    """Why the local writer won't start for this plan (None = it may)."""
+    if region.endswith("-synthetic"):
+        return "test data: no AI briefing"
+    if as_of != _latest(region):
+        return "AI briefings are written for the latest data; this date shows the plan built from the numbers"
+    day = time.strftime("%Y-%m-%d", time.gmtime())
+    count = (store.read_json(f"_ai/budget/{day}.json", fresh=True) or {}).get("count", 0)
+    if count >= MAX_LOCAL_PER_DAY:
+        return "today's AI briefings are used up; showing the plan built from the numbers"
+    return None
+
+
+def _count_local() -> None:
+    key = f"_ai/budget/{time.strftime('%Y-%m-%d', time.gmtime())}.json"
+    store.write_json(key, {"count": (store.read_json(key, fresh=True) or {}).get("count", 0) + 1})
 
 
 def claim_llm(owner: str) -> bool:
@@ -93,6 +122,9 @@ def get_plan(doc: dict, language: str, template: dict | None = None, region: str
         return {**template, "status": "generating"}
 
     local = _mode() == "local"
+    refusal = _local_refusal(region, as_of) if local else None
+    if refusal:
+        return {**template, "status": "template", "aiNote": refusal}
     if local and not claim_llm(f"{region}/{as_of}-{language}"):
         return {**template, "status": "template", "aiNote": "the AI writer is busy with another plan; try again in a minute"}
     marker = {"state": "pending", "at": int(time.time())}
@@ -102,5 +134,7 @@ def get_plan(doc: dict, language: str, template: dict | None = None, region: str
         return {**template, "status": "generating"}
     if current is not None:
         store.write_json(skey, marker)  # stale marker: try again
+    if local:
+        _count_local()
     _start_worker(region, as_of, language)
     return {**template, "status": "generating"}

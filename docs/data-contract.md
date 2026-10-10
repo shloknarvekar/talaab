@@ -53,6 +53,7 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 | `history` | array | Ascending by date. Includes invalid passes (`valid: false`) so the UI can draw them greyed out. |
 | `dryBy` / `daysLeft` | object or `null` | `null` when status is `ok` because the pond is **stable** (not shrinking), or when status is `unknown`. A pond is also `ok`/stable when its shrink is within measurement noise (slope + 2 standard errors ≥ 0) or it would last more than a year; `latest` is capped at 365 days. |
 | `dryBy` / `daysLeft` when `dry` | | `daysLeft` = `{min:0, likely:0, max:0}`, `dryBy` = `null`. |
+| `confidence`, `confidenceReason` | `"high"`/`"low"`, string or `null` | Only on ponds with a countdown (`dryBy` set). `low` when it rests on just 3 clear passes or one pass carries more than 60% of the drop; low-confidence critical calls were right far less often in every backtest (`docs/data-quality.md`). Show them, but after the trusted ones. |
 | `shrinkVsNeighbours` | number or `null` | `null` for dry/unknown ponds, or when the regional median isn't shrinking. ≥ 2 on a pond ≥ 2 ha → `flag: "faster-than-sun"`. |
 | `status` | enum | See below. |
 | `taluka` / `talukas` | string / array | From OpenStreetMap taluka boundaries bundled with the backend (`backend/jobs/places/<district>-talukas.json`). Counts in `talukas` add up to the ponds that have a taluka; order = most dry + critical, then most watch, then earliest likely dry date. |

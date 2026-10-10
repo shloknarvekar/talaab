@@ -147,7 +147,8 @@ def _groups(area: str, as_of: str, counts: dict, where: dict, ponds: list[dict],
     if any(where.values()):
         groups.append(("where", {**head, **{k: v for k, v in where.items() if v}}))
     dry = _by_days(p for p in ponds if p["status"] == "dry")
-    critical = _by_days(p for p in ponds if p["status"] == "critical")
+    # only countdowns we trust: low-confidence critical calls were right far less often in the backtests
+    critical = _by_days(p for p in ponds if p["status"] == "critical" and p.get("confidence") != "low")
     if dry:
         groups.append(("dry", {**head, "dryPonds": [_pond(p, "dry") for p in dry[:TOP_PONDS]]}))
     if critical:

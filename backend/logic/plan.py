@@ -9,6 +9,8 @@ Oct-Dec, Jan-Mar and Apr-Jun; the monsoon is expected from July.
 """
 from __future__ import annotations
 
+import re
+
 from datetime import date
 
 MONTHS = {
@@ -45,6 +47,9 @@ T = {
         "pond_line": "{pond}: {now} ha of {max} ha now; likely dry **{likely}** (range {earliest} to {latest}, {dmin}–{dmax} days). {action}",
         "pond_later": "{pond}: {now} ha of {max} ha. Routine monitoring.",
         "pond_unknown": "{pond}: last measured {now} ha of {max} ha. Send a field check.",
+        "low_conf": " _Low confidence ({reason}): confirm on the next satellite pass._",
+        "conf_few": "only {n} clear passes",
+        "conf_drop": "one pass carries most of the drop",
         "act_critical": "Book tankers before {earliest}; restrict non-drinking use now.",
         "act_watch": "Prepare tanker contracts; re-check after each satellite pass.",
         "act_ok": "Routine monitoring.",
@@ -91,6 +96,9 @@ T = {
         "inspect_line": "{pond}: त्याच उन्हात शेजारील तलावांपेक्षा **{ratio} पट** वेगाने आटत आहे. आठवड्याभरात तपासणी करा; हे पंपिंगचे संकेत आहेत, पुरावा नाही.",
         "pond_dry": "{pond}: {max} हे. पैकी फक्त {now} हे. पाणी शिल्लक (५% पेक्षा कमी). त्वरित टँकर किंवा पर्यायी पाणीपुरवठ्याची व्यवस्था करा.",
         "pond_line": "{pond}: सध्या {max} हे. पैकी {now} हे. पाणी; बहुधा **{likely}** पर्यंत कोरडे (अंदाज {earliest} ते {latest}, {dmin}–{dmax} दिवस). {action}",
+        "low_conf": " _कमी खात्री ({reason}): पुढील उपग्रह फेरीत खात्री करा._",
+        "conf_few": "फक्त {n} स्पष्ट उपग्रह फेऱ्या",
+        "conf_drop": "एकाच फेरीत बहुतेक घट",
         "pond_later": "{pond}: {max} हे. पैकी {now} हे. नियमित देखरेख.",
         "pond_unknown": "{pond}: शेवटचे मोजमाप {max} हे. पैकी {now} हे. प्रत्यक्ष पाहणी पाठवा.",
         "act_critical": "{earliest} पूर्वी टँकरची व्यवस्था करा; पिण्याव्यतिरिक्त पाणीवापरावर आत्ताच निर्बंध घाला.",
@@ -164,6 +172,17 @@ def _village(p: dict, t: dict) -> str:
 def _taluka(p: dict, t: dict) -> str:
     """Taluka name in the plan's language ('' if the pond has none)."""
     return (p.get("talukaMr") if t["near"] != "near" else None) or p.get("taluka") or ""
+
+
+def _confidence_note(p: dict, t: dict) -> str:
+    """Countdowns that rest on 3 passes or on one big drop were right far less often in the backtests
+    (logic/countdown.py confidence): say so next to the line."""
+    if p.get("confidence") != "low":
+        return ""
+    reason = p.get("confidenceReason") or ""
+    n = re.search(r"\d+", reason)
+    words = t["conf_few"].format(n=n.group()) if reason.startswith("only") and n else t["conf_drop"]
+    return t["low_conf"].format(reason=words)
 
 
 def _pond_name(p: dict, t: dict, district: str = "") -> str:
@@ -293,7 +312,7 @@ def build_plan(doc: dict, language: str = "en") -> dict:
                 pond=_pond_name(p, t), now=p["areaNowHa"], max=p["maxAreaHa"],
                 likely=_fmt_date(p["dryBy"]["likely"], lang), earliest=earliest,
                 latest=_fmt_date(p["dryBy"]["latest"], lang),
-                dmin=p["daysLeft"]["min"], dmax=p["daysLeft"]["max"], action=action))
+                dmin=p["daysLeft"]["min"], dmax=p["daysLeft"]["max"], action=action) + _confidence_note(p, t))
         section(t["period"].format(period=_period_label(per, lang)), items, empty=t["period_empty"])
 
     def grouped(items: list[dict]) -> list[str]:
@@ -381,7 +400,7 @@ def build_division_plan(div: dict, language: str = "en") -> dict:
             items.append(t["pond_line"].format(pond=pond, now=p["areaNowHa"], max=p["maxAreaHa"],
                                                likely=_fmt_date(p["dryBy"]["likely"], lang), earliest=earliest,
                                                latest=_fmt_date(p["dryBy"]["latest"], lang), dmin=p["daysLeft"]["min"],
-                                               dmax=p["daysLeft"]["max"], action=action))
+                                               dmax=p["daysLeft"]["max"], action=action) + _confidence_note(p, t))
     lines += ["", f"## {t['urgent']}"] + ([f"- {i}" for i in items] or [t["none"]])
     inspect = [t["inspect_line"].format(pond=_pond_name(p, t, district(p)), ratio=p["shrinkVsNeighbours"])
                for p in div.get("inspect", []) if p.get("shrinkVsNeighbours")]

@@ -75,6 +75,7 @@ def build_snapshot(meas: dict, as_of: str | date) -> dict:
                 "history": hist,
                 "dryBy": c["dryBy"],
                 "daysLeft": c["daysLeft"],
+                **({"confidence": c["confidence"], "confidenceReason": c["confidenceReason"]} if c.get("confidence") else {}),
                 "shrinkVsNeighbours": flags[p["id"]]["shrinkVsNeighbours"],
                 "flag": flags[p["id"]]["flag"],
                 "status": c["status"],

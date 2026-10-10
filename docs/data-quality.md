@@ -92,6 +92,25 @@ keep the validated 20%. The live district keeps 45%, because right after the mon
 4 passes and 268 of 383 ponds "too early"; that costs about 4 points of precision (measured on 2024), and
 we say so.
 
+## 10 Oct: a confidence label on every countdown
+
+A judge clicking the division's most urgent pond found Nanded P451 "dry 10-11 Oct" on three readings
+(1.30, 1.12, then 0.08 ha a week later). A blunt rule (ignore ponds with a big single drop) would be wrong:
+117 of the 259 ponds that really dried in the 2024 district replay also had one. So we label instead of
+dropping: a countdown is **low confidence** when it rests on only 3 clear passes, or one pass carries more
+than 60% of the drop in the window (`logic/countdown.py` `confidence`). Status is unchanged, so every
+published backtest number stays the same. The label is worth having: low-confidence critical calls were
+right far less often, in every season including the held-out one:
+
+| Season | High-confidence critical calls right | Low-confidence critical calls right |
+|---|---|---|
+| Latur district 2024 (435 ponds) | 73% (621/847) | 57% (130/228) |
+| Latur box 2024 | 84% (16/19) | 0% (0/8) |
+| Latur box 2023 (held out) | 75% (40/53) | 33% (5/15) |
+
+Lists (division urgent ponds, the AI briefing) now lead with high-confidence ponds; the plan marks the others
+"low confidence: confirm on the next satellite pass". On 10 Oct, 27 of the 69 live critical ponds were low confidence.
+
 ## Honest limits
 
 - We designed rules 1–4 after inspecting this same 2024 data. They're physically motivated and leave the synthetic results unchanged, but a fresh season or district is the real test.

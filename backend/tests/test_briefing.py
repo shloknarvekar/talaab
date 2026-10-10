@@ -138,20 +138,45 @@ def test_plan_flow_local_mode_english_only_one_writer_at_a_time(monkeypatch):
     monkeypatch.setenv("PLAN_WORKER", "talaab-plan-llm")
     started = []
     monkeypatch.setattr(plans, "_start_worker", lambda *a: started.append(a))
-    early = {**MOCK, "asOf": "2024-02-25"}
+    other = {**MOCK, "region": {**MOCK["region"], "id": "latur-district-2024"}}
+    for doc in (MOCK, other):
+        rid = doc["region"]["id"]
+        (data_dir_path(rid)).mkdir(parents=True, exist_ok=True)
+        (data_dir_path(rid).parent / "index.json").write_text(json.dumps({"asOf": ["2024-02-25", "2024-03-26"]}), encoding="utf-8")
 
     assert plans.get_plan(MOCK, "mr")["status"] == "template" and started == []      # Marathi: template only
+    old = plans.get_plan({**MOCK, "asOf": "2024-02-25"}, "en")                          # not the latest data
+    assert old["status"] == "template" and "latest" in old["aiNote"] and started == []
     assert plans.get_plan(MOCK, "en")["status"] == "generating" and len(started) == 1
     assert plans.get_plan(MOCK, "en")["status"] == "generating" and len(started) == 1  # same plan: not started twice
-    busy = plans.get_plan(early, "en")                                                  # another plan while one runs
+    busy = plans.get_plan(other, "en")                                                  # another plan while one runs
     assert busy["status"] == "template" and "busy" in busy["aiNote"] and len(started) == 1
     plans.release_llm()                                                                 # worker finished
-    assert plans.get_plan(early, "en")["status"] == "generating" and len(started) == 2
+    assert plans.get_plan(other, "en")["status"] == "generating" and len(started) == 2
+
+
+def data_dir_path(region):
+    return Path(store.os.environ["DATA_DIR"]) / region / "asof"
+
+
+def test_local_writer_skips_test_data_and_stops_at_the_daily_cap(monkeypatch):
+    monkeypatch.setenv("PLAN_AI", "local")
+    monkeypatch.setenv("PLAN_WORKER", "talaab-plan-llm")
+    monkeypatch.setattr(plans, "_start_worker", lambda *a: None)
+    (data_dir_path("latur-2024").parent / "index.json").write_text(json.dumps({"asOf": ["2024-03-26"]}), encoding="utf-8")
+    synthetic = {**MOCK, "region": {**MOCK["region"], "id": "latur-2024-synthetic"}}
+    assert "test data" in plans.get_plan(synthetic, "en")["aiNote"]
+    monkeypatch.setattr(plans, "MAX_LOCAL_PER_DAY", 0)
+    capped = plans.get_plan(MOCK, "en")
+    assert capped["status"] == "template" and "used up" in capped["aiNote"]
 
 
 def test_division_plans_use_the_local_writer_but_not_bedrock(monkeypatch):
     from tests.test_division import doc
     div = doc()
+    dated = Path(store.os.environ["DATA_DIR"]) / "marathwada-2026" / "division"
+    dated.mkdir(parents=True)
+    (dated / f"{div['asOf']}.json").write_text(json.dumps(div), encoding="utf-8")  # the latest division summary
     monkeypatch.setenv("PLAN_WORKER", "w")
     monkeypatch.setattr(plans, "_start_worker", lambda *a: None)
     monkeypatch.setenv("PLAN_AI", "on")

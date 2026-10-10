@@ -37,7 +37,7 @@ def _need_key(g: dict) -> tuple:
 
 def _pond_row(region: str, district: str, district_mr: str | None, p: dict) -> dict:
     keep = ("id", "place", "placeMr", "taluka", "talukaMr", "status", "areaNowHa", "maxAreaHa", "dryBy", "daysLeft",
-            "flag", "shrinkVsNeighbours", "lat", "lon")
+            "flag", "shrinkVsNeighbours", "lat", "lon", "confidence", "confidenceReason")
     row = {"region": region, "district": district, **{k: p[k] for k in keep if p.get(k) is not None}}
     if district_mr:
         row["districtMr"] = district_mr
@@ -75,7 +75,8 @@ def summarise_division(division: dict, districts: list[tuple[str, str, dict]], n
     talukas.sort(key=_need_key)
     in_need = [t for t in talukas if t["dry"] + t["critical"] + t["watch"]]
     urgent = sorted((x for x in ponds if x[3]["status"] in ("dry", "critical", "watch")),
-                    key=lambda x: (URGENCY[x[3]["status"]], (x[3].get("daysLeft") or {}).get("likely", 10**6), x[1], x[3]["id"]))
+                    key=lambda x: (URGENCY[x[3]["status"]], x[3].get("confidence") == "low",  # trusted countdowns first
+                                   (x[3].get("daysLeft") or {}).get("likely", 10**6), x[1], x[3]["id"]))
     flagged = sorted((x for x in ponds if x[3].get("flag") == "faster-than-sun"),
                      key=lambda x: (-(x[3].get("shrinkVsNeighbours") or 0), x[1], x[3]["id"]))
     change = None
