@@ -49,13 +49,13 @@ actually happened.
 - **Validated on an unseen season.** Every rule and model choice was made on 2024. Latur 2023 was
   processed afterwards as a final exam, and the results held.
 - **Validated on the whole district.** We then ran all **7,157 km² of Latur district** on AWS:
-  42 grid cells, **435 ponds**, done in **161 seconds** for **$0** (inside the free tier, and $0.03
-  without it). On 435 ponds the rules had never seen, 70% of critical calls came true, 60% of ponds
+  42 grid cells, **435 ponds**, a whole season with thumbnails in **under 10 minutes** for **$0** (inside
+  the free tier, and $0.07 without it). On 435 ponds the rules had never seen, 70% of critical calls came true, 60% of ponds
   about to dry were caught in time, and the median warning was 25 days (197 ponds warned in advance).
   See `docs/scale-projection.md`.
 - **And it runs live, for all of Marathwada.** Every 5 days EventBridge Scheduler re-measures all 8
   drought districts of Marathwada (64,915 km², 403 grid cells) from the newest Sentinel-2 passes in
-  17 minutes for $0: **2,712 ponds** in 76 talukas, each with a satellite thumbnail for every reading.
+  about 19 minutes for $0: **2,712 ponds** in 76 talukas, each with a satellite thumbnail for every reading.
   New critical, dry or flagged ponds are emailed. Right after the monsoon many are still honestly
   "too early to forecast".
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P003 and P007
@@ -113,8 +113,8 @@ one SAM template, with **no hourly cost while idle**.
 | AWS service | What it does in Talaab |
 |---|---|
 | **AWS Open Data** (Sentinel-2 L2A COGs on S3) | The satellite imagery: windows read directly over HTTPS, no downloads |
-| **AWS Lambda** (7 functions) | `pipeline-grid` (lists the district's grid cells), `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-worker` (AI plan), `hello` |
-| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 6 in parallel, with retries), then merges. Latur district takes 161 s; `talaab-marathwada` runs it for all 8 districts in turn. |
+| **AWS Lambda** (8 functions) | `pipeline-grid` (lists the district's grid cells), `pipeline-cell` (finds and measures the ponds in one grid cell from Sentinel-2), `pipeline-merge` (joins the cells, applies the quality rules, adds weather), `api` (the website's API), `recompute` (countdowns, flags, snapshots, alerts), `plan-llm` (open-model AI briefing), `plan-worker` (Bedrock plan, when enabled), `hello` |
+| **AWS Step Functions** | `talaab-district`: fans a whole district out to one Lambda per 0.15° cell (42 for Latur, 6 in parallel, with retries), then merges. A full Latur season takes ~9.5 min; `talaab-marathwada` runs it for all 8 districts in turn. |
 | **Amazon API Gateway** (HTTP API) | Public API: `/regions`, `/ponds`, `/plan`, `/backtest`, `/alerts`, `/imagery`; gzip, throttled, CORS limited to our site |
 | **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures all 8 Marathwada districts from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
@@ -143,7 +143,7 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Plans:** a deterministic English/Marathi plan, plus the AI version, cached so each date and
   language is paid for once.
 - **Web:** Vite + React + Leaflet + Recharts; the browser does no maths and only shows what the API says.
-- **Quality:** 121 backend tests and 23 pipeline tests, a live smoke test of every endpoint, honest
+- **Quality:** 124 backend tests and 49 pipeline tests, a live smoke test of every endpoint, honest
   backtests, and an ablation script that reproduces every before/after number.
 
 ## Challenges we hit

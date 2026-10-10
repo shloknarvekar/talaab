@@ -21,6 +21,9 @@ python backend/scripts/run_district.py --wait      # Step Functions talaab-distr
 | Step Functions | ~170 state transitions (free tier: 4,000/month) |
 | Data egress | none: Sentinel-2 COGs are read from the public `sentinel-cogs` bucket in the same region (us-west-2) |
 
+**Re-run on 9 Oct 2026** with a satellite thumbnail for every reading and 6 cells at a time (so the website always keeps
+Lambdas free under this account's limit of 10): **564 s**, 5,568 GB-s, **$0.074** without the free tier. Same 435 ponds and backtest.
+
 The same cell processed on a laptop took 447 s. On Lambda it took 50 s (the first, cold run) or 26 s on average, because Lambda reads the images inside the same AWS region.
 
 ### And live, every 5 days (measured, 9 Oct 2026)
@@ -65,7 +68,7 @@ Each run also cuts a true-colour thumbnail per pond per valid pass and the pond 
 | Chhatrapati Sambhajinagar | 10,171 | 62 | 650 | 13 | 1,702 |
 | **Marathwada** | **64,915** | **403** | **2,712** | | **11,298** |
 
-One full run: **17 min** wall clock (1,024 s), **11,298 GB-s = $0.15** without the free tier (**$0** inside it: six
+One full run: **17 min** wall clock (1,024 s; the 10 Oct run took 1,127 s), **11,298 GB-s = $0.15** without the free tier (**$0** inside it: six
 runs a month are ~68,000 of the 400,000 free GB-s). Without thumbnails the same run took 9 min and 7,049 GB-s.
 Every pond is tagged with its taluka (all **76** Marathwada talukas from OpenStreetMap; their areas match each
 district's to 0.1%) and its nearest village (17,000+ OSM places).
@@ -84,6 +87,9 @@ Basis: 0.307 GB-s per km² per season, 85 GB-s per satellite pass for the distri
 | Step Functions per season run | free | ~7,200 transitions ≈ $0.08 | ~76,000 ≈ $1.80 |
 | Wall time, 8 cells in parallel (what we ran; this account allows 10 concurrent Lambdas) | 2.7 min (measured) | ~1.6 h | ~17.5 h |
 | Wall time at the standard 1,000-concurrency quota | <1 min | ~1 min | ~8 min |
+
+With satellite thumbnails (what runs now) a season costs about 2.5× the Lambda figures above (Latur: $0.074 measured
+instead of $0.03): **~$3.2 for Maharashtra** and **~$34 for India** per full-season replay.
 
 \*Live-month figures assume each 5-day run processes only the new pass. Today the pipeline reprocesses the whole season window on every run, which is fine for one district. Making it incremental is a small change: store each cell's pond footprints after the reference pass, then measure only new dates.
 

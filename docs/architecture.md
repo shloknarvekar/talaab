@@ -73,7 +73,7 @@ flowchart LR
    Sentinel-2 tile that covers it best, reads it onto one fixed 10 m grid, and keeps only the ponds whose
    centre is in its core (cells overlap by ~1.6 km, so edge ponds are seen whole and counted once).
    `pipeline-merge` keeps ponds inside the OSM district boundary, applies the quality rules and adds
-   weather; Latur district (435 ponds) takes 161 s and costs $0 inside the free tier. The single
+   weather; a full Latur season (435 ponds, with thumbnails) takes ~9.5 min and costs $0 inside the free tier. The single
    validated box can also be run on a laptop: the pipeline reads Sentinel-2 windows straight from AWS
    Open Data. It finds ponds on the reference pass with NDWI, measures each pond's water area on
    every clear pass and marks cloudy or noisy passes invalid. The output is `measurements.json`
