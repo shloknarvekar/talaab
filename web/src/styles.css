@@ -2858,3 +2858,5 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   .app-shell:has(.workspace) .sidebar-stack > .story-block p, .app-shell:has(.workspace) .sun-share-inline small { display: none; }
 }
 .app-shell:not(.no-scope) .sun-share strong small, .app-shell:not(.no-scope) .sun-share .since { color: #56635b; }
+.app-shell .language-toggle > button:not(.active) { color: #4f5d55; }
+.about-screen--atlas :is(.portfolio-card-clay, .portfolio-card-moss) :is(.portfolio-card-kicker, .portfolio-card-mark) { color: #3e4f3a; }
