@@ -41,6 +41,9 @@ function alertMessage(alert) {
   return alert?.message ?? alert?.summary ?? alert?.description ?? alert?.event ?? alert?.type ?? 'Pond risk changed';
 }
 
+// Live maps open with 'too early' ponds hidden (often a third of all dots); the legend brings them back.
+const defaultStatuses = (mode) => (mode === 'live' ? STATUS_KEYS.filter((s) => s !== 'unknown') : STATUS_KEYS);
+
 export default function App() {
   const [regions, setRegions] = useState([]);
   const [divisions, setDivisions] = useState([]);
@@ -68,6 +71,11 @@ export default function App() {
   const pendingPondRef = useRef(null);
   const sheetTouchStart = useRef(null);
 
+  // On narrow screens the region chips scroll sideways: keep the selected one in view.
+  useEffect(() => {
+    document.querySelector('.region-switch button.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [regionId]);
+
   useEffect(() => {
     fetchRegions()
       .then(({ regions: list, divisions: divisionList = [] }) => {
@@ -78,6 +86,7 @@ export default function App() {
         const first = live.find((r) => r.id.includes('district')) ?? live[0] ?? list[0];
         setRegionId(first.id);
         setDateIndex(first.dates.length - 1);
+        setVisibleStatuses(defaultStatuses(first.mode));
       })
       .catch((err) => { setError(`Could not reach the Talaab API: ${err.message}`); setLoading(false); });
   }, []);
@@ -184,7 +193,7 @@ export default function App() {
     setRegionId(id);
     setDateIndex(next.dates.length - 1);
     setTalukaFilter('');
-    setVisibleStatuses(STATUS_KEYS);
+    setVisibleStatuses(defaultStatuses(next.mode));
     setMobileDetailOpen(false);
   };
 
@@ -298,12 +307,11 @@ export default function App() {
         <div className="app-context-row">
           <div className="region-block">
             <span className="eyebrow">REGION</span>
-            <div className="region-switch" role="tablist" aria-label="Choose region">
+            <div className="region-switch" role="group" aria-label="Choose region">
               {regions.filter((r) => r.id.startsWith('latur')).map((r) => (
                 <button
                   key={r.id}
-                  role="tab"
-                  aria-selected={r.id === regionId}
+                  aria-pressed={r.id === regionId}
                   className={r.id === regionId ? 'active' : ''}
                   onClick={() => switchRegion(r.id)}
                 >
@@ -381,6 +389,7 @@ export default function App() {
               <span className="count-total">{ponds.length}</span>
               <button className="sheet-handle" aria-label={mobileSheetExpanded ? 'Collapse pond list' : 'Expand pond list'} aria-expanded={mobileSheetExpanded} onClick={() => setMobileSheetExpanded((value) => !value)}><span /></button>
             </div>
+            <div className="sidebar-stack">
             <div className="story-block">
               <span className="story-overline">{isLive ? 'THE DISTRICT TODAY' : 'THE 2024 SEASON · REPLAY'}</span>
               <h2>{headline}</h2>
@@ -405,11 +414,12 @@ export default function App() {
                 {talukaFilter && <button type="button" onClick={() => changeTaluka({ target: { value: '' } })}>Clear</button>}
               </div>
             )}
+            </div>
             <AlertsFeed alerts={visibleAlerts} asOf={asOf} isReplay={!isLive} />
             <PondList ponds={filteredPonds} selectedId={selected?.id} onSelect={openPondFromList} />
             <div className="data-footer">
               <strong>About the data</strong>
-              <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · © CARTO</span>
+              <span>Sentinel-2 L2A (Copernicus) via AWS Open Data · Open-Meteo (CC BY 4.0) · © OpenStreetMap contributors (ODbL) · Basemap © AWS, HERE</span>
               <span>{data.scenes?.length ?? 0} satellite passes · {data.scenes?.filter((scene) => scene.status === 'suspect').length ?? 0} suspect, not used.</span>
               <ExcludedPonds excluded={data.excludedPonds} />
             </div>
@@ -439,7 +449,7 @@ export default function App() {
                   <button type="button" className="legend-reset" onClick={() => setVisibleStatuses(STATUS_KEYS)}>All</button>
                 )}
               </div>
-              <button className={`sat-toggle ${satellite ? 'on' : ''}`} aria-pressed={satellite} onClick={() => setSatellite((value) => !value)}>{satellite ? 'Satellite' : 'Dark map'} <span>◉</span></button>
+              <button className={`sat-toggle ${satellite ? 'on' : ''}`} aria-pressed={satellite} onClick={() => setSatellite((value) => !value)}>Satellite {satellite ? 'on' : 'off'} <span aria-hidden="true">◉</span></button>
             </div>
             <MapView region={data.region} ponds={ponds} selectedId={selected?.id} onSelect={selectPondFromMap} satellite={satellite} outlines={outlines} visibleStatuses={visibleStatuses} focusRequest={focusRequest} />
             <div className="map-note">{outlines?.features?.length ? 'Pond outlines · click a shape to inspect it' : 'Pond locations · outlines appear when imagery files arrive'}</div>
@@ -462,7 +472,7 @@ export default function App() {
 
 function AlertsFeed({ alerts, asOf, isReplay }) {
   return (
-    <section className="alerts-feed" aria-label="Alerts through selected date">
+    <section className="alerts-feed" aria-label="Alerts through selected date" tabIndex={0}>
       <div className="feed-heading"><strong>ALERT TIMELINE</strong><span>THROUGH {formatDate(asOf, { day: '2-digit', month: 'short' })}</span></div>
       {alerts.length ? alerts.map((alert, index) => {
         const date = alertDate(alert);
@@ -538,6 +548,7 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
         <Stat label="Max area" value={`${pond.maxAreaHa ?? '—'} ha`} />
         <Stat label="Shrunk" value={shrinkPct == null ? '—' : `${shrinkPct}%`} />
         <Stat label="Likely dry in" value={daysLeftText(pond)} />
+        {pond.confidence === 'low' && <p className="confidence-note"><strong>Low confidence</strong> · {pond.confidenceReason || 'few clear passes'}; confirm on the next satellite pass.</p>}
         <Stat label="Vs neighbours" value={pond.shrinkVsNeighbours ? `${pond.shrinkVsNeighbours}×` : '—'} tone={pond.shrinkVsNeighbours >= 2 ? 'danger' : ''} />
       </div>
       <AreaChart pond={pond} asOf={asOf} />
@@ -590,8 +601,8 @@ function AreaChart({ pond, asOf }) {
       <ReAreaChart data={data} margin={{ top: 12, right: 4, left: -18, bottom: 0 }}>
         <defs><linearGradient id="waterFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#14b8a6" stopOpacity={0.3} /><stop offset="100%" stopColor="#14b8a6" stopOpacity={0.02} /></linearGradient></defs>
         <CartesianGrid strokeDasharray="3 5" vertical={false} stroke="#2a3a35" />
-        <XAxis dataKey="shortDate" tick={{ fontSize: 10, fill: '#9eb1a8' }} tickLine={false} axisLine={false} minTickGap={18} />
-        <YAxis tick={{ fontSize: 10, fill: '#9eb1a8' }} tickLine={false} axisLine={false} width={34} />
+        <XAxis dataKey="shortDate" tick={{ fontSize: 11, fill: '#6f7f77' }} tickLine={false} axisLine={false} minTickGap={18} />
+        <YAxis tick={{ fontSize: 11, fill: '#6f7f77' }} tickLine={false} axisLine={false} width={34} />
         <Tooltip contentStyle={{ borderRadius: 10, border: '1px solid #30443b', background: '#101b18', color: '#edf5ef' }} formatter={(value, name, item) => [item.payload.areaHa != null ? `${item.payload.areaHa} ha` : '—', item.payload.valid ? 'Water area' : 'Not used (cloud / suspect)']} />
         {data.filter((point) => point.invalidArea != null).map((point) => <ReferenceLine key={point.date} x={point.shortDate} stroke="#7a8982" strokeDasharray="2 4" />)}
         <Area type="monotone" dataKey="validArea" stroke="#14b8a6" strokeWidth={2.5} fill="url(#waterFill)" dot={{ r: 2.5, fill: '#14b8a6', strokeWidth: 0 }} activeDot={{ r: 4 }} connectNulls />
@@ -753,7 +764,7 @@ function AccuracyTab() {
 
       <section className="accuracy-data-section accuracy-comparison-section">
         <header className="accuracy-data-heading"><div><span className="eyebrow">COMPARISON TABLE / 01</span><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div><span className="accuracy-section-mark">A—F</span></header>
-        <div className="accuracy-table-wrap"><table className="accuracy-table"><thead><tr><th>Evaluation question</th><th>Talaab</th>{noHeat && <th>Without heat adjustment</th>}{comparisons.map((comparison, index) => <th key={comparison.label ?? index}>{comparison.label ?? `Comparison ${index + 1}`}</th>)}</tr></thead>
+        <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Accuracy compared with simpler methods"><table className="accuracy-table"><thead><tr><th>Evaluation question</th><th>Talaab</th>{noHeat && <th>Without heat adjustment</th>}{comparisons.map((comparison, index) => <th key={comparison.label ?? index}>{comparison.label ?? `Comparison ${index + 1}`}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => <tr key={row.key}><td><span className="accuracy-row-index">{String(index + 1).padStart(2, '0')}</span>{row.label}</td><td><b>{row.format(summary[row.key])}</b></td>
             {noHeat && <td>{row.format(noHeat[row.key])}</td>}
             {comparisons.map((comparison, index) => <td key={comparison.label ?? index}>{row.format(comparison.summary?.[row.key])}</td>)}
@@ -763,7 +774,7 @@ function AccuracyTab() {
 
       <section className="accuracy-data-section accuracy-outcomes-section">
         <header className="accuracy-data-heading"><div><span className="eyebrow">OBSERVED OUTCOMES / 02</span><h3>Ponds that dried.</h3><p>These rows connect a real outcome to the first critical signal recorded for that pond.</p></div><span className="accuracy-outcome-count">{dried.length} <small>observed</small></span></header>
-        <div className="accuracy-table-wrap"><table className="accuracy-table"><thead><tr><th>Pond</th><th>Actually dried between</th><th>First marked critical</th><th>Warning</th></tr></thead>
+        <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Ponds that dried and how much warning Talaab gave"><table className="accuracy-table"><thead><tr><th>Pond</th><th>Actually dried between</th><th>First marked critical</th><th>Warning</th></tr></thead>
           <tbody>{dried.map((pond) => <tr key={pond.id}><td><span className="accuracy-pond-id">{pond.id}</span></td><td>{formatDate(pond.actualDry.from, { day: 'numeric', month: 'short', year: 'numeric' })} – {formatDate(pond.actualDry.to, { day: 'numeric', month: 'short', year: 'numeric' })}</td><td>{pond.firstCritical ? formatDate(pond.firstCritical, { day: 'numeric', month: 'short', year: 'numeric' }) : 'never'}</td><td>{pond.leadDays != null ? <span className="accuracy-warning-pill">{pond.leadDays} days</span> : '—'}</td></tr>)}</tbody>
         </table></div>
       </section>

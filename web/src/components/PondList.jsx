@@ -20,6 +20,7 @@ export default function PondList({ ponds, selectedId, onSelect }) {
             </div>
             <div className="dry-line">Dry by <strong>{dryText}</strong></div>
             {pond.flag === 'faster-than-sun' && <span className="inspect-badge">Faster than the sun — inspect</span>}
+            {pond.confidence === 'low' && <span className="confidence-badge">Low confidence · confirm next pass</span>}
           </button>
         );
       })}

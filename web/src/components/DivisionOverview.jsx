@@ -48,7 +48,7 @@ function DivisionMap({ outlines, districts, selected, onSelect, onOpen }) {
   }, [outlines, byRegion, selected, worst, onSelect, onOpen]);
 
   return <div className="division-map-wrap">
-    <div ref={el} className="division-map-canvas" role="img" aria-label="Map of Marathwada's districts coloured by dry and critical ponds" />
+    <div ref={el} className="division-map-canvas" aria-label="Map of Marathwada's districts coloured by dry and critical ponds" />
     <div className="division-map-legend"><span><i className="risk-high" />Most dry + critical</span><span><i className="risk-low" />Fewest</span></div>
   </div>;
 }
