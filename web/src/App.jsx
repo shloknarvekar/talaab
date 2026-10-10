@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart as ReAreaChart, Area, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Scatter, ReferenceLine } from 'recharts';
 import MapView from './components/MapView';
 import PondList from './components/PondList';
-import TalaabPortfolio from './components/ui/TalaabPortfolio';
 import TalaabLandingPage from './components/ui/TalaabLandingPage';
 import DivisionOverview from './components/DivisionOverview';
-import { fetchAlerts, fetchBacktest, fetchPonds, fetchRegions, imageryBase, requestPlan } from './api';
-import { STATUS_KEYS, addDays, formatDate, formatRange, pct, placeLabel, sortPonds, statusMeta } from './utils';
 
-const REPO = 'https://github.com/shloknarvekar/talaab';
+// Tabs opened less often load on demand: the plan needs the Markdown renderer, About the portfolio artwork.
+const PlanTab = lazy(() => import('./components/PlanTab'));
+const AccuracyTab = lazy(() => import('./components/AccuracyTab'));
+const AboutTab = lazy(() => import('./components/AboutTab'));
+import { fetchAlerts, fetchPonds, fetchRegions, imageryBase } from './api';
+import { STATUS_KEYS, addDays, formatDate, formatRange, placeLabel, sortPonds, statusMeta } from './utils';
+
 const REPLAY_REGION = 'latur-2024';
 const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 const P003_TIMELAPSE_SRC = `${BASE_PATH}/imagery/latur-2024/P003-timelapse.gif`;
@@ -372,9 +373,11 @@ export default function App() {
         onOpenPond={({ region: targetRegion, id }) => { setActiveTab('ponds'); switchRegion(targetRegion, id); }}
         onOpenPlan={(scope) => { setPlanScope(scope); setActiveTab('plan'); }}
       />}
-      {activeTab === 'plan' && <PlanTab regionId={planScope?.regionId ?? regionId} asOf={planScope?.asOf ?? asOf} regionName={planScope?.regionName ?? data.region.name} />}
-      {activeTab === 'accuracy' && <AccuracyTab />}
-      {activeTab === 'about' && <AboutTab onExplore={() => setActiveTab('ponds')} />}
+      <Suspense fallback={<div className="tab-loading" role="status">Loading…</div>}>
+        {activeTab === 'plan' && <PlanTab regionId={planScope?.regionId ?? regionId} asOf={planScope?.asOf ?? asOf} regionName={planScope?.regionName ?? data.region.name} />}
+        {activeTab === 'accuracy' && <AccuracyTab />}
+        {activeTab === 'about' && <AboutTab onExplore={() => setActiveTab('ponds')} />}
+      </Suspense>
       {activeTab === 'ponds' && (
         <section className="workspace">
           <aside className={`sidebar ${mobileSheetExpanded ? 'sheet-expanded' : ''}`}>
@@ -688,213 +691,4 @@ function AreaChart({ pond, asOf }) {
       </ReAreaChart>
     </ResponsiveContainer></div>
   </div>;
-}
-
-const PLAN_SOURCE = {
-  bedrock: 'Written with Amazon Bedrock · numbers checked against the data',
-  'local-ai': 'AI briefing by an open model in our AWS Lambda · every sentence checked against the data',
-  template: 'Deterministic plan · built directly from the numbers, no AI',
-};
-
-function PlanTab({ regionId, asOf, regionName }) {
-  const [language, setLanguage] = useState('en');
-  const [plan, setPlan] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const abort = useRef(null);
-
-  const runPlan = async (controller) => {
-    setBusy(true);
-    setError('');
-    try {
-      await requestPlan({ region: regionId, asOf, language }, { onUpdate: setPlan, signal: controller.signal });
-    } catch (err) {
-      if (err.name !== 'AbortError') setError(err.message);
-    } finally {
-      if (!controller.signal.aborted) setBusy(false);
-    }
-  };
-
-  // Opening the tab and changing date/language automatically load the matching plan.
-  useEffect(() => {
-    const controller = new AbortController();
-    abort.current?.abort();
-    abort.current = controller;
-    setPlan(null);
-    setError('');
-    runPlan(controller);
-    return () => controller.abort();
-    // runPlan intentionally uses the stable props/state dependencies below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [regionId, asOf, language]);
-
-  const regenerate = () => {
-    abort.current?.abort();
-    const controller = new AbortController();
-    abort.current = controller;
-    runPlan(controller);
-  };
-
-  const planStateLabel = plan?.status === 'generating'
-    ? 'DRAFT IN PROGRESS'
-    : plan
-      ? (plan.status === 'template' ? 'TEMPLATE READY' : 'BRIEFING READY')
-      : busy
-        ? 'LOADING SOURCE'
-        : 'AWAITING BRIEF';
-
-  return <section className="plan-screen plan-screen--field-brief">
-    <div className="plan-page-shell">
-      <header className="plan-hero plan-hero--brief">
-        <div className="plan-hero-copy">
-          <span className="eyebrow">{regionId === 'marathwada-2026' ? 'DIVISION ACTION PLAN' : 'DISTRICT ACTION PLAN'} · {regionName} · {asOf ? formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' }) : 'LATEST PUBLISHED'}</span>
-          <h2>Turn pond risk<br /><em>into a field plan.</em></h2>
-          <p>Village-level actions, grouped by scarcity period, with the pond evidence behind each decision.</p>
-          <div className="plan-hero-proofline"><span className="plan-proof-dot" /> Only published observations for the selected date <span className="plan-proof-divider">/</span> Ranges, not exact dates</div>
-        </div>
-        <aside className="plan-overview-card" aria-label="Plan snapshot details">
-          <div className="plan-overview-card-top"><span>FIELD BRIEF <b>/{language === 'mr' ? ' MR' : ' EN'}</b></span><span className={`plan-state-tag ${planStateLabel === 'BRIEFING READY' ? 'is-ready' : planStateLabel === 'DRAFT IN PROGRESS' || planStateLabel === 'LOADING SOURCE' ? 'is-working' : ''}`}><i />{planStateLabel}</span></div>
-          <div className="plan-overview-headline">A clear next step<br /><em>for every field team.</em></div>
-          <div className="plan-overview-meta">
-            <div><span>REGION</span><strong>{regionName}</strong></div>
-            <div><span>SNAPSHOT</span><strong>{asOf ? formatDate(asOf, { day: '2-digit', month: 'short', year: 'numeric' }) : 'Latest published'}</strong></div>
-          </div>
-          <div className="plan-overview-foot"><span>01</span><span>Data-led priorities · human review</span></div>
-        </aside>
-      </header>
-
-      <div className="plan-command-bar">
-        <div className="plan-actions">
-          <button className="primary-action" onClick={regenerate} disabled={busy}>{busy ? 'Drafting…' : 'Regenerate plan'} <span aria-hidden="true">↻</span></button>
-          <button className="secondary-action" onClick={() => window.print()} disabled={!plan?.markdown}>Download / print plan <span aria-hidden="true">↗</span></button>
-          <div className="language-toggle" aria-label="Plan language">
-            <button className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>English</button>
-            <button className={language === 'mr' ? 'active' : ''} onClick={() => setLanguage('mr')}>मराठी</button>
-          </div>
-        </div>
-        <div className="plan-status-stack" aria-live="polite">
-          {plan?.status === 'generating' && <span className="plan-status working"><i /> Drafting; showing the deterministic plan meanwhile</span>}
-          {plan && plan.status !== 'generating' && <span className="plan-status ready"><i /> {PLAN_SOURCE[plan.source] ?? plan.source}</span>}
-          {plan?.aiNote && <span className="plan-ai-note" role="status">{plan.aiNote}</span>}
-          {error && <span className="plan-error" role="status">{error}</span>}
-        </div>
-      </div>
-
-      <div className="plan-document-heading">
-        <div><span className="eyebrow">01 / THE FIELD DOCUMENT</span><h3>Recommended actions</h3></div>
-        <span className="plan-document-stamp">{language === 'mr' ? 'मराठी संस्करण' : 'ENGLISH EDITION'} <i /> {plan?.source === 'local-ai' ? 'AI briefing attached' : plan?.source === 'bedrock' ? 'AI plan' : 'Evidence-led template'}</span>
-      </div>
-      <article className="markdown-card plan-document">
-        {plan ? <div className="markdown-render"><ReactMarkdown remarkPlugins={[remarkGfm]}>{plan.markdown}</ReactMarkdown></div> : <div className="plan-empty"><div className="plan-icon">↯</div><h3>{busy ? 'Preparing the district plan' : 'Plan unavailable'}</h3><p>{busy ? 'The selected date and language are being loaded.' : 'Check the API connection and regenerate.'}</p></div>}
-      </article>
-      <div className="plan-data-note"><span className="plan-note-mark" aria-hidden="true">i</span><div><strong>Forecasting stays evidence-led.</strong> Forecasts and flags come from Talaab's backend. A faster-than-sun flag suggests pumping; it is not proof.</div></div>
-    </div>
-  </section>;
-}
-
-function AccuracyTab() {
-  const [report, setReport] = useState(undefined);
-  const [error, setError] = useState('');
-  useEffect(() => { fetchBacktest(REPLAY_REGION).then(setReport).catch((err) => setError(err.message)); }, []);
-  if (error) return <section className="plan-screen"><div className="error-strip">{error}</div></section>;
-  if (report === undefined) return <section className="plan-screen"><p className="muted">Loading backtest…</p></section>;
-  if (report === null) return <section className="plan-screen"><p className="muted">No backtest published yet.</p></section>;
-  const summary = report.summary ?? {};
-  const noHeat = report.variants?.noHeatAdjustment;
-  const comparisons = report.comparisons ?? [];
-  const evaluated = report.evaluated ?? {};
-  const rows = [
-    { label: 'Ponds about to dry (≤ 30 days) marked critical in time', key: 'criticalRecall', format: pct },
-    { label: '“Critical” calls that came true within 30 days', key: 'criticalPrecision', format: pct },
-    { label: 'Median warning before a pond dried', key: 'medianLeadDays', format: (v) => v == null ? '—' : `${v} days` },
-    { label: 'Median error of the likely dry date', key: 'medianAbsErrorDays', format: (v) => v == null ? '—' : `${v} days` },
-    { label: 'Actual dry date inside predicted range', key: 'rangeHitRate', format: pct },
-    { label: 'Predicted dry, but pond survived the season', key: 'tooEarly', format: (v) => v ?? '—' },
-  ];
-  const dried = (report.ponds ?? []).filter((pond) => pond.actualDry);
-  return <section className="plan-screen accuracy-screen">
-    <div className="accuracy-page-shell">
-      <header className="plan-hero accuracy-hero">
-        <div className="accuracy-hero-copy">
-          <span className="eyebrow">MODEL REVIEW / {report.region?.name ?? 'Latur 2024'}</span>
-          <h2>Every forecast,<br /><em>checked against what happened.</em></h2>
-          <p>For each of {evaluated.snapshots ?? '—'} satellite passes, Talaab forecast using only data available that day. Results are evaluated retrospectively.</p>
-        </div>
-        <aside className="accuracy-review-card" aria-label="Evaluation coverage">
-          <div className="accuracy-review-kicker"><span>REPLAY AUDIT</span><span>PUBLISHED REPORT</span></div>
-          <div className="accuracy-review-main"><strong>{evaluated.snapshots ?? '—'}</strong><span>satellite pass<br />snapshots reviewed</span></div>
-          <div className="accuracy-review-foot"><i /> Historical evaluation · not a live forecast</div>
-        </aside>
-      </header>
-
-      <div className="accuracy-method-strip" aria-label="How forecast accuracy is evaluated">
-        <article className="accuracy-method-step method-observe"><span>01</span><div><strong>Observe</strong><p>Start with the satellite passes available on each date.</p></div><b aria-hidden="true">↘</b></article>
-        <article className="accuracy-method-step method-estimate"><span>02</span><div><strong>Estimate</strong><p>Compare the forecast range with what Talaab knew then.</p></div><b aria-hidden="true">↘</b></article>
-        <article className="accuracy-method-step method-review"><span>03</span><div><strong>Review</strong><p>Measure warnings against the eventual observed outcome.</p></div><b aria-hidden="true">✓</b></article>
-      </div>
-
-      <div className="accuracy-metrics-heading"><div><span className="eyebrow">THE SIGNALS THAT MATTER</span><h3>Warning quality, at a glance.</h3></div><span className="accuracy-metrics-note">Values from the published backtest</span></div>
-      <div className="accuracy-headline">
-        <div className="accuracy-metric accuracy-metric-recall"><div className="accuracy-metric-label"><span>01 / RECALL</span><i>↗</i></div><strong>{pct(summary.criticalRecall)}</strong><span>of ponds about to dry flagged critical in time</span><div className="accuracy-metric-footer"><span />Early warning</div></div>
-        <div className="accuracy-metric accuracy-metric-lead"><div className="accuracy-metric-label"><span>02 / LEAD TIME</span><i>◷</i></div><strong>{summary.medianLeadDays ?? '—'}<small> days</small></strong><span>median warning before a pond dried</span><div className="accuracy-metric-footer"><span />Room to act</div></div>
-        <div className="accuracy-metric accuracy-metric-precision"><div className="accuracy-metric-label"><span>03 / PRECISION</span><i>✓</i></div><strong>{pct(summary.criticalPrecision)}</strong><span>of critical calls that came true within 30 days</span><div className="accuracy-metric-footer"><span />Signal confidence</div></div>
-      </div>
-
-      <section className="accuracy-data-section accuracy-comparison-section">
-        <header className="accuracy-data-heading"><div><span className="eyebrow">COMPARISON TABLE / 01</span><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div><span className="accuracy-section-mark">A—F</span></header>
-        <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Accuracy compared with simpler methods"><table className="accuracy-table"><thead><tr><th>Evaluation question</th><th>Talaab</th>{noHeat && <th>Without heat adjustment</th>}{comparisons.map((comparison, index) => <th key={comparison.label ?? index}>{comparison.label ?? `Comparison ${index + 1}`}</th>)}</tr></thead>
-          <tbody>{rows.map((row, index) => <tr key={row.key}><td><span className="accuracy-row-index">{String(index + 1).padStart(2, '0')}</span>{row.label}</td><td><b>{row.format(summary[row.key])}</b></td>
-            {noHeat && <td>{row.format(noHeat[row.key])}</td>}
-            {comparisons.map((comparison, index) => <td key={comparison.label ?? index}>{row.format(comparison.summary?.[row.key])}</td>)}
-          </tr>)}</tbody>
-        </table></div>
-      </section>
-
-      <section className="accuracy-data-section accuracy-outcomes-section">
-        <header className="accuracy-data-heading"><div><span className="eyebrow">OBSERVED OUTCOMES / 02</span><h3>Ponds that dried.</h3><p>These rows connect a real outcome to the first critical signal recorded for that pond.</p></div><span className="accuracy-outcome-count">{dried.length} <small>observed</small></span></header>
-        <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Ponds that dried and how much warning Talaab gave"><table className="accuracy-table"><thead><tr><th>Pond</th><th>Actually dried between</th><th>First marked critical</th><th>Warning</th></tr></thead>
-          <tbody>{dried.map((pond) => <tr key={pond.id}><td><span className="accuracy-pond-id">{pond.id}</span></td><td>{formatDate(pond.actualDry.from, { day: 'numeric', month: 'short', year: 'numeric' })} – {formatDate(pond.actualDry.to, { day: 'numeric', month: 'short', year: 'numeric' })}</td><td>{pond.firstCritical ? formatDate(pond.firstCritical, { day: 'numeric', month: 'short', year: 'numeric' }) : 'never'}</td><td>{pond.leadDays != null ? <span className="accuracy-warning-pill">{pond.leadDays} days</span> : '—'}</td></tr>)}</tbody>
-        </table></div>
-      </section>
-
-      <div className="plan-data-note accuracy-limits-note"><span className="plan-note-mark" aria-hidden="true">i</span><div><strong>Honest limits.</strong> Satellite passes are intermittent, cloud gaps widen the drying window, and a dry-by forecast remains a range. <a href={`${REPO}/blob/main/docs/data-quality.md`} target="_blank" rel="noreferrer">Read the data-quality write-up ↗</a>.</div></div>
-    </div>
-  </section>;
-}
-
-function AboutTab({ onExplore }) {
-  return <section className="about-screen about-screen--atlas">
-    <TalaabPortfolio onExplore={onExplore} />
-
-    <section className="about-section architecture-section">
-      <div className="architecture-intro">
-        <span className="eyebrow">THE PIPELINE / EVERY FIVE DAYS</span>
-        <h3>From satellite pass<br /><em>to district action.</em></h3>
-        <p>The forecast remains deterministic. Satellite readings are cleaned, snapshots are published by date, and the action plan can only use the numbers Talaab has already produced.</p>
-        <div className="architecture-note"><span>01</span><p>One evidence trail, from a clear-sky observation to a field-ready priority.</p></div>
-      </div>
-      <div className="architecture-system">
-        <div className="architecture-flow" aria-label="Talaab data pipeline">
-          <article className="architecture-stage stage-schedule"><div className="architecture-stage-top"><span>STEP 01</span><b>↻</b></div><h4>Schedule & measure</h4><p>Every 5 days, EventBridge Scheduler starts Step Functions and splits the district into 42 grid cells. Each cell is measured on its own Lambda using Sentinel-2 straight from AWS Open Data—about a minute for 7,157 km².</p><div className="architecture-stage-tags"><span>EventBridge</span><span>Step Functions</span><span>Lambda</span></div></article>
-          <div className="architecture-connector" aria-hidden="true"><span>→</span></div>
-          <article className="architecture-stage stage-publish"><div className="architecture-stage-top"><span>STEP 02</span><b>▤</b></div><h4>Clean & publish</h4><p>The merge step cleans readings; recompute builds a snapshot per date in Amazon S3 and DynamoDB so each view stays honest about what was known.</p><div className="architecture-stage-tags"><span>Amazon S3</span><span>DynamoDB</span></div></article>
-          <div className="architecture-connector" aria-hidden="true"><span>→</span></div>
-          <article className="architecture-stage stage-notify"><div className="architecture-stage-top"><span>STEP 03</span><b>↗</b></div><h4>Prioritize & notify</h4><p>Amazon SNS emails the district officer about ponds that newly need action. Forecasting stays deterministic; the plan writer on Amazon Bedrock may only use these numbers.</p><div className="architecture-stage-tags"><span>Amazon SNS</span><span>Open model / Lambda</span></div></article>
-        </div>
-        <div className="architecture-platform"><span className="eyebrow">SUPPORTING PLATFORM</span><div className="aws-chip-row"><span>AWS Open Data</span><span>API Gateway</span><span>Amazon Bedrock</span><span>CloudWatch</span><span>Amplify Hosting</span></div></div>
-      </div>
-    </section>
-
-    <section className="about-section credits-section credits-section--atlas">
-      <header className="credits-heading"><div><span className="eyebrow">DATA SOURCES & ATTRIBUTION</span><h3>Open data.<br /><em>Clear provenance.</em></h3><p>Every view should make it possible to understand where its evidence came from and what its limits are.</p></div><a className="github-link" href={REPO} target="_blank" rel="noreferrer">View source on GitHub ↗</a></header>
-      <div className="credits-grid">
-        <article className="credit-source credit-source-earth"><span className="credit-source-index">01 / EARTH OBSERVATION</span><div className="credit-source-symbol" aria-hidden="true">◉</div><h4>Copernicus Sentinel-2</h4><p>Sentinel-2 L2A imagery via AWS Open Data / Element84 Earth Search.</p><small>Source credit · Copernicus</small></article>
-        <article className="credit-source credit-source-weather"><span className="credit-source-index">02 / WEATHER INPUTS</span><div className="credit-source-symbol" aria-hidden="true">☼</div><h4>Open-Meteo</h4><p>Daily reference evapotranspiration (ET₀) and precipitation used by the backend.</p><small>Licence · CC BY 4.0</small></article>
-        <article className="credit-source credit-source-maps"><span className="credit-source-index">03 / GEOGRAPHY</span><div className="credit-source-symbol" aria-hidden="true">⌖</div><h4>OpenStreetMap + CARTO</h4><p>Geographic context and basemap tiles for exploring ponds and districts.</p><small>© OpenStreetMap contributors (ODbL) · © CARTO</small></article>
-      </div>
-      <div className="credits-footnote"><p>Historical views are labelled <b>2024 replay</b>; live views use the latest published region snapshot. Drying dates are presented as ranges, not guarantees. “Faster than the sun” suggests pumping and should prompt inspection, not an accusation.</p></div>
-    </section>
-
-    <footer className="about-footer about-footer--atlas"><span>Syntax Errors · Environmental Hacks · Heat & Water</span><span>Designed for district officers, field teams and a water-secure future.</span></footer>
-  </section>;
 }

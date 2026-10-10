@@ -158,3 +158,5 @@
 .division-overview-page :is(.division-section-heading > small, .division-district-name small, .division-district-risk small, .division-row-details,
   .division-change-pair, .division-change-pair small, .division-taluka-row small, .division-subheading span, .division-pond-main small,
   .division-pond-dry, .division-map-credit, .division-data-credit, .division-muted, .division-rank, .division-main-change small) { color: #5b675e; }
+
+.division-overview-page .division-change-pair small { font-size: 11px; }
