@@ -80,7 +80,11 @@ flowchart LR
    - for the live region, adds observed and 16-day forecast heat from Open-Meteo;
    - builds one `ponds.json` snapshot for every pass date, using only data up to that date;
    - writes the snapshots to S3 and each pond's latest state to DynamoDB;
-   - for the live region, emails (Amazon SNS) any pond that newly turned critical, dried up or was flagged faster than the sun. Only changes are sent, and every alert is logged in S3.
+   - for live districts, queues new critical, dry or flagged ponds; the Digest step at the end of the
+     `talaab-marathwada` run (and the scheduled recompute) sends ONE email for the whole division, and every
+     district's alert history records what was sent;
+   - writes the division summary (`GET /division`): every district, the talukas needing action first, the most
+     urgent ponds and the inspection list.
 4. **Serve.** The API Lambda serves regions, snapshots, single ponds, plans and the backtest. A
    date between passes resolves to the latest snapshot on or before it, so a replay never shows
    the future.

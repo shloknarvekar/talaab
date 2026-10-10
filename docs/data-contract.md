@@ -89,6 +89,20 @@ A working example with 4 ponds lives at [`web/public/mock/ponds.json`](../web/pu
 
 - `GET /alerts?region=latur-2024` returns `{ "region", "name", "simulated": true|false, "events": [{ "asOf", "subject", "alerts": [{ "id", "place", "reason": "critical" | "dry" | "flag", "dryBy", "ratio", "areaNowHa", "maxAreaHa" }], "delivered"? }] }`. Replay regions: what Talaab *would have* emailed pass by pass (`simulated: true`, nothing sent). Live: the alerts actually emailed via Amazon SNS. Each pond is alerted for each reason at most once per season.
 
+- `GET /division?division=marathwada-2026&asOf=YYYY-MM-DD` (both optional) returns the Divisional Commissioner's summary of
+  every live district: `{ "division": {"id", "name", "nameMr", "live"}, "asOf", "totals": {"districts", "ponds", "dry",
+  "critical", "watch", "ok", "unknown", "flagged", "talukas"}, "districts": [{"region", "name", "nameMr", "asOf", "ponds",
+  "dry", "critical", "watch", "ok", "unknown", "flagged", "talukas", "earliestLikelyDry"}], "talukas": [up to 10, same counts +
+  "district", "region"], "urgentPonds": [up to 15 pond rows + "region", "district"], "inspect": [up to 10 flagged pond rows] }`.
+  Districts and talukas are most-in-need first (dry + critical, then watch, then earliest likely dry date). `asOf` returns
+  the latest summary on or before that date. Written by recompute after the districts are recomputed.
+- `POST /plan` with `"region": "marathwada-2026"` returns the division plan (same response shape, `status: "template"`, `pondIds: []`).
+- `GET /imagery/{region}/index.json`, `.../outlines.geojson`, `.../{pondId}/{YYYY-MM-DD}.jpg`: district imagery (`docs/imagery-contract.md`).
+
+Live districts in a division don't email one by one: their new alerts are queued and ONE digest email goes out per
+Marathwada run (end of the `talaab-marathwada` workflow, and the scheduled recompute). `GET /alerts` for a district
+still lists what was sent to it, with the digest's subject.
+
 Errors: `{ "error": "message" }` with HTTP 400 (bad params) or 404 (unknown region/pond/asOf).
 
 ## Data credits

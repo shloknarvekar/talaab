@@ -27,7 +27,8 @@ these ponds in seasonal maps at best. Nobody tells a district **which pond will 
 3. **Gives each pond a countdown** as a *range* ("likely dry 16 Oct, between 13 and 23 Oct"), adjusted for the heat expected in the coming month.
 4. **Catches ponds shrinking "faster than the sun"**: much faster than nearby ponds under the same weather, which suggests pumping. They're flagged for inspection, never accused.
 5. **Writes the district plan** in **English and Marathi**, structured exactly like the state order: a table **by taluka** first (drought is declared per taluka, and Latur has 10), then by village, one section per scarcity period, and an action for every pond.
-6. **Tells officials when something changes.** Every 5 days AWS recomputes everything, and an email goes out for any pond that *newly* turned critical, dried up or started shrinking faster than the sun.
+6. **Tells officials when something changes.** Every 5 days AWS re-measures all of Marathwada and sends **one** digest email: each district's state, the talukas needing action first, and every pond that *newly* turned critical, dried up or started shrinking faster than the sun.
+7. **Gives the Divisional Commissioner one view.** `GET /division` and a division plan (English and Marathi) rank all 8 districts and the talukas that need tankers first. On 10 Oct 2026 that was Jalna (3 dry, 23 critical ponds), led by Jafferabad taluka.
 
 It runs two ways: **live** on Latur this season, and as an **honest replay of the 2024 drought**, where
 every date shows only what Talaab could have known that day.
@@ -103,7 +104,7 @@ one SAM template, with **no hourly cost while idle**.
 | **Amazon EventBridge Scheduler** | Every 5 days, matching the satellite revisit: re-measures all 8 Marathwada districts from Sentinel-2 (Step Functions) and recomputes every region |
 | **Amazon S3** | Measurements, a snapshot per date, cached plans, backtests, alert history |
 | **Amazon DynamoDB** | Latest state of every pond |
-| **Amazon SNS** | Email alerts to the district officer (only new changes) |
+| **Amazon SNS** | One digest email per run for the division (only new changes), plus ops alarms |
 | **Amazon Bedrock + Strands Agents** | Claude writes the plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS approves our new account's model quota.* |
 | **Amazon CloudWatch** | One log line per action, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS |
 | **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |

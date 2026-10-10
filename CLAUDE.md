@@ -49,6 +49,10 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
 - District imagery (Nikhil): made on AWS by cell + merge Lambdas, served by `GET /imagery/{region}/...` (thumbnails as
   signed S3 links); `docs/imagery-contract.md`. Web basemap: Amazon Location (key `talaab-web-maps`, injected at build
   by deploy_web.py; locked to our site). Ops: X-Ray tracing + 6 CloudWatch alarms -> SNS `talaab-ops`. API gzips JSON.
+- Division view: `GET /division` (summary of the 8 live districts: totals, districts, top talukas, urgent ponds, inspect list;
+  `backend/logic/division.py`, written by recompute to `marathwada-2026/division.json`), `POST /plan` region
+  `marathwada-2026` (EN/MR division plan). Alerts for division members are QUEUED (outbox per district) and ONE digest
+  email is sent per run by the Digest step at the end of `talaab-marathwada` and by the scheduled full recompute.
 - Web (`web/`): always uses the live API (`VITE_TALAAB_API_URL` overrides); opens on the live region; tabs Ponds /
   Plan / Accuracy. No countdown maths in the browser.
 
