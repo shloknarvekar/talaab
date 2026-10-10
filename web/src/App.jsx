@@ -10,7 +10,7 @@ const PlanTab = lazy(() => import('./components/PlanTab'));
 const AccuracyTab = lazy(() => import('./components/AccuracyTab'));
 const AboutTab = lazy(() => import('./components/AboutTab'));
 import { fetchAlerts, fetchPonds, fetchRegions, imageryBase } from './api';
-import { STATUS_KEYS, addDays, formatDate, formatRange, placeLabel, sortPonds, statusMeta } from './utils';
+import { STATUS_KEYS, addDays, formatDate, formatRange, formatRatio, placeLabel, sortPonds, statusMeta } from './utils';
 
 const REPLAY_REGION = 'latur-2024';
 const BASE_PATH = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
@@ -351,12 +351,9 @@ export default function App() {
                   {otherDistricts.map((r) => <option key={r.id} value={r.id}>{regionLabel(r)}</option>)}
                 </select>
               )}
-              {regions.filter((r) => r.id === 'latur-2026').map((r) => (
-                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`region-minor ${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>Latur test box</button>
-              ))}
               <span className="region-group-label">2024 replay</span>
               {['latur-district-2024', 'latur-2024'].map((id) => regions.find((r) => r.id === id)).filter(Boolean).map((r) => (
-                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`${r.id === 'latur-2024' ? 'region-minor ' : ''}${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>{r.id === 'latur-2024' ? 'Latur test box' : 'Latur district'}</button>
+                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`${r.id === 'latur-2024' ? 'region-minor ' : ''}${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>{r.id === 'latur-2024' ? 'Test box · 2024' : 'Latur district · 2024'}</button>
               ))}
             </div>
             <div className="region-switch-mobile">
@@ -380,7 +377,7 @@ export default function App() {
               >
                 <optgroup label="Live">
                   {marathwadaDivision && <option value="__division__" data-region={marathwadaDivision.id}>Marathwada · all {marathwadaDivision.members?.length ?? 8} districts</option>}
-                  {regions.filter((r) => r.mode === 'live').map((r) => <option key={r.id} value={r.id} data-region={r.id}>{regionLabel(r)}</option>)}
+                  {regions.filter((r) => r.mode === 'live' && r.id !== 'latur-2026').map((r) => <option key={r.id} value={r.id} data-region={r.id}>{regionLabel(r)}</option>)}
                 </optgroup>
                 <optgroup label="2024 replay">
                   {regions.filter((r) => r.mode !== 'live').map((r) => <option key={r.id} value={r.id} data-region={r.id}>{regionLabel(r)}</option>)}
@@ -653,11 +650,11 @@ function PondDetailCard({ pond, asOf, scenes, imageryIndex, imageryRegion, regio
         <Stat label="Shrunk" value={shrinkPct == null ? '—' : `${shrinkPct}%`} />
         <Stat label="Likely dry in" value={daysLeftText(pond)} />
         {pond.confidence === 'low' && <p className="confidence-note"><strong>Low confidence</strong> · {pond.confidenceReason || 'few clear passes'}; confirm on the next satellite pass.</p>}
-        <Stat label="Vs neighbours" value={pond.shrinkVsNeighbours ? `${pond.shrinkVsNeighbours}×` : '—'} tone={pond.shrinkVsNeighbours >= 2 ? 'danger' : ''} />
+        <Stat label="Vs neighbours" value={pond.shrinkVsNeighbours ? `${formatRatio(pond.shrinkVsNeighbours)}×` : '—'} tone={pond.shrinkVsNeighbours >= 2 ? 'danger' : ''} />
       </div>
       <AreaChart pond={pond} asOf={asOf} />
       {pond.flag === 'faster-than-sun' ? (
-        <div className="inspection-callout"><div className="callout-icon">!</div><div><strong>Faster than the sun</strong><span>Shrinking {pond.shrinkVsNeighbours}× faster than nearby ponds under the same sun. Field inspection recommended; this suggests pumping but is not proof.</span></div></div>
+        <div className="inspection-callout"><div className="callout-icon">!</div><div><strong>Faster than the sun</strong><span>Shrinking {formatRatio(pond.shrinkVsNeighbours)}× faster than nearby ponds under the same sun. Field inspection recommended; this suggests pumping but is not proof.</span></div></div>
       ) : <div className="safe-callout"><span>✓</span><div><strong>Within expected pattern</strong><span>No faster-than-sun flag on this pond.</span></div></div>}
       <div className="dry-by-box"><span className="eyebrow">DRY-BY WINDOW</span><strong>{dryByText(pond)}</strong><small>Range includes the year; it is not an exact day.</small></div>
       {pond.id === 'P003' && !isLive && (regionId === 'latur-2024' || regionId === REPLAY_REGION) && (

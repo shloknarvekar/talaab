@@ -61,3 +61,9 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 Sentinel-2 L2A: contains modified Copernicus Sentinel data, via AWS Open Data and Element 84 Earth
 Search. Weather: Open-Meteo (CC BY 4.0). Village names and taluka boundaries: © OpenStreetMap contributors (ODbL).
 Basemap: Amazon Location Service (© AWS, HERE). Landing video: Pexels (stock footage). Built by team Syntax Errors for WeMakeDevs × AWS Environmental Hacks.
+
+## Lines to say out loud (a judge will otherwise read these as weaknesses)
+- **Grey "too early" ponds:** "The monsoon just ended, so many ponds have fewer than three clear passes. Talaab refuses to guess a dry date until it has them. It fills in every 5 days."
+- **Faster-than-sun flags:** "A flag means a pond is shrinking much faster than ponds nearby under the same sun. It suggests pumping; it is not proof. It tells an officer where to look first."
+- **Accuracy:** "This is an honest backtest: every forecast used only data available that day. 70% of critical calls came true, and every miss is listed on the page."
+- **AI:** "Bedrock is still locked on our new AWS account, so the briefing comes from an open model running in our own Lambda, and every sentence is checked against the numbers. The Bedrock writer is built and switches on when AWS enables it."

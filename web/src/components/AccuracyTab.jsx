@@ -53,7 +53,7 @@ export default function AccuracyTab() {
       <header className="plan-hero accuracy-hero">
         <div className="accuracy-hero-copy">
           <h2>{pct(summary.criticalPrecision)} of critical calls <em>came true.</em></h2>
-          <p>{report.region?.name ?? 'Latur 2024'} replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast {evaluated.ponds ?? 'every'} ponds with only the data available that day, then we checked what really happened.</p>
+          <p>{(report.region?.name ?? 'Latur 2024').replace(/\s*\(2024 replay\)/, '')}, 2024 replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast {evaluated.ponds ?? 'every'} ponds with only the data available that day, then we checked what really happened. Every miss is listed below.</p>
         </div>
       </header>
 

@@ -1,8 +1,7 @@
-import HoverRevealCards from './ui/HoverRevealCards';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import { fetchDivision, fetchDivisionOutlines } from '../api';
-import { formatDate, formatRange, placeLabel, statusMeta } from '../utils';
+import { formatDate, formatRange, formatRatio, placeLabel, statusMeta } from '../utils';
 import './DivisionOverview.css';
 
 // Divisional Commissioner's view: every live district of Marathwada in one page. Every number is copied from
@@ -57,7 +56,7 @@ function DivisionMap({ outlines, districts, selected, onSelect, onOpen }) {
 function PondRow({ pond, onOpenPond, showRatio }) {
   const meta = statusMeta(pond.status);
   const where = [placeLabel(pond), pond.taluka && `${pond.taluka} taluka`, pond.district].filter(Boolean).join(' · ');
-  const detail = showRatio ? `${pond.shrinkVsNeighbours}× faster than neighbours`
+  const detail = showRatio ? `${formatRatio(pond.shrinkVsNeighbours)}× faster than neighbours`
     : pond.status === 'dry' ? `${pond.areaNowHa} of ${pond.maxAreaHa} ha left` : pond.dryBy ? `dry ${formatRange(pond.dryBy)}` : '';
   return <button type="button" className="division-pond-row" onClick={() => onOpenPond({ region: pond.region, id: pond.id })}
     style={{ '--pond-color': meta.color, '--status-color': meta.color }}>
@@ -135,23 +134,10 @@ export default function DivisionOverview({ division, onOpenDistrict, onOpenPond,
       <button type="button" className={`division-metric metric-rose ${districtFilter === 'dry' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'dry'} onClick={() => focusDistrictFilter('dry')}><span>DRY NOW <i aria-hidden="true">↗</i></span><strong>{fmt(t.dry)}</strong><small>Find districts with dry ponds</small></button>
       <button type="button" className={`division-metric metric-peach ${districtFilter === 'critical' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'critical'} onClick={() => focusDistrictFilter('critical')}><span>CRITICAL <i aria-hidden="true">↗</i></span><strong>{fmt(t.critical)}</strong><small>Find critical ponds</small></button>
       <button type="button" className={`division-metric metric-lime ${districtFilter === 'watch' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'watch'} onClick={() => focusDistrictFilter('watch')}><span>WATCH <i aria-hidden="true">↗</i></span><strong>{fmt(t.watch)}</strong><small>Review watch districts</small></button>
-      <button type="button" className={`division-metric metric-lavender ${districtFilter === 'unknown' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'unknown'} onClick={() => focusDistrictFilter('unknown')}><span>TOO EARLY TO SAY <i aria-hidden="true">↗</i></span><strong>{fmt(t.unknown)}</strong><small>See uncertain areas</small></button>
+      <button type="button" className={`division-metric metric-lavender ${districtFilter === 'unknown' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'unknown'} onClick={() => focusDistrictFilter('unknown')}><span>TOO EARLY TO SAY <i aria-hidden="true">↗</i></span><strong>{fmt(t.unknown)}</strong><small>Under 3 clear passes since the monsoon</small></button>
       <button type="button" className={`division-metric metric-mint ${districtFilter === 'flagged' ? 'is-active' : ''}`} aria-pressed={districtFilter === 'flagged'} onClick={() => focusDistrictFilter('flagged')}><span>FLAGGED TO INSPECT <i aria-hidden="true">↗</i></span><strong>{fmt(t.flagged)}</strong><small>Prioritize field checks</small></button>
     </div>
 
-    <HoverRevealCards
-      className="division-quick-actions"
-      density="compact"
-      eyebrow="EXPLORE THE DIVISION"
-      heading="Jump straight to a decision"
-      ariaLabel="Division overview navigation"
-      items={[
-        { id: 'division-action-map', title: 'District risk map', subtitle: 'WHERE', description: 'Select a district to inspect its priority and talukas.', detail: 'District colours and counts are provided by the division API; this page does not recalculate risk in the browser.', target: 'division-map', actionLabel: 'Open map' },
-        { id: 'division-action-rank', title: 'Ranked districts', subtitle: 'PRIORITY', description: 'Compare districts by dry and critical pond counts.', detail: 'The ranking uses the district order supplied by the API, including watch counts and earliest likely drying ranges.', target: 'division-ranked', actionLabel: 'See ranking' },
-        { id: 'division-action-taluka', title: 'Talukas first', subtitle: 'FIELD ROUTING', description: 'See talukas with the highest need across the division.', detail: 'Use the district selection above to view local taluka detail, or compare the cross-district taluka list.', target: 'division-talukas', actionLabel: 'Open talukas' },
-        { id: 'division-action-urgent', title: 'Urgent ponds', subtitle: 'INSPECTION', description: 'Jump to ponds that are dry, critical or flagged to inspect.', detail: 'A faster-than-sun flag suggests pumping, not proof. The inspection list is intended to help prioritize field verification.', target: 'division-urgent-ponds', actionLabel: 'Inspect ponds' },
-      ]}
-    />
 
     {ch && <div className="division-change-strip">
       <div><span className="division-kicker">SINCE THE LAST RUN</span><strong>Change since {formatDate(ch.since, { day: 'numeric', month: 'short' })}</strong></div>

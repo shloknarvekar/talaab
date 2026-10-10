@@ -151,6 +151,14 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
           <span className="talaab-line"><span>Know your ponds.</span></span>
           <span className="talaab-line"><span>Before water runs low.</span></span>
         </h1>
+        <figure className="talaab-proof">
+          <div className="talaab-proof-frames">
+            <span><img src="/imagery/latur-2024/P003/2024-01-16.jpg" alt="Pond P003 full of water, 16 January 2024" width="88" height="88" /><small>16 Jan</small></span>
+            <span aria-hidden="true" className="talaab-proof-arrow">→</span>
+            <span><img src="/imagery/latur-2024/P003/2024-05-30.jpg" alt="The same pond nearly dry, 30 May 2024" width="88" height="88" /><small>30 May</small></span>
+          </div>
+          <figcaption><b>The same pond in Latur, 2024.</b> Real Sentinel-2 passes, four and a half months apart: the sun and the season took most of it.</figcaption>
+        </figure>
       </div>
 
       <div

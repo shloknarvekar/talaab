@@ -39,3 +39,9 @@ export function sortPonds(ponds) {
 export function statusMeta(status) { return STATUS_META[status] || STATUS_META.unknown; }
 export function placeLabel(pond) { return (pond?.place || '').replace(' (mock)', '') || 'Unnamed location'; }
 export function pct(value) { return value == null ? '—' : `${Math.round(value * 100)}%`; }
+
+/** Shrink ratio vs nearby ponds for display. Above 5x a small pond's ratio is mostly noise, so it reads "over 5x". */
+export function formatRatio(ratio) {
+  if (ratio == null || Number.isNaN(Number(ratio))) return null;
+  return Number(ratio) > 5 ? 'over 5' : String(ratio);
+}
