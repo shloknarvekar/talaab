@@ -81,9 +81,8 @@ export default function MapView({
           .then(() => show(L.maplibreGL({
             style: `${aws}/styles/Monochrome/descriptor?key=${encodeURIComponent(awsKey)}&color-scheme=Dark`,
             attribution,
-            // The vector basemap redraws on every zoom frame: cap its pixel density and skip label fades so zooming
-            // stays smooth on laptops with integrated graphics (pond markers stay sharp; they're drawn by Leaflet).
-            pixelRatio: Math.min(window.devicePixelRatio || 1, 1.25),
+            // The vector basemap redraws on every zoom frame: skip label fades so zooming
+            // stays smoother on laptops with integrated graphics.
             fadeDuration: 0,
           })))
           .catch(() => show(L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -149,7 +148,7 @@ export default function MapView({
     return {
       radius: visible ? (selected ? base + 3 : dense ? base - 0.5 : base) : 0,
       fillColor: meta.color, fillOpacity: visible ? 0.92 : 0, opacity: visible ? 1 : 0,
-      color: selected ? '#ffffff' : flagged ? '#fbbf24' : '#0b1410', weight: selected ? 3 : flagged ? 2.4 : 1.4,
+      color: selected ? '#ffffff' : flagged ? '#fbbf24' : 'rgba(244,247,245,0.85)', weight: selected ? 3 : flagged ? 2.4 : 1.4,
     };
   };
 
