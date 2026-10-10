@@ -3240,3 +3240,74 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   .plan-document .markdown-render .plan-markdown-table-wrap { overflow: visible; box-shadow: none; break-inside: avoid; }
   .plan-document .markdown-render .plan-markdown-table { min-width: 0 !important; }
 }
+
+
+/* Talaab wordmark — live text in the existing UnifrakturCook blackletter font.
+   Keep the mark transparent: no screenshot, background, frame, or image asset. */
+.app-shell .brand-lockup { gap: clamp(9px, 1vw, 14px); }
+.app-shell .brand-wordmark,
+.loading-logo {
+  display: inline-flex;
+  align-items: baseline;
+  flex: 0 0 auto;
+  color: #101415;
+  font-family: 'UnifrakturCook', 'Instrument Serif', Georgia, serif;
+  font-size: clamp(31px, 2.7vw, 39px);
+  font-weight: 700;
+  line-height: .92;
+  letter-spacing: .005em;
+  white-space: nowrap;
+  text-rendering: optimizeLegibility;
+  transition: transform .24s ease, color .24s ease;
+}
+.brand-wordmark-dot {
+  display: inline-block;
+  width: .19em;
+  height: .19em;
+  margin-left: .14em;
+  flex: 0 0 auto;
+  background: #456958;
+  border-radius: 1px;
+  transform: translateY(-.035em) rotate(45deg);
+}
+.app-shell .brand-home-button:hover .brand-wordmark { transform: translateY(-1px); color: #233b2e; }
+.app-shell .brand-lockup-tagline {
+  display: block;
+  max-width: 172px;
+  margin: 0;
+  color: #65736d;
+  font: 500 11px/1.4 'Instrument Sans', sans-serif;
+  letter-spacing: .015em;
+}
+.loading-logo { justify-self: center; font-size: clamp(46px, 7vw, 62px); }
+.talaab-wordmark { align-items: baseline; gap: 0; }
+.talaab-wordmark .talaab-wordmark-dot {
+  display: inline-block;
+  width: .18em;
+  height: .18em;
+  margin-left: .13em;
+  margin-bottom: .04em;
+  border-radius: 1px;
+  background: #456958;
+  color: transparent;
+  font-size: 1em;
+  line-height: 0;
+  transform: rotate(45deg);
+  transition: transform .24s ease, background-color .24s ease;
+}
+.talaab-wordmark:hover .talaab-wordmark-dot { background: #315f4d; transform: rotate(135deg) scale(1.08); }
+@media (max-width: 900px) {
+  .app-shell .brand-lockup-tagline { display: none; }
+  .app-shell .brand-wordmark { font-size: 33px; }
+}
+@media (max-width: 760px) {
+  .app-shell .brand-lockup { gap: 5px; }
+  .app-shell .brand-wordmark { font-size: 31px; }
+}
+@media (max-width: 430px) {
+  .app-shell .brand-wordmark { font-size: 28px; }
+  .talaab-wordmark { font-size: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .brand-wordmark, .talaab-wordmark .talaab-wordmark-dot { transition: none; }
+}

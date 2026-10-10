@@ -295,7 +295,7 @@ export default function App() {
   }
 
   if (!data) {
-    return <main className="loading-screen" aria-live="polite"><div className="loading-mark">तालाब</div><p>{error || 'Loading pond intelligence…'}</p>{error && <button type="button" className="retry-action" onClick={retryInitialLoad}>Retry connection</button>}</main>;
+    return <main className="loading-screen" aria-live="polite"><span className="loading-logo" role="img" aria-label="Talaab">Talaab<span className="brand-wordmark-dot" aria-hidden="true" /></span><p>{error || 'Loading pond intelligence…'}</p>{error && <button type="button" className="retry-action" onClick={retryInitialLoad}>Retry connection</button>}</main>;
   }
 
   return (
@@ -309,11 +309,8 @@ export default function App() {
             onClick={() => setActiveTab('home')}
             aria-label="Return to Talaab website home"
           >
-            <div className="brand-mark" aria-hidden="true">जल</div>
-            <div>
-              <h1>Talaab</h1>
-              <p>Water intelligence, with honest uncertainty.</p>
-            </div>
+            <span className="brand-wordmark" aria-hidden="true">Talaab<span className="brand-wordmark-dot" /></span>
+            <span className="brand-lockup-tagline">Water intelligence, with honest uncertainty.</span>
           </button>
           <nav className="tab-group" aria-label="Main navigation">
             {[

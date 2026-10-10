@@ -123,7 +123,7 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
 
       <header className="talaab-nav">
         <a className="talaab-wordmark" href="#top" aria-label="Talaab — home">
-          Talaab<span className="talaab-wordmark-dot">.</span>
+          Talaab<span className="talaab-wordmark-dot" aria-hidden="true" />
         </a>
 
         {renderLinks('talaab-nav-links')}
