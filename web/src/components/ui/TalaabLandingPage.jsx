@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260908_125738_eb584080-9f98-489e-adb2-014760aa34da.mp4';
-const POSTER_URL = 'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260908_122011_59c97465-4d23-4fdc-ac40-f6832f573e28.png&w=1920&q=85';
+// Local, web-optimized copy of the video supplied for the Talaab hero.
+// Keep the asset in web/public/videos so Vite serves it directly without bundling it in JS.
+const VIDEO_URL = '/videos/talaab-landing.mp4';
+const POSTER_URL = '/videos/talaab-landing-poster.jpg';
 
 const NAV_ITEMS = [
   { label: 'Pond map', view: 'ponds' },
@@ -85,7 +87,7 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
         <img
           className="talaab-hero__poster"
           src={POSTER_URL}
-          alt="A vintage turntable resting on a mossy rock in an alpine meadow at golden hour"
+          alt="Landscape frame from the Talaab landing video"
           fetchPriority="high"
         />
         <video
@@ -95,7 +97,7 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           poster={POSTER_URL}
           aria-hidden="true"
           tabIndex={-1}
