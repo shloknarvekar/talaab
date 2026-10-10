@@ -18,7 +18,7 @@ REGIONS = {
     "latur-district-2024": {"name": "Latur district (2024 replay)", "mode": "replay",
                             "bbox": LATUR_DISTRICT_BBOX, "centre": LATUR_DISTRICT_CENTRE},
     # Whole district, live: the district state machine re-measures it every 5 days (EventBridge Scheduler)
-    "latur-district-2026": {"name": "Latur district (live, 2026)", "mode": "live",
+    "latur-district-2026": {"name": "Latur district (live, 2026)", "mode": "live", "division": "marathwada-2026",
                             "bbox": LATUR_DISTRICT_BBOX, "centre": LATUR_DISTRICT_CENTRE},
 }
 
@@ -36,4 +36,24 @@ MARATHWADA = [
 ]
 for _slug, _name, _bbox, _centre in MARATHWADA:
     REGIONS[f"{_slug}-district-2026"] = {"name": f"{_name} district (live, 2026)", "mode": "live",
-                                         "bbox": _bbox, "centre": _centre}
+                                         "division": "marathwada-2026", "bbox": _bbox, "centre": _centre}
+
+# A revenue division groups live districts: one summary (GET /division), one plan, and ONE alert email per run
+# (a digest) instead of one per district. Members are the regions whose "division" is the key.
+DIVISIONS = {
+    "marathwada-2026": {"name": "Marathwada (live, 2026)", "nameMr": "मराठवाडा (थेट, 2026)"},
+}
+
+
+def division_members(division_id: str) -> list[str]:
+    return [r for r, cfg in REGIONS.items() if cfg.get("division") == division_id]
+
+
+# Marathi district names (OSM name:mr) for the Marathi division plan
+DISTRICT_MR = {"Latur": "लातूर", "Beed": "बीड", "Dharashiv": "धाराशिव", "Nanded": "नांदेड", "Parbhani": "परभणी",
+               "Hingoli": "हिंगोली", "Jalna": "जालना", "Chhatrapati Sambhajinagar": "छत्रपती संभाजीनगर"}
+
+
+def district_name(region_id: str) -> str:
+    """'Beed district (live, 2026)' -> 'Beed'."""
+    return REGIONS[region_id]["name"].split(" district")[0]

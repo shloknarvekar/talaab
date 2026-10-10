@@ -52,6 +52,17 @@ T = {
         "status": {"dry": "dry", "critical": "critical", "watch": "watch", "ok": "ok", "unknown": "not visible"},
         "footer": "Drafted automatically by Talaab from Sentinel-2 satellite data (Copernicus, via AWS Open Data) and Open-Meteo weather data; village names (c) OpenStreetMap contributors. All figures are measurements or ranges from our model, not exact dates. Verify on the ground before final decisions.",
         "near": "near",
+        "div_title": "Water-scarcity overview (draft): {region}",
+        "div_asof": "Data as of **{asof}** (each district's latest satellite pass).",
+        "div_summary": "**Summary:** {n} ponds tracked in {d} districts: {dry} dry, {critical} critical, {watch} watch, {ok} ok, {unknown} not visible. {flagged} flagged for inspection.",
+        "districts": "By district",
+        "district_head": "| District | Ponds | Dry | Critical | Watch | Not visible | Flagged | Earliest likely dry date |",
+        "div_talukas": "Talukas needing action first",
+        "div_taluka_head": "| Taluka | District | Dry | Critical | Watch | Earliest likely dry date |",
+        "urgent": "Most urgent ponds",
+        "div_inspect": "Inspect first (shrinking faster than the sun)",
+        "district_word": "district",
+        "div_note": "Each district's full plan, pond by pond, is on that district's page.",
     },
     "mr": {
         "title": "पाणीटंचाई कृती आराखडा (मसुदा): {region}",
@@ -88,6 +99,17 @@ T = {
         "status": {"dry": "कोरडे", "critical": "गंभीर", "watch": "लक्ष ठेवा", "ok": "सुरक्षित", "unknown": "दिसत नाही"},
         "footer": "हा मसुदा Talaab ने Sentinel-2 उपग्रह माहिती (Copernicus, AWS Open Data) आणि Open-Meteo हवामान माहितीवरून (गावांची नावे: OpenStreetMap) आपोआप तयार केला आहे. सर्व आकडे मोजमाप किंवा अंदाजाच्या कक्षा आहेत, अचूक तारखा नाहीत. अंतिम निर्णयापूर्वी प्रत्यक्ष पाहणी करावी.",
         "near": "जवळ",
+        "div_title": "पाणीटंचाई आढावा (मसुदा): {region}",
+        "div_asof": "माहिती दिनांक **{asof}** पर्यंतची (प्रत्येक जिल्ह्याची शेवटची उपग्रह फेरी).",
+        "div_summary": "**सारांश:** {d} जिल्ह्यांतील एकूण {n} तलाव: {dry} कोरडे, {critical} गंभीर, {watch} लक्ष ठेवा, {ok} सुरक्षित, {unknown} दिसत नाहीत. {flagged} तलाव तपासणीसाठी.",
+        "districts": "जिल्हानिहाय स्थिती",
+        "district_head": "| जिल्हा | तलाव | कोरडे | गंभीर | लक्ष ठेवा | दिसत नाहीत | तपासणीसाठी | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
+        "div_talukas": "प्राधान्याने कारवाई आवश्यक असलेले तालुके",
+        "div_taluka_head": "| तालुका | जिल्हा | कोरडे | गंभीर | लक्ष ठेवा | सर्वात लवकर कोरडे होण्याची संभाव्य तारीख |",
+        "urgent": "सर्वात तातडीचे तलाव",
+        "div_inspect": "प्रथम तपासणी करा (सूर्यापेक्षा वेगाने आटणारे तलाव)",
+        "district_word": "जिल्हा",
+        "div_note": "प्रत्येक जिल्ह्याचा तलावनिहाय सविस्तर आराखडा त्या जिल्ह्याच्या पानावर आहे.",
     },
 }
 
@@ -142,7 +164,7 @@ def _taluka(p: dict, t: dict) -> str:
     return (p.get("talukaMr") if t["near"] != "near" else None) or p.get("taluka") or ""
 
 
-def _pond_name(p: dict, t: dict) -> str:
+def _pond_name(p: dict, t: dict, district: str = "") -> str:
     if t["near"] != "near" and p.get("placeMr"):
         place = f"{p['placeMr']} {t['near']}"
     else:
@@ -150,7 +172,8 @@ def _pond_name(p: dict, t: dict) -> str:
         if place.lower().startswith("near ") and t["near"] != "near":
             place = f"{place[5:].strip()} {t['near']}"
     taluka = _taluka(p, t)
-    where = ", ".join(x for x in (place, f"{taluka} {t['taluka_word']}" if taluka else "") if x)
+    where = ", ".join(x for x in (place, f"{taluka} {t['taluka_word']}" if taluka else "",
+                                   f"{district} {t['district_word']}" if district else "") if x)
     return f"**{p['id']}** ({where})" if where else f"**{p['id']}**"
 
 
@@ -304,3 +327,58 @@ def build_plan(doc: dict, language: str = "en") -> dict:
     lines.append("")
     lines.append(f"_{t['footer']}_")
     return {"markdown": "\n".join(lines), "pondIds": cited, "source": "template", "asOf": doc["asOf"], "language": lang}
+
+
+def build_division_plan(div: dict, language: str = "en") -> dict:
+    """The division overview (logic/division.py doc) as a plan: by district, talukas first, most urgent ponds,
+    ponds to inspect. Every number is copied from the division doc."""
+    lang = language if language in T else "en"
+    t = T[lang]
+    mr = lang == "mr"
+    name = (div["division"].get("nameMr") if mr else None) or div["division"]["name"]
+
+    def district(row: dict, key: str = "district") -> str:
+        return (row.get(f"{key}Mr") if mr else None) or row[key]
+
+    def when(iso: str | None) -> str:
+        if not iso:
+            return "–"
+        return t["to_monsoon"] if _period_of(iso) not in planning_periods(div["asOf"]) else _fmt_date(iso, lang)
+
+    lines = [f"# {t['div_title'].format(region=name)}", ""]
+    lines.append(t["div_asof"].format(asof=_fmt_date(div["asOf"], lang)))
+    if div["division"].get("live"):
+        lines.append(t["live"])
+    tt = div["totals"]
+    lines += ["", t["div_summary"].format(n=tt["ponds"], d=tt["districts"], dry=tt["dry"], critical=tt["critical"],
+                                         watch=tt["watch"], ok=tt["ok"], unknown=tt["unknown"], flagged=tt["flagged"])]
+
+    lines += ["", f"## {t['districts']}", "", t["district_head"], "|---|---|---|---|---|---|---|---|"]
+    for r in div["districts"]:
+        lines.append(f"| {district(r, 'name')} | {r['ponds']} | {r['dry']} | {r['critical']} | {r['watch']} | "
+                     f"{r['unknown']} | {r['flagged']} | {when(r.get('earliestLikelyDry'))} |")
+
+    if div.get("talukas"):
+        lines += ["", f"## {t['div_talukas']}", "", t["div_taluka_head"], "|---|---|---|---|---|---|"]
+        for g in div["talukas"]:
+            tal = (g.get("nameMr") if mr else None) or g["name"]
+            lines.append(f"| {tal} | {district(g)} | {g['dry']} | {g['critical']} | {g['watch']} | {when(g.get('earliestLikelyDry'))} |")
+
+    items = []
+    for p in div.get("urgentPonds", []):
+        pond = _pond_name(p, t, district(p))
+        if p["status"] == "dry":
+            items.append(t["pond_dry"].format(pond=pond, now=p["areaNowHa"], max=p["maxAreaHa"]))
+        elif p.get("dryBy") and p.get("daysLeft"):
+            earliest = _fmt_date(p["dryBy"]["earliest"], lang)
+            action = t["act_critical"].format(earliest=earliest) if p["status"] == "critical" else t["act_watch"]
+            items.append(t["pond_line"].format(pond=pond, now=p["areaNowHa"], max=p["maxAreaHa"],
+                                               likely=_fmt_date(p["dryBy"]["likely"], lang), earliest=earliest,
+                                               latest=_fmt_date(p["dryBy"]["latest"], lang), dmin=p["daysLeft"]["min"],
+                                               dmax=p["daysLeft"]["max"], action=action))
+    lines += ["", f"## {t['urgent']}"] + ([f"- {i}" for i in items] or [t["none"]])
+    inspect = [t["inspect_line"].format(pond=_pond_name(p, t, district(p)), ratio=p["shrinkVsNeighbours"])
+               for p in div.get("inspect", []) if p.get("shrinkVsNeighbours")]
+    lines += ["", f"## {t['div_inspect']}"] + ([f"- {i}" for i in inspect] or [t["none"]])
+    lines += ["", t["div_note"], "", f"_{t['footer']}_"]
+    return {"markdown": "\n".join(lines), "pondIds": [], "source": "template", "asOf": div["asOf"], "language": lang}
