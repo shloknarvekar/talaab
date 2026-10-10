@@ -196,7 +196,7 @@ a { color: #5eead4; }
 .timelapse-feature-btn:focus-visible { outline: 2px solid #5eead4; outline-offset: 2px; }
 .timelapse-overlay-badge { position: absolute; bottom: 8px; right: 8px; pointer-events: none; }
 .timelapse-play-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: rgba(15, 23, 42, 0.88); color: #f1f8f3; border: 1px solid rgba(255, 255, 255, 0.2); font-size: 12px; font-weight: 700; letter-spacing: .02em; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
-.timelapse-caption { margin: 0; font-size: 10.5px; line-height: 1.45; color: #8fa598; }
+.timelapse-caption { margin: 0; font-size: 12px; line-height: 1.45; color: #8fa598; }
 .detail-empty { padding: 30px; color: var(--muted); }
 .imagery-strip-wrap { margin-top: 19px; padding-top: 16px; border-top: 1px solid #2a3d33; }
 .imagery-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
@@ -2782,3 +2782,34 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .data-footer-body p { margin: 0 0 6px; }
 .app-shell:not(.no-scope) .data-footer, .app-shell:has(.workspace) .data-footer { max-height: none; overflow: visible; padding: 0; border: 0; background: transparent; box-shadow: none; }
 @media (min-width: 1181px) { .app-shell:has(.workspace) .data-footer { width: auto; max-width: 300px; } }
+/* About cards: a real Sentinel-2 frame of pond P003 in each card (Jan -> May 2024), not stock scenery. */
+.portfolio-card-figure { position: absolute; z-index: 1; right: 22px; bottom: 22px; margin: 0; width: 132px; }
+.portfolio-card-frame { display: block; width: 132px; height: 132px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,.9); box-shadow: 0 6px 16px rgba(24,30,45,.12); }
+.portfolio-card-figure figcaption { margin-top: 6px; color: #3e4a41; font: 600 11px 'Instrument Sans', sans-serif; text-align: right; }
+.about-screen--atlas .portfolio-card .portfolio-card-content { padding-right: 172px; }
+@media (max-width: 760px) {
+  .portfolio-card-figure { position: static; width: auto; margin: 0 18px 18px; }
+  .portfolio-card-frame { width: 100%; height: auto; aspect-ratio: 1; max-width: 220px; }
+  .portfolio-card-figure figcaption { text-align: left; }
+  .about-screen--atlas .portfolio-card .portfolio-card-content { padding-right: 18px; }
+  .about-screen--atlas .portfolio-card { flex-direction: column; }
+}
+/* Time-lapse (card in the map column and section in P003's panel) in the site's light style, not a dark inset. */
+.timelapse-feature-card, .pond-timelapse-section { background: #f3f6ee; border: 1px solid #dfe6d8; box-shadow: 0 4px 14px rgba(24,30,45,.06); }
+.timelapse-badge, .timelapse-section-head .eyebrow { color: #3f6a4c; }
+.timelapse-dates, .timelapse-feature-desc, .timelapse-caption { color: #56635b; }
+.timelapse-feature-title { color: #1d2a20; }
+.timelapse-tagline { color: #7a4a24; }
+.timelapse-meta-pill { color: #3f4d44; background: #e6ece0; border-color: #d6dfcf; }
+.timelapse-feature-btn { background: #203d2d; border-color: #203d2d; color: #fff; }
+.timelapse-feature-btn:hover { background: #315b43; }
+.timelapse-thumb-preview { border-color: #d6dfcf; background: #e6ece0; }
+.timelapse-pill { background: #e3efe6; color: #2f5a3e; border-color: #c9dccd; }
+/* Region bar: two labelled groups (Live, 2024 replay) instead of mixed chips each carrying its own LIVE/REPLAY tag. */
+.region-group-label { align-self: center; margin: 0 2px 0 10px; color: #56635b; font: 700 11px 'Instrument Sans', sans-serif; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.region-group-label:first-child { margin-left: 0; }
+.app-shell:not(.no-scope) .region-switch .region-group-label + .region-group-label { display: none; }
+.app-shell:not(.no-scope) .region-switch { align-items: center; flex-wrap: wrap; row-gap: 8px; }
+.app-shell:not(.no-scope) .region-switch .division-launch-button { font-size: 13px; padding: 8px 14px; }
+.app-shell:not(.no-scope) .region-switch .region-minor:not(.active) { color: #56635b; }
+@media (max-width: 760px) { .region-group-label { margin-left: 4px; } }

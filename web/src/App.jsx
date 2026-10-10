@@ -309,36 +309,33 @@ export default function App() {
 
         <div className={`app-context-row ${['accuracy', 'about'].includes(activeTab) ? 'is-hidden' : ''}`}>
           <div className="region-block">
-            <span className="eyebrow">REGION</span>
+
             <div className="region-switch" role="group" aria-label="Choose region">
-              {regions.filter((r) => r.id.startsWith('latur')).map((r) => (
-                <button
-                  key={r.id}
-                  aria-pressed={r.id === regionId}
-                  className={r.id === regionId ? 'active' : ''}
-                  onClick={() => switchRegion(r.id)}
-                >
-                  {regionLabel(r)}{' '}
-                  <em className={r.mode}>{r.mode === 'live' ? 'LIVE' : 'REPLAY'}</em>
-                </button>
+              {/* Grouped by what the viewer is looking at: today's live monitoring, then the 2024 backtest replay. */}
+              <span className="region-group-label">Live</span>
+              {marathwadaDivision && <button type="button" data-region={marathwadaDivision.id} className={`division-launch-button ${activeTab === 'division' ? 'active' : ''}`} onClick={() => { setPlaying(false); setPlanScope(null); setActiveTab('division'); }} aria-pressed={activeTab === 'division'}>Marathwada · all {marathwadaDivision.members?.length ?? 8} districts</button>}
+              {regions.filter((r) => r.id === 'latur-district-2026').map((r) => (
+                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={r.id === regionId && activeTab !== 'division' ? 'active' : ''} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>Latur district</button>
               ))}
               {otherDistricts.length > 0 && (
                 <select
                   aria-label="Other Marathwada districts"
-                  className={otherDistricts.some((r) => r.id === regionId) ? 'active' : ''}
+                  className={otherDistricts.some((r) => r.id === regionId) && activeTab !== 'division' ? 'active' : ''}
                   value={otherDistricts.some((r) => r.id === regionId) ? regionId : ''}
-                  onChange={(e) => e.target.value && switchRegion(e.target.value)}
+                  onChange={(e) => { if (!e.target.value) return; if (activeTab === 'division') setActiveTab('ponds'); switchRegion(e.target.value); }}
                 >
-                  <option value="">+ {otherDistricts.length} more districts</option>
-                  {otherDistricts.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {regionLabel(r)} · {r.mode === 'live' ? 'LIVE' : 'REPLAY'}
-                    </option>
-                  ))}
+                  <option value="">{otherDistricts.length} more districts</option>
+                  {otherDistricts.map((r) => <option key={r.id} value={r.id}>{regionLabel(r)}</option>)}
                 </select>
               )}
+              {regions.filter((r) => r.id === 'latur-2026').map((r) => (
+                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`region-minor ${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>Latur test box</button>
+              ))}
+              <span className="region-group-label">2024 replay</span>
+              {['latur-district-2024', 'latur-2024'].map((id) => regions.find((r) => r.id === id)).filter(Boolean).map((r) => (
+                <button key={r.id} data-region={r.id} aria-pressed={r.id === regionId && activeTab !== 'division'} className={`${r.id === 'latur-2024' ? 'region-minor ' : ''}${r.id === regionId && activeTab !== 'division' ? 'active' : ''}`} onClick={() => { if (activeTab === 'division') setActiveTab('ponds'); switchRegion(r.id); }}>{r.id === 'latur-2024' ? 'Latur test box' : 'Latur district'}</button>
+              ))}
             </div>
-            {marathwadaDivision && <button type="button" className={`division-launch-button ${activeTab === 'division' ? 'active' : ''}`} onClick={() => { setPlaying(false); setPlanScope(null); setActiveTab('division'); }} aria-pressed={activeTab === 'division'}>Marathwada (all {marathwadaDivision.members?.length ?? 8} districts)<span aria-hidden="true">↗</span></button>}
           </div>
 
           {activeTab !== 'division' && <div className="app-context-meta">

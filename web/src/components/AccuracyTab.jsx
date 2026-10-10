@@ -29,7 +29,7 @@ export default function AccuracyTab() {
     <div className="accuracy-page-shell">
       <header className="plan-hero accuracy-hero">
         <div className="accuracy-hero-copy">
-          <h2>Every forecast,<br /><em>checked against what happened.</em></h2>
+          <h2>{pct(summary.criticalPrecision)} of critical calls <em>came true.</em></h2>
           <p>{report.region?.name ?? 'Latur 2024'} replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast {evaluated.ponds ?? 'every'} ponds with only the data available that day, then we checked what really happened.</p>
         </div>
       </header>

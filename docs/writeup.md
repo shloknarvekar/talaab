@@ -5,7 +5,9 @@
 Team **Syntax Errors**: Shlok (backend & AWS), Nikhil (satellite pipeline), Ranit (web), Bhavesh (story & submission)
 Live: https://main.duvnkrxj02sz1.amplifyapp.com · Code: https://github.com/shloknarvekar/talaab · Track: Heat & Water
 
-> **[Bhavesh: open with a short human hook, 2–3 sentences: a village in Latur, a water tanker that arrives a week too late. Keep the facts below unchanged.]**
+> On 15 April 2024, pond P003 near Latur still held 4.49 hectares of water. Talaab, replaying that season with only what
+> was known each day, had already marked it critical on 5 April; it was dry by 5 May. That month of warning is the difference
+> between booking a water tanker in time and sending one after the pond is already mud.
 
 ---
 
@@ -194,6 +196,6 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 ## AI tools we used
 
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates and scripts, data-quality analysis, integration, documentation.
-- **[Nikhil: confirm which AI assistant(s) you used for the pipeline.]**
+- **Claude Code** (Anthropic), used by Nikhil for the satellite pipeline, the district imagery and the P003 time-lapse (co-authored commits in the history).
 - **[Ranit: confirm which AI assistant(s) you used for the web app.]**
 - **In the product:** **Qwen3-1.7B** (open model, Apache-2.0) with **llama.cpp**, running in AWS Lambda, writes the checked plan briefings. Claude on **Amazon Bedrock** via the **Strands Agents SDK** is built as the full plan writer, waiting for Bedrock access.

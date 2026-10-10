@@ -93,3 +93,9 @@ jobs:
       - name: Build
         working-directory: web
         run: npm run build
+      - name: Browser smoke test (built site + live API, real Chrome)
+        working-directory: web
+        run: |
+          npx vite preview --port 5173 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:5173 > /dev/null && break; sleep 1; done
+          npm run test:e2e
