@@ -20,6 +20,7 @@ import gzip
 import json
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from pathlib import Path
 
@@ -70,8 +71,12 @@ def get_regions() -> dict:
     """Regions that have published snapshots, with the exact dates the map slider can use, and the divisions
     that have a summary (members = their district regions, dates = the dated summaries)."""
     out = []
+    # ~12 small S3 reads: in parallel, so the call costs one S3 round trip instead of a dozen.
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        indexes = dict(zip(REGIONS, pool.map(lambda r: store.read_json(f"{r}/index.json"), REGIONS)))
+        division_dates = dict(zip(DIVISIONS, pool.map(_division_dates, DIVISIONS)))
     for region_id, cfg in REGIONS.items():
-        index = store.read_json(f"{region_id}/index.json")
+        index = indexes[region_id]
         dates = sorted(index.get("asOf", [])) if index else []
         if not dates:
             continue
@@ -80,7 +85,7 @@ def get_regions() -> dict:
                     "first": dates[0], "last": dates[-1], "dates": dates})
     divisions = []
     for division_id, cfg in DIVISIONS.items():
-        dates = _division_dates(division_id)
+        dates = division_dates[division_id]
         if dates:
             divisions.append({"id": division_id, "name": cfg["name"], "nameMr": cfg.get("nameMr"),
                               "members": division_members(division_id), "first": dates[0], "last": dates[-1], "dates": dates})

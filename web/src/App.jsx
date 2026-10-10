@@ -196,6 +196,13 @@ export default function App() {
       .finally(() => id === requestId.current && setLoading(false));
   }, [regionId, asOf, dataRetryVersion]);
 
+  // While the landing page is open, fetch the first pond's signed satellite links too: the browser keeps them
+  // (cache-control ~55 min), so opening the map shows that pond's passes without another round trip to us-west-2.
+  useEffect(() => {
+    if (activeTab !== 'home' || !selectedId || !String(imageryRegion || '').includes('district')) return;
+    fetch(`${imageryBase(imageryRegion)}/${encodeURIComponent(imageryRegion)}/${encodeURIComponent(selectedId)}/links.json`).catch(() => {});
+  }, [activeTab, selectedId, imageryRegion]);
+
   // A replay advances exactly one published API date per step. It never invents intermediate dates.
   useEffect(() => {
     if (!playing) return undefined;

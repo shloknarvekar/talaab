@@ -91,6 +91,7 @@ Resources:
       FunctionName: !Sub "${AWS::StackName}-api"
       CodeUri: ./
       Handler: api.handler.lambda_handler
+      MemorySize: 1024  # more memory = more CPU: faster cold starts, JSON and gzip for India-to-Oregon calls; free tier covers it
       Environment:
         Variables:
           DATA_BUCKET: !Ref DataBucket
