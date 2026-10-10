@@ -2728,3 +2728,9 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .about-screen--atlas :is(.portfolio-card-blue, .portfolio-card-violet) .portfolio-card-kicker { color: #3e4a5c; }
 .app-shell:has(.workspace) .pond-list > .pond-card { justify-content: flex-start; }
 @media (min-width: 761px) { .plan-screen.plan-screen--field-brief { padding-top: 28px; } }
+/* About cards: sized to their copy, not a fixed poster height. */
+.about-screen--atlas .portfolio-card { min-height: 0; }
+.about-screen--atlas .portfolio-card .portfolio-card-content { padding-bottom: 28px; }
+/* Accuracy header: a text-only lead, so keep its measure readable instead of leaving a dead right half. */
+.accuracy-hero { max-width: 1100px; }
+.accuracy-hero h2 { font-size: clamp(40px, 4.6vw, 64px); }

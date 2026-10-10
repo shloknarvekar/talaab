@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { fetchBacktest } from '../api';
 import { formatDate, pct } from '../utils';
 const REPO = 'https://github.com/shloknarvekar/talaab';
-const REPLAY_REGION = 'latur-2024';
+// The whole-district replay (435 ponds) is the larger, more robust test; the README headlines the same numbers.
+const REPLAY_REGION = 'latur-district-2024';
 
 export default function AccuracyTab() {
   const [report, setReport] = useState(undefined);
@@ -29,7 +30,7 @@ export default function AccuracyTab() {
       <header className="plan-hero accuracy-hero">
         <div className="accuracy-hero-copy">
           <h2>Every forecast,<br /><em>checked against what happened.</em></h2>
-          <p>{report.region?.name ?? 'Latur 2024'} replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast with only the data available that day, then we checked what really happened.</p>
+          <p>{report.region?.name ?? 'Latur 2024'} replay: on each of {evaluated.snapshots ?? '—'} satellite passes Talaab forecast {evaluated.ponds ?? 'every'} ponds with only the data available that day, then we checked what really happened.</p>
         </div>
       </header>
 
@@ -41,7 +42,7 @@ export default function AccuracyTab() {
       </div>
 
       <section className="accuracy-data-section accuracy-comparison-section">
-        <header className="accuracy-data-heading"><div><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div><span className="accuracy-section-mark">A—F</span></header>
+        <header className="accuracy-data-heading"><div><h3>How the forecasts held up.</h3><p>Each measure is shown alongside any published comparison variants.</p></div></header>
         <div className="accuracy-table-wrap" tabIndex={0} role="region" aria-label="Accuracy compared with simpler methods"><table className="accuracy-table"><thead><tr><th>Evaluation question</th><th>Talaab</th>{noHeat && <th>Without heat adjustment</th>}{comparisons.map((comparison, index) => <th key={comparison.label ?? index}>{comparison.label ?? `Comparison ${index + 1}`}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => <tr key={row.key}><td><span className="accuracy-row-index">{String(index + 1).padStart(2, '0')}</span>{row.label}</td><td><b>{row.format(summary[row.key])}</b></td>
             {noHeat && <td>{row.format(noHeat[row.key])}</td>}
