@@ -2,7 +2,7 @@
 :root {
   font-family: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #edf4ef;
-  background: #08110e;
+  background: #e2eaea;  /* light: shows below short pages (the old dark theme left a dark slab under Accuracy) */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --ink: #edf4ef;
@@ -23,7 +23,7 @@
 }
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; height: 100%; margin: 0; }
-body { min-width: 320px; background: #08110e; }
+body { min-width: 320px; background: #e2eaea; }
 button, input { font: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .42; }
@@ -3231,3 +3231,8 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   .talaab-hero__media::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
     background: linear-gradient(180deg, rgba(4, 10, 16, .48) 0%, rgba(4, 10, 16, .12) 38%, rgba(4, 10, 16, 0) 60%); }
 }
+
+/* Screen-reader-only labels (search boxes on Accuracy and Division). Positioned inside their label, so they can't
+   stretch the page: one sat 570px below the Accuracy content and the window scrolled into empty background. */
+.accuracy-search, .division-search { position: relative; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
