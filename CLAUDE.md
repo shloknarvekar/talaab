@@ -50,7 +50,7 @@ We are team "Syntax Errors" in the WeMakeDevs x AWS "Environmental Hacks" hackat
   `talaab-live-marathwada`, 06:00 IST on the 1st/6th/11th...); districts run 6 cells at a time so the API keeps a Lambda
   (account limit 10). Boundaries: `backend/scripts/fetch_districts.py`; names: fetch_places.py / fetch_talukas.py.
 - District imagery (Nikhil): made on AWS by cell + merge Lambdas, served by `GET /imagery/{region}/...` (thumbnails as
-  signed S3 links); `docs/imagery-contract.md`. Web basemap: Amazon Location (key `talaab-web-maps`, injected at build
+  signed S3 links); `docs/imagery-contract.md`. Web basemap: Esri Dark Gray Canvas raster (no WebGL, smooth zoom); satellite layer: Amazon Location (key `talaab-web-maps`, injected at build
   by deploy_web.py; locked to our site). Ops: X-Ray tracing + 6 CloudWatch alarms -> SNS `talaab-ops`. API gzips JSON.
 - Division view: `GET /division` (summary of the 8 live districts: totals, districts, top talukas, urgent ponds, inspect list;
   `backend/logic/division.py`, written by recompute to `marathwada-2026/division.json`), `POST /plan` region

@@ -78,7 +78,7 @@ Full diagram and flow: **[docs/architecture.md](docs/architecture.md)**.
 | **Amazon Bedrock** | Built and tested (Claude via Strands Agents writes the whole plan); waiting for AWS to enable Bedrock on our new account |
 | **CloudWatch** | Logs, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS `talaab-ops` |
 | **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
-| **Amazon Location Service** | The web map's dark basemap and satellite layer (key locked to our site) |
+| **Amazon Location Service** | The web map's satellite layer (key locked to our site) |
 | **Amplify Hosting** | The web map |
 | **AWS Open Data** | Sentinel-2 L2A imagery, read straight from S3 |
 
@@ -156,7 +156,7 @@ cd backend && sam delete
 - **Pond thumbnails and outlines** in the web app are cut from the same Sentinel-2 L2A true-colour images (`pipeline/imagery.py`).
 - **Basemap**: Amazon Location Service map styles (© AWS, © HERE).
 - **Landing-page video**: stock footage from [Pexels](https://www.pexels.com/), used under the Pexels License.
-- **Optional basemaps**: CARTO Dark Matter (only with `VITE_CARTO_API_KEY`) and the Esri World Imagery satellite layer (Esri, Maxar, Earthstar Geographics).
+- **Basemaps**: Esri Dark Gray Canvas (Esri, HERE, Garmin, © OpenStreetMap contributors) for the map view; Esri World Imagery (Esri, Maxar, Earthstar Geographics) as the satellite fallback when no Amazon Location key is set.
 
 ## AI tools used
 

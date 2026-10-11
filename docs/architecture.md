@@ -19,7 +19,7 @@ flowchart LR
   subgraph AWS["AWS (us-west-2)"]
     SFNM["Step Functions: talaab-marathwada<br/>8 districts, one after another"]
     SFN["Step Functions: talaab-district<br/>grid → Map over the cells (6 in parallel) → merge<br/>+ thumbnails and outlines"]
-    LOC["Amazon Location Service<br/>dark basemap + satellite"]
+    LOC["Amazon Location Service<br/>satellite layer"]
     CELL["Lambda: pipeline-cell ×42<br/>best tile per date · fixed 10 m grid<br/>ponds owned by the cell core"]
     MRG["Lambda: pipeline-merge<br/>district boundary · quality rules<br/>weather"]
     S3[("S3 data bucket<br/>measurements · snapshots<br/>plans · backtest")]

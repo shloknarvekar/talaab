@@ -118,8 +118,6 @@
 .division-launch-button { display: inline-flex; align-items: center; gap: 9px; border: 1px solid #c5d1c7; border-radius: 999px; padding: 7px 11px; color: #36513c; background: rgba(255,255,252,.78); box-shadow: 0 2px 7px rgba(31,48,35,.045); font: 600 12px 'Instrument Sans', sans-serif; white-space: nowrap; cursor: pointer; transition: background .18s ease, transform .18s ease, border-color .18s ease; }
 .division-launch-button:hover { transform: translateY(-1px); border-color: #86a28a; background: #fff; }
 .division-launch-button.active { color: #fff; border-color: #315a40; background: #315a40; }
-.division-launch-button .division-launch-tag { color: #6b886c; font-size: 11px; font-weight: 800; letter-spacing: .09em; }
-.division-launch-button.active .division-launch-tag { color: #dbe9cf; }
 .plan-ai-note { align-self: center; max-width: 420px; color: #899188; font-size: 12px; line-height: 1.45; }
 @media (max-width: 1100px) {
   .division-overview-grid { grid-template-columns: minmax(0,1fr); }
@@ -148,7 +146,6 @@
   .division-pond-row { grid-template-columns: 9px minmax(0,1fr) auto 12px; }
   .division-pond-status { display: none; }
   .division-launch-button { padding: 6px 8px; font-size: 11px; }
-  .division-launch-button .division-launch-tag { display: none; }
   .plan-ai-note { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {

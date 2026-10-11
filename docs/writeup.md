@@ -126,7 +126,7 @@ one SAM template, with **no hourly cost while idle**.
 | **Amazon Bedrock + Strands Agents** | Claude writes the whole plan in English and Marathi behind the number guard. *Fully built and tested; switched on once AWS enables Bedrock on our new account.* |
 | **Amazon CloudWatch** | One log line per action, the `talaab-ops` dashboard, and 6 alarms (failed runs, Lambda errors, API 5xx) emailed via SNS |
 | **AWS X-Ray** | Traces every Lambda and both Step Functions workflows |
-| **Amazon Location Service** | The web map's dark basemap and satellite layer (API key locked to our site) |
+| **Amazon Location Service** | The web map's satellite layer (API key locked to our site) |
 | **AWS Amplify Hosting** | The web map |
 
 Data flow: Step Functions → one `pipeline-cell` Lambda per cell (reads Sentinel-2 in-region) → `pipeline-merge` → `measurements.json` → S3 → recompute Lambda (every 5 days or on upload) → a
