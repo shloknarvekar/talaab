@@ -60,7 +60,7 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 
 Sentinel-2 L2A: contains modified Copernicus Sentinel data, via AWS Open Data and Element 84 Earth
 Search. Weather: Open-Meteo (CC BY 4.0). Village names and taluka boundaries: © OpenStreetMap contributors (ODbL).
-Basemap: Amazon Location Service (© AWS, HERE). Landing video: Pexels (stock footage). Built by team Syntax Errors for WeMakeDevs × AWS Environmental Hacks.
+Basemap: Esri Dark Gray Canvas; satellite layer: Amazon Location Service (© AWS, HERE). Landing video: AI-generated with Google Gemini. Built by team Syntax Errors for WeMakeDevs × AWS Environmental Hacks.
 
 ## Lines to say out loud (a judge will otherwise read these as weaknesses)
 - **Grey "too early" ponds:** "The monsoon just ended, so many ponds have fewer than three clear passes. Talaab refuses to guess a dry date until it has them. It fills in every 5 days."

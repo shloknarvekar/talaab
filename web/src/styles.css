@@ -3146,7 +3146,7 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 }
 
 /* Landing proof card: the lush hero footage is the "before"; the same real pond, dried, is the point. */
-.talaab-proof { position: absolute; left: var(--talaab-pad-x); bottom: clamp(20px, 6vh, 56px); margin: 0; display: flex; align-items: center; gap: 14px; max-width: 440px; padding: 12px 16px 12px 12px; border-radius: 16px; background: rgba(250,251,246,.9); box-shadow: 0 10px 30px rgba(15,30,20,.18); color: #1f2f25; }
+.talaab-proof { position: absolute; right: clamp(12px, 2.2vw, 36px); bottom: clamp(14px, 4.5vh, 44px); margin: 0; display: flex; align-items: center; gap: 14px; max-width: 440px; padding: 12px 16px 12px 12px; border-radius: 16px; background: rgba(250,251,246,.9); box-shadow: 0 10px 30px rgba(15,30,20,.18); color: #1f2f25; }
 .talaab-proof-frames { display: flex; align-items: center; gap: 6px; flex: none; }
 .talaab-proof-frames > span:not(.talaab-proof-arrow) { display: grid; gap: 3px; justify-items: center; }
 .talaab-proof img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; display: block; }
@@ -3155,7 +3155,7 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .talaab-proof figcaption { font: 500 13px/1.4 'Instrument Sans', sans-serif; color: #3b4c41; }
 .talaab-proof figcaption b { display: block; color: #1f2f25; font-weight: 700; }
 @media (max-width: 760px) {
-  .talaab-proof { left: 16px; right: 16px; bottom: 16px; max-width: none; gap: 10px; padding: 10px; }
+  .talaab-proof { left: 16px; right: 16px; bottom: 16px; max-width: none; gap: 10px; padding: 10px; }  /* phones crop the clip's sides, so the mark is off-screen */
   .talaab-proof img { width: 56px; height: 56px; }
   .talaab-proof figcaption { font-size: 12px; }
 }
@@ -3175,3 +3175,71 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 
 /* Pond cards: content starts at the top of every card (the strip's tops were ragged). */
 .app-shell:has(.workspace) .pond-list > .pond-card { display: flex !important; flex-direction: column; justify-content: flex-start; align-items: stretch; }  /* a <button> centres its content vertically */
+
+/* Hero call to action: centred under the headline (the hero layer ignores pointer events; the button doesn't). */
+.talaab-hero__inner { flex-direction: column; align-items: center; justify-content: flex-start; gap: clamp(22px, 4vh, 40px); }
+.talaab-hero-actions { pointer-events: auto; opacity: 0; animation: talaab-rise .95s var(--talaab-ease) .9s forwards; }
+
+/* Shiny button: a light sweeps round the edge, a faint speckle follows it, and hover lifts a soft glow. */
+@property --shiny-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@property --shiny-offset { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@property --shiny-arc { syntax: "<percentage>"; initial-value: 6%; inherits: false; }
+@property --shiny-shine { syntax: "<color>"; initial-value: #ffffff; inherits: false; }
+.shiny-button {
+  --shiny-fill: #cfe8f7; --shiny-label: #0c2a3b; --shiny-accent: #3a9bd9; --shiny-accent-soft: #9fd6f6;
+  --shiny-ease: .8s cubic-bezier(.25, 1, .5, 1);
+  position: relative; isolation: isolate; overflow: hidden; cursor: pointer;
+  padding: 1.05rem 2.2rem; border: 1.5px solid transparent; border-radius: 999px;
+  color: var(--shiny-label); font: 600 1.05rem/1.2 'Instrument Sans', sans-serif; letter-spacing: .005em;
+  background:
+    linear-gradient(var(--shiny-fill), var(--shiny-fill)) padding-box,
+    conic-gradient(from calc(var(--shiny-angle) - var(--shiny-offset)), transparent, var(--shiny-accent) var(--shiny-arc),
+      var(--shiny-shine) calc(var(--shiny-arc) * 2), var(--shiny-accent) calc(var(--shiny-arc) * 3), transparent calc(var(--shiny-arc) * 4)) border-box;
+  box-shadow: 0 10px 30px rgba(8, 30, 48, .28), inset 0 1px 0 rgba(255, 255, 255, .7);
+  animation: shiny-spin 3.2s linear infinite;
+  transition: --shiny-offset var(--shiny-ease), --shiny-arc var(--shiny-ease), --shiny-shine var(--shiny-ease), box-shadow var(--shiny-ease);
+}
+.shiny-button::before, .shiny-button::after, .shiny-button span::before {
+  content: ""; position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: -1; pointer-events: none;
+}
+.shiny-button::before {  /* speckle that trails the light */
+  width: calc(100% - 6px); height: calc(100% - 6px); border-radius: inherit; opacity: .35;
+  background: radial-gradient(circle at 2px 2px, #ffffff .5px, transparent 0) padding-box; background-size: 4px 4px;
+  -webkit-mask-image: conic-gradient(from calc(var(--shiny-angle) + 45deg), #000, transparent 10% 90%, #000);
+  mask-image: conic-gradient(from calc(var(--shiny-angle) + 45deg), #000, transparent 10% 90%, #000);
+}
+.shiny-button::after {  /* slow sheen */
+  width: 100%; aspect-ratio: 1; opacity: .45;
+  background: linear-gradient(-50deg, transparent, var(--shiny-accent-soft), transparent);
+  -webkit-mask-image: radial-gradient(circle at bottom, transparent 40%, #000);
+  mask-image: radial-gradient(circle at bottom, transparent 40%, #000);
+  animation: shiny-turn 3.2s linear infinite;
+}
+.shiny-button span { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .55rem; }
+.shiny-button span::before {  /* glow that breathes on hover */
+  width: calc(100% + 2.5rem); height: calc(100% + 1.4rem); opacity: 0;
+  box-shadow: inset 0 -1ex 2rem 4px var(--shiny-accent-soft); transition: opacity var(--shiny-ease);
+}
+.shiny-button:is(:hover, :focus-visible) {
+  --shiny-arc: 20%; --shiny-offset: 95deg; --shiny-shine: var(--shiny-accent-soft);
+  box-shadow: 0 14px 36px rgba(8, 30, 48, .34), inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+.shiny-button:is(:hover, :focus-visible) span::before { opacity: 1; }
+.shiny-button:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; }
+.shiny-button:active { translate: 0 1px; }
+@keyframes shiny-spin { to { --shiny-angle: 360deg; } }
+@keyframes shiny-turn { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .shiny-button, .shiny-button::after { animation: none; }
+  .talaab-hero-actions { animation: none; opacity: 1; }
+}
+
+/* The hero clip is darker than the old one: on desktop the headline and nav read in white over it. */
+@media (min-width: 761px) {
+  .talaab-hero .talaab-headline { color: #ffffff; text-shadow: 0 2px 24px rgba(0, 0, 0, .45), 0 1px 3px rgba(0, 0, 0, .35); }
+  .talaab-hero .talaab-nav-links button, .talaab-hero .talaab-wordmark { color: #ffffff; text-shadow: 0 1px 10px rgba(0, 0, 0, .45); }
+  .talaab-hero .talaab-wordmark-dot { color: #9fd6f6; }
+  .talaab-hero .talaab-burger span { background: #ffffff; }
+  .talaab-hero__media::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: linear-gradient(180deg, rgba(4, 10, 16, .48) 0%, rgba(4, 10, 16, .12) 38%, rgba(4, 10, 16, 0) 60%); }
+}

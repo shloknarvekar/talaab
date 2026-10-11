@@ -155,13 +155,14 @@ cd backend && sam delete
 - **OpenStreetMap**: village names and taluka boundaries for each pond: © OpenStreetMap contributors, ODbL 1.0.
 - **Pond thumbnails and outlines** in the web app are cut from the same Sentinel-2 L2A true-colour images (`pipeline/imagery.py`).
 - **Satellite layer**: Amazon Location Service (© AWS, © HERE).
-- **Landing-page video**: stock footage from [Pexels](https://www.pexels.com/), used under the Pexels License.
+- **Landing-page video**: AI-generated with Google Gemini (satellite, pond and dry-earth scenes); illustrative, not real Talaab data.
 - **Basemaps**: Esri Dark Gray Canvas (Esri, HERE, Garmin, © OpenStreetMap contributors) for the map view; Esri World Imagery (Esri, Maxar, Earthstar Geographics) as the satellite fallback when no Amazon Location key is set.
 
 ## AI tools used
 
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates, scripts, docs (pair-programmed with the team).
 - **Claude Code**, used by Nikhil for the satellite pipeline, district imagery and the P003 time-lapse.
+- **Google Gemini** (video generation): the landing-page hero clip.
 - **AI coding assistants** used by Ranit for the web app's React components and styling; **Claude Code** for the web app's later integration, map performance and accessibility passes.
 - **Qwen3-1.7B** (Alibaba Qwen, Apache-2.0; GGUF by Unsloth) with **llama.cpp** / llama-cpp-python (MIT), running in AWS Lambda: in-product briefing writer.
 - **Amazon Bedrock** (Claude) via **Strands Agents SDK**: full plan writer, built and tested, waiting for Bedrock access.

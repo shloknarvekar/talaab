@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ShinyButton from './ShinyButton';
 
 // Local, web-optimized copy of the video supplied for the Talaab hero.
 // Keep the asset in web/public/videos so Vite serves it directly without bundling it in JS.
@@ -14,6 +15,35 @@ const NAV_ITEMS = [
 
 export default function TalaabLandingPage({ onExplore, onOpenView }) {
   const videoRef = useRef(null);
+  const proofRef = useRef(null);
+
+  // The clip carries a small mark near its bottom-right corner (1160, 600 in the 1280x720 frame). The video is
+  // cropped to fill the screen (object-fit: cover, object-position 50% 62%), so the mark moves with the window
+  // shape: place the proof card over it. Phones crop the sides away (mark off-screen) and keep the CSS position.
+  useEffect(() => {
+    const place = () => {
+      const card = proofRef.current;
+      const hero = card?.closest('.talaab-hero');
+      if (!card || !hero) return;
+      card.style.left = ''; card.style.top = ''; card.style.right = ''; card.style.bottom = '';
+      if (window.innerWidth <= 760) return;
+      const box = hero.getBoundingClientRect();
+      const scale = Math.max(box.width / 1280, box.height / 720);
+      const x = (box.width - 1280 * scale) / 2 + 1160 * scale;
+      const y = (box.height - 720 * scale) * 0.62 + 600 * scale;
+      if (x < 0 || x > box.width || y < 0 || y > box.height) return;
+      const w = card.offsetWidth; const h = card.offsetHeight;
+      const parent = (card.offsetParent || hero).getBoundingClientRect();  // left/top are relative to this box
+      const left = Math.max(16, Math.min(x - w * 0.8, box.width - w - 12));
+      const top = Math.max(16, Math.min(y - h / 2, box.height - h - 12));
+      card.style.left = `${left + box.left - parent.left}px`;
+      card.style.top = `${top + box.top - parent.top}px`;
+      card.style.right = 'auto'; card.style.bottom = 'auto';
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
   const prefersPoster = () => {
     if (typeof window === 'undefined') return false;
@@ -102,7 +132,7 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
         <img
           className="talaab-hero__poster"
           src={POSTER_URL}
-          alt="Landscape frame from the Talaab landing video"
+          alt="A satellite above the Earth, the opening frame of the Talaab landing video"
           fetchPriority="high"
         />
         {!posterOnly && <video
@@ -129,9 +159,6 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
         {renderLinks('talaab-nav-links')}
 
         <div className="talaab-nav-right">
-          <button className="talaab-hero-cta talaab-nav-cta" type="button" onClick={onExplore}>
-            Explore map <span aria-hidden="true">↗</span>
-          </button>
           <button
             id="talaab-burger"
             className={`talaab-burger ${menuOpen ? 'is-active' : ''}`}
@@ -151,7 +178,10 @@ export default function TalaabLandingPage({ onExplore, onOpenView }) {
           <span className="talaab-line"><span>Know your ponds.</span></span>
           <span className="talaab-line"><span>Before water runs low.</span></span>
         </h1>
-        <figure className="talaab-proof">
+        <div className="talaab-hero-actions">
+          <ShinyButton onClick={onExplore}>Explore the live map <span aria-hidden="true">→</span></ShinyButton>
+        </div>
+        <figure className="talaab-proof" ref={proofRef}>
           <div className="talaab-proof-frames">
             <span><img src="/imagery/latur-2024/P003/2024-01-16.jpg" alt="Pond P003 full of water, 16 January 2024" width="88" height="88" /><small>16 Jan</small></span>
             <span aria-hidden="true" className="talaab-proof-arrow">→</span>

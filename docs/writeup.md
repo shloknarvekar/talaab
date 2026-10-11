@@ -206,12 +206,13 @@ sun" flags, and tanker logs to check the countdowns against.
 - **OpenStreetMap** village names and taluka and district boundaries: © OpenStreetMap contributors, ODbL.
 - **Esri Dark Gray Canvas** basemap: Esri, HERE, Garmin, © OpenStreetMap contributors.
 - **Amazon Location Service** satellite layer: © AWS, © HERE.
-- **Landing-page video**: stock footage from Pexels (Pexels License).
+- **Landing-page video**: AI-generated with Google Gemini; illustrative, not real Talaab data.
 
 ## AI tools we used
 
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates and scripts, data-quality analysis, integration, documentation.
 - **Claude Code** (Anthropic), used by Nikhil for the satellite pipeline, the district imagery and the P003 time-lapse (co-authored commits in the history).
+- **Google Gemini** (video generation): the landing-page hero clip.
 - **AI coding assistants** used by Ranit for the web app's React components and styling; **Claude Code** for the web app's
   later integration, map performance, accessibility and responsive passes.
 - **In the product:** **Qwen3-1.7B** (open model, Apache-2.0) with **llama.cpp**, running in AWS Lambda, writes the checked plan briefings. Claude on **Amazon Bedrock** via the **Strands Agents SDK** is built as the full plan writer, waiting for Bedrock access.
