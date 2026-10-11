@@ -174,6 +174,20 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 - **Post-monsoon live data:** only a few clear passes, and receding floodwater looks like a pond
   drying, so we added a "too early to forecast" state instead of guessing.
 
+## Who it's for, and what we're asking
+
+- **The district water-scarcity cell** (Collector's office) that has to finalise the Oct–Dec, Jan–Mar and Apr–Jun
+  action plans: Talaab gives it a per-pond, per-taluka list of where water runs out first, and a draft plan in
+  English and Marathi built only from the numbers.
+- **The Divisional Commissioner**, who needs all eight Marathwada districts on one screen to decide where tankers
+  and inspection teams go first.
+- **Block and taluka officers** who get the alert digest when a pond turns critical or dries, and the short list of
+  ponds worth a visit for unauthorised pumping.
+
+**Our ask:** a pilot with one district's water-scarcity cell for one dry season. Talaab already runs there every
+5 days at no cost; the pilot adds what satellite data cannot: inspectors confirming or dismissing "faster than the
+sun" flags, and tanker logs to check the countdowns against.
+
 ## What's next
 
 - Every district in Maharashtra, then India. Projected from the measured Latur run
@@ -189,13 +203,15 @@ snapshot per date in S3 + DynamoDB + SNS alerts → API → website. Diagram: `d
 
 - **Sentinel-2 L2A**: contains modified Copernicus Sentinel data 2023, 2024 and 2026, via the AWS Open Data Registry and the Element 84 Earth Search STAC API.
 - **Open-Meteo** weather (ET0, rain): CC BY 4.0.
-- **OpenStreetMap** village names, taluka boundaries and basemap: © OpenStreetMap contributors, ODbL.
-- **Amazon Location Service** basemap: © AWS, © HERE.
+- **OpenStreetMap** village names and taluka and district boundaries: © OpenStreetMap contributors, ODbL.
+- **Esri Dark Gray Canvas** basemap: Esri, HERE, Garmin, © OpenStreetMap contributors.
+- **Amazon Location Service** satellite layer: © AWS, © HERE.
 - **Landing-page video**: stock footage from Pexels (Pexels License).
 
 ## AI tools we used
 
 - **Claude Code** (Anthropic): backend logic and tests, AWS SAM templates and scripts, data-quality analysis, integration, documentation.
 - **Claude Code** (Anthropic), used by Nikhil for the satellite pipeline, the district imagery and the P003 time-lapse (co-authored commits in the history).
-- **[Ranit: confirm which AI assistant(s) you used for the web app.]**
+- **AI coding assistants** used by Ranit for the web app's React components and styling; **Claude Code** for the web app's
+  later integration, map performance, accessibility and responsive passes.
 - **In the product:** **Qwen3-1.7B** (open model, Apache-2.0) with **llama.cpp**, running in AWS Lambda, writes the checked plan briefings. Claude on **Amazon Bedrock** via the **Strands Agents SDK** is built as the full plan writer, waiting for Bedrock access.
