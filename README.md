@@ -6,7 +6,7 @@ Per-pond "dry-by" countdowns and pumping flags for drought districts, built from
 
 > Team **Syntax Errors**, WeMakeDevs x AWS *Environmental Hacks* hackathon (Heat & Water track), Oct 2026.
 
-**Live site: https://main.duvnkrxj02sz1.amplifyapp.com** (AWS Amplify) · API: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
+**Demo video: https://www.youtube.com/watch?v=ryrGvrVhhBI** · **Live site: https://main.duvnkrxj02sz1.amplifyapp.com** (AWS Amplify) · API: `https://kbvkerr0kc.execute-api.us-west-2.amazonaws.com`
 
 ![The 2024 Latur season replayed pass by pass: ponds turn from ok to watch to critical as the sun drinks them](docs/img/replay-2024.gif)
 

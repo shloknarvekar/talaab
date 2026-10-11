@@ -3,7 +3,7 @@
 **Per-pond "dry-by" countdowns and pumping alerts for drought districts, from free satellite data on AWS.**
 
 Team **Syntax Errors**: Shlok (backend & AWS), Nikhil (satellite pipeline), Ranit (web), Bhavesh (story & submission)
-Live: https://main.duvnkrxj02sz1.amplifyapp.com · Code: https://github.com/shloknarvekar/talaab · Track: Heat & Water
+Video: https://www.youtube.com/watch?v=ryrGvrVhhBI · Live: https://main.duvnkrxj02sz1.amplifyapp.com · Code: https://github.com/shloknarvekar/talaab · Track: Heat & Water
 
 > On 15 April 2024, pond P003 near Latur still held 4.49 hectares of water. Talaab, replaying that season with only what
 > was known each day, had already marked it critical on 5 April; it was dry by 5 May. That month of warning is the difference
