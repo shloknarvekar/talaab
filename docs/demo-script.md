@@ -42,7 +42,7 @@ Site: https://main.duvnkrxj02sz1.amplifyapp.com · Record at 1920×1080, browser
 | Whole district (2024 replay) | 7,157 km², 435 ponds, 42 cells | `docs/scale-projection.md` |
 | District accuracy | 70% of critical calls right, 60% caught in time, 25-day median warning | `docs/backtest-latur-district-2024.md` |
 | Unseen season 2023 | 66% of critical calls right, 62% caught in time, 25 days | `docs/backtest-latur-2023.md` |
-| Marathwada, live | 8 districts, 64,915 km², 403 cells, 2,712 ponds, 76 talukas; one run ~19 min, $0 in free tier ($0.15 without) | `docs/scale-projection.md` |
+| Marathwada, live | 8 districts, 64,915 km², 403 cells, about 2,700 ponds, 76 talukas; one run ~19 min, $0 in free tier ($0.15 without) | `docs/scale-projection.md` |
 | Maharashtra | ~$3 of Lambda per full season, with satellite thumbnails (projection) | `docs/scale-projection.md` |
 
 ## Don't say

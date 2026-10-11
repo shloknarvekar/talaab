@@ -1,7 +1,7 @@
 # From one district to Maharashtra and India: measured run and projection
 
 **Measured:** we ran all of Latur district (7,226 km² from the OSM boundary; the official figure is 7,157 km²) on AWS for the 2024 season.
-**Measured too:** all 8 districts of Marathwada (64,915 km², 2,712 ponds), live on AWS every 5 days (section below).
+**Measured too:** all 8 districts of Marathwada (64,915 km², 2,712 ponds on the first run, about 2,700 since), live on AWS every 5 days (section below).
 **Projected:** Maharashtra and India, scaled linearly from those runs. Everything below the "Projection" heading is an estimate.
 
 ## What ran (measured, 9 Oct 2026)

@@ -3172,3 +3172,6 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   backdrop-filter: none !important;
 }
 .map-panel .legend, .map-panel .alerts-feed { background-color: rgba(250, 251, 247, 0.97); }
+
+/* Pond cards: content starts at the top of every card (the strip's tops were ragged). */
+.app-shell:has(.workspace) .pond-list > .pond-card { display: flex !important; flex-direction: column; justify-content: flex-start; align-items: stretch; }  /* a <button> centres its content vertically */

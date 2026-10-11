@@ -57,7 +57,7 @@ actually happened.
   See `docs/scale-projection.md`.
 - **And it runs live, for all of Marathwada.** Every 5 days EventBridge Scheduler re-measures all 8
   drought districts of Marathwada (64,915 km², 403 grid cells) from the newest Sentinel-2 passes in
-  about 19 minutes for $0: **2,712 ponds** in 76 talukas, each with a satellite thumbnail for every reading.
+  about 19 minutes for $0: **about 2,700 ponds** in 76 talukas, each with a satellite thumbnail for every reading.
   New critical, dry or flagged ponds are emailed. Right after the monsoon many are still honestly
   "too early to forecast".
 - **What an officer would have received in 2024:** on **5 April**, an alert that ponds P003 and P007

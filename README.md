@@ -16,7 +16,7 @@ Per-pond "dry-by" countdowns and pumping flags for drought districts, built from
 
 | | Result | Where it comes from |
 |---|---|---|
-| **Live coverage** | All 8 drought districts of Marathwada: 64,915 km², **2,712 ponds** in 76 talukas, re-measured from satellite every 5 days in under 20 minutes | `talaab-marathwada` on AWS, [`docs/scale-projection.md`](docs/scale-projection.md) |
+| **Live coverage** | All 8 drought districts of Marathwada: 64,915 km², **about 2,700 ponds** (the count shifts slightly as each run sees new passes) in 76 talukas, re-measured from satellite every 5 days in under 20 minutes | `talaab-marathwada` on AWS, [`docs/scale-projection.md`](docs/scale-projection.md) |
 | **Critical calls that came true** | **70%** on a whole district (Latur 2024, 435 ponds) · **66%** on a season we never tuned on (2023) | [`docs/backtest-latur-district-2024.md`](docs/backtest-latur-district-2024.md), [`docs/backtest-latur-2023.md`](docs/backtest-latur-2023.md) |
 | **Ponds that dried and were warned in time** | **60%** (2024 district) · **62%** (2023): about 4 in 10 are still missed | same backtests |
 | **Median warning** | **25 days** before a pond dried | same backtests |
