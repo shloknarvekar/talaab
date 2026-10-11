@@ -3236,3 +3236,10 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
    stretch the page: one sat 570px below the Accuracy content and the window scrolled into empty background. */
 .accuracy-search, .division-search { position: relative; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* Map panels: the headline card started under the "Act before it dries" tile, and the alert timeline under the
+   satellite toggle. Small offsets keep a clear gap between them. */
+@media (min-width: 761px) {
+  .app-shell:has(.workspace) .sidebar-stack { margin-top: 16px; }
+  .app-shell:has(.workspace) .alerts-feed { margin-top: 12px; }
+}
