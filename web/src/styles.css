@@ -492,7 +492,7 @@ body.menu-open { overflow: hidden; }
 .talaab-menu.is-open .talaab-menu-foot { transform: translateY(0); opacity: 1; transition-delay: .56s; }
 .talaab-menu-foot .talaab-hero-cta { padding: .95rem 1.6rem; font-size: 1rem; }
 .talaab-menu-foot p { max-width: 210px; margin: 0; color: rgba(11,11,12,.6); font-size: 11px; line-height: 1.5; text-align: right; }
-@keyframes talaab-media-in { to { transform: scale(1); filter: blur(0); opacity: 1; } }
+@keyframes talaab-media-in { to { transform: none; filter: none; opacity: 1; } }  /* none, not blur(0): a leftover filter layer renders the video soft */
 @keyframes talaab-rise { to { opacity: 1; transform: translateY(0); } }
 @keyframes talaab-line-up { to { transform: translateY(0); opacity: 1; } }
 @media (max-width: 900px) {
@@ -3180,7 +3180,7 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
 .talaab-hero__inner { flex-direction: column; align-items: center; justify-content: flex-start; gap: clamp(22px, 4vh, 40px); }
 .talaab-hero-actions { pointer-events: auto; opacity: 0; animation: talaab-rise .95s var(--talaab-ease) .9s forwards; }
 
-/* Shiny button: a light sweeps round the edge, a faint speckle follows it, and hover lifts a soft glow. */
+/* Shiny button: a light sweeps round the edge and a faint speckle follows it; hover widens the light. */
 @property --shiny-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 @property --shiny-offset { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
 @property --shiny-arc { syntax: "<percentage>"; initial-value: 6%; inherits: false; }
@@ -3197,9 +3197,9 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
       var(--shiny-shine) calc(var(--shiny-arc) * 2), var(--shiny-accent) calc(var(--shiny-arc) * 3), transparent calc(var(--shiny-arc) * 4)) border-box;
   box-shadow: 0 10px 30px rgba(8, 30, 48, .28), inset 0 1px 0 rgba(255, 255, 255, .7);
   animation: shiny-spin 3.2s linear infinite;
-  transition: --shiny-offset var(--shiny-ease), --shiny-arc var(--shiny-ease), --shiny-shine var(--shiny-ease), box-shadow var(--shiny-ease);
+  transition: --shiny-offset var(--shiny-ease), --shiny-arc var(--shiny-ease), --shiny-shine var(--shiny-ease), box-shadow var(--shiny-ease), background-color var(--shiny-ease);
 }
-.shiny-button::before, .shiny-button::after, .shiny-button span::before {
+.shiny-button::before {
   content: ""; position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: -1; pointer-events: none;
 }
 .shiny-button::before {  /* speckle that trails the light */
@@ -3208,29 +3208,17 @@ body:has(.app-shell .workspace) { background: #f0f0f0; color: #141414; }
   -webkit-mask-image: conic-gradient(from calc(var(--shiny-angle) + 45deg), #000, transparent 10% 90%, #000);
   mask-image: conic-gradient(from calc(var(--shiny-angle) + 45deg), #000, transparent 10% 90%, #000);
 }
-.shiny-button::after {  /* slow sheen */
-  width: 100%; aspect-ratio: 1; opacity: .45;
-  background: linear-gradient(-50deg, transparent, var(--shiny-accent-soft), transparent);
-  -webkit-mask-image: radial-gradient(circle at bottom, transparent 40%, #000);
-  mask-image: radial-gradient(circle at bottom, transparent 40%, #000);
-  animation: shiny-turn 3.2s linear infinite;
-}
 .shiny-button span { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .55rem; }
-.shiny-button span::before {  /* glow that breathes on hover */
-  width: calc(100% + 2.5rem); height: calc(100% + 1.4rem); opacity: 0;
-  box-shadow: inset 0 -1ex 2rem 4px var(--shiny-accent-soft); transition: opacity var(--shiny-ease);
-}
+/* Hover: the edge light widens and the pill brightens, with a soft glow outside it (nothing inside that can show an edge). */
 .shiny-button:is(:hover, :focus-visible) {
-  --shiny-arc: 20%; --shiny-offset: 95deg; --shiny-shine: var(--shiny-accent-soft);
-  box-shadow: 0 14px 36px rgba(8, 30, 48, .34), inset 0 1px 0 rgba(255, 255, 255, .8);
+  --shiny-arc: 14%; --shiny-offset: 95deg; --shiny-shine: #ffffff; --shiny-fill: #e2f2fc;
+  box-shadow: 0 0 0 4px rgba(159, 214, 246, .28), 0 14px 36px rgba(8, 30, 48, .32), inset 0 1px 0 rgba(255, 255, 255, .9);
 }
-.shiny-button:is(:hover, :focus-visible) span::before { opacity: 1; }
 .shiny-button:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; }
 .shiny-button:active { translate: 0 1px; }
 @keyframes shiny-spin { to { --shiny-angle: 360deg; } }
-@keyframes shiny-turn { to { rotate: 360deg; } }
 @media (prefers-reduced-motion: reduce) {
-  .shiny-button, .shiny-button::after { animation: none; }
+  .shiny-button { animation: none; }
   .talaab-hero-actions { animation: none; opacity: 1; }
 }
 
